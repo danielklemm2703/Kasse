@@ -24,7 +24,7 @@ public final class Queries {
 
     public static final String createTableQuery(final FluentIterable<String> columnNames, final String tableName) {
 	FluentIterable<String> withoutTableName = columnNames.filter(Predicates.without(columnNames.first().get()));
-	String createTableQuery = "CREATE TABLE " + tableName + "(ID INT PRIMARY KEY NOT NULL";
+	String createTableQuery = "CREATE TABLE " + tableName + "(ID LONG PRIMARY KEY NOT NULL";
 	for (String columnName : withoutTableName) {
 	    createTableQuery += " ," + columnName + " TEXT NOT NULL ";
 	}

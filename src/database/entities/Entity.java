@@ -1,4 +1,4 @@
-package database;
+package database.entities;
 
 import static database.DatabaseOperations.createDatabaseIfNotExists;
 import static database.DatabaseOperations.createTableIfNotExists;

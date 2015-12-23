@@ -1,4 +1,4 @@
-package database;
+package database.entities;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import util.Try;
+import database.entities.Kunde;
 import datameer.com.google.common.base.Optional;
 
 public class KundeTest {
