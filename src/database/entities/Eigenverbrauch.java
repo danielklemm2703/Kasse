@@ -13,12 +13,12 @@ import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Lists;
 
-public class Eigenverbrauch extends Entity {
+public class Eigenverbrauch extends Entity implements Buildable<Eigenverbrauch> {
 
     private long _friseurId;
     private DateTime _datum;
     private static final ImmutableList<String> keys = ImmutableList.<String> builder().add("TABLENAME").add("FRISEUR_ID").add("DATUM").build();
-    private static final String TABLENAME = Eigenverbrauch.class.getSimpleName();
+    public static final String TABLENAME = Eigenverbrauch.class.getSimpleName();
 
     @Override
     public Iterable<Pair<String, String>> persistenceContext() {
@@ -63,27 +63,10 @@ public class Eigenverbrauch extends Entity {
     }
 
     public static final Optional<Eigenverbrauch> loadById(long entityId) {
-	Try<Pair<Long, Iterable<Pair<String, String>>>> loadContext = loadContext(entityId, TABLENAME, keys);
-	if (loadContext.isFailure()) {
-	    System.err.println(String.format("could not load Entity with id '%s', from table '%s', reason:", "" + entityId, TABLENAME));
-	    System.err.println(loadContext.failure().getLocalizedMessage());
-	    return Optional.absent();
-	}
-	Pair<Long, Iterable<Pair<String, String>>> context = loadContext.get();
-	if (FluentIterable.from(context._2).isEmpty()) {
-	    System.err.println(String.format("could not find Entity with id '%s', in table '%s', is it even persisted?", "" + entityId, TABLENAME));
-	    return Optional.absent();
-	}
-	Try<Eigenverbrauch> eigenverbrauch = build(context);
-	if (eigenverbrauch.isFailure()) {
-	    System.err.println(String.format("could not parse Entity with id '%s', from table '%s', reason:", "" + entityId, TABLENAME));
-	    System.err.println(eigenverbrauch.failure().getLocalizedMessage());
-	    return Optional.absent();
-	}
-	return Optional.of(eigenverbrauch.get());
+	return loadFromTemplate(entityId, new Eigenverbrauch(entityId), TABLENAME, keys);
     }
 
-    private static final Try<Eigenverbrauch> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
+    public final Try<Eigenverbrauch> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Eigenverbrauch>() {
 	    @Override
 	    public Eigenverbrauch get() {

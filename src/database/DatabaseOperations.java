@@ -58,7 +58,12 @@ public class DatabaseOperations {
 	return Try.of(new Supplier<Unit>() {
 	    @Override
 	    public Unit get() {
-		if (!databaseExists()) {
+		Try<Boolean> databaseExists = databaseExists();
+		if (databaseExists.isFailure()) {
+		    System.err.println("Could not find database");
+		    throw databaseExists.propagate();
+		}
+		if (!databaseExists.get()) {
 		    System.err.println("Database '" + NAME + "' not found");
 		    Try<Unit> createDatabase = createDatabase();
 		    if (!createDatabase.isSuccess()) {
@@ -123,9 +128,14 @@ public class DatabaseOperations {
 	});
     }
 
-    public static final boolean databaseExists() {
-	File f = new File(NAME);
-	return f.exists();
+    public static final Try<Boolean> databaseExists() {
+	return Try.of(new Supplier<Boolean>() {
+	    @Override
+	    public Boolean get() {
+		File f = new File(NAME);
+		return f.exists();
+	    }
+	});
     }
 
     public static final Try<Long> saveOrUpdate(final FluentIterable<Pair<String, String>> persistenceContext, final Optional<Long> entityId) {
@@ -179,6 +189,30 @@ public class DatabaseOperations {
 	});
     }
 
+    public static final Try<Unit> delete(final long entityId, final String tableName) {
+	return Try.of(new Supplier<Unit>() {
+	    @Override
+	    public Unit get() {
+		try {
+		    Class.forName(CLASS_NAME);
+		    Connection c = DriverManager.getConnection(PATH);
+		    c.setAutoCommit(false);
+
+		    Statement stmt = c.createStatement();
+		    String sql = Queries.deleteEntityQuery(entityId, tableName);
+		    stmt.executeUpdate(sql);
+		    c.commit();
+		    stmt.close();
+		    c.close();
+		    return Unit.VALUE;
+		} catch (Exception e) {
+		    throw new IllegalStateException(e.getClass().getName() + ": " + e.getMessage());
+		}
+
+	    }
+	});
+    }
+
     private static final Try<Long> saveEntity(final Iterable<Pair<String, String>> persistenceContext) {
 	return Try.of(new Supplier<Long>() {
 	    @Override
@@ -224,6 +258,7 @@ public class DatabaseOperations {
 		    c.close();
 		    return exists;
 		} catch (Exception e) {
+		    System.err.println(String.format("An error occured accessing the table '%s'", tableName));
 		    throw new IllegalStateException(e.getClass().getName() + ": " + e.getMessage());
 		}
 	    }

@@ -12,14 +12,14 @@ import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Lists;
 
-public class Gutschein extends Entity {
+public class Gutschein extends Entity implements Buildable<Gutschein> {
 
     private long _transaktionId;
     private long _kundeId;
     private Preis _restWert;
     private static final ImmutableList<String> keys = ImmutableList.<String> builder().add("TABLENAME").add("TRANSAKTION_ID").add("KUNDE_ID").add("RESTWERT")
 	    .build();
-    private static final String TABLENAME = Gutschein.class.getSimpleName();
+    public static final String TABLENAME = Gutschein.class.getSimpleName();
 
     @Override
     public Iterable<Pair<String, String>> persistenceContext() {
@@ -75,27 +75,10 @@ public class Gutschein extends Entity {
     }
 
     public static final Optional<Gutschein> loadById(long entityId) {
-	Try<Pair<Long, Iterable<Pair<String, String>>>> loadContext = loadContext(entityId, TABLENAME, keys);
-	if (loadContext.isFailure()) {
-	    System.err.println(String.format("could not load Entity with id '%s', from table '%s', reason:", "" + entityId, TABLENAME));
-	    System.err.println(loadContext.failure().getLocalizedMessage());
-	    return Optional.absent();
-	}
-	Pair<Long, Iterable<Pair<String, String>>> context = loadContext.get();
-	if (FluentIterable.from(context._2).isEmpty()) {
-	    System.err.println(String.format("could not find Entity with id '%s', in table '%s', is it even persisted?", "" + entityId, TABLENAME));
-	    return Optional.absent();
-	}
-	Try<Gutschein> gutschein = build(context);
-	if (gutschein.isFailure()) {
-	    System.err.println(String.format("could not parse Entity with id '%s', from table '%s', reason:", "" + entityId, TABLENAME));
-	    System.err.println(gutschein.failure().getLocalizedMessage());
-	    return Optional.absent();
-	}
-	return Optional.of(gutschein.get());
+	return loadFromTemplate(entityId, new Gutschein(entityId), TABLENAME, keys);
     }
 
-    private static final Try<Gutschein> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
+    public final Try<Gutschein> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Gutschein>() {
 	    @Override
 	    public Gutschein get() {

@@ -4,7 +4,7 @@ Friseur: Id,name,aktiv
 Gutschein: Id,transaktionId,kundeId,Wert,aktiv
 Kategorie: Id,Name,Dienstleisung(bool),Verkauf(bool),aktiv
 Kunde: Id, Vorname,nachname,straﬂe,Ort,Plz,Geburtsdatum,Telmobil,TelPrivat,aktiv
-Pr‰parat: Id,Name,aktiv
+Praeparat: Id,Name,aktiv
 Rezeptur: Id,
 Transaktion: Id, KundeId,DiensleistungenIds[],VerkaufIds[],Datum,(bool),(bool),,,
 Verkauf: Id,name,KategorieId,Preis,aktiv

@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import util.Preis;
 import util.Try;
+import util.Unit;
 import datameer.com.google.common.base.Optional;
 
 public class GutscheinTest {
@@ -35,5 +36,22 @@ public class GutscheinTest {
 	Optional<Gutschein> loadById = Gutschein.loadById(entityId);
 	assertEquals(true, loadById.isPresent());
 	assertEquals("12,33 EUR", loadById.get().getRestWert().toString());
+    }
+
+    @Test
+    public void testDeleteExistingEntity() {
+	Gutschein gutschein = new Gutschein(4L, 4L, Preis.of("12,33"));
+	Try<Long> save = gutschein.save();
+	Long entityId = save.get();
+	Try<Unit> delete = Gutschein.delete(entityId, Gutschein.TABLENAME);
+	assertEquals(true, delete.isSuccess());
+	Optional<Gutschein> loadById = Gutschein.loadById(entityId);
+	assertEquals(false, loadById.isPresent());
+    }
+
+    @Test
+    public void testDeleteNotExistingEntity() {
+	Try<Unit> delete = Gutschein.delete(1132L, Gutschein.TABLENAME);
+	assertEquals(true, delete.isSuccess());
     }
 }

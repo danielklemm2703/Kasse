@@ -61,4 +61,8 @@ public final class Queries {
 	System.err.println(returnQuery);
 	return returnQuery;
     }
+
+    public static final String deleteEntityQuery(long entityId, String tableName) {
+	return String.format("DELETE from %s where ID=%s;", tableName, "" + entityId);
+    }
 }

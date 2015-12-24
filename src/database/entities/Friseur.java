@@ -11,10 +11,10 @@ import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Lists;
 
-public class Friseur extends Entity {
+public class Friseur extends Entity implements Buildable<Friseur> {
     private String _friseurName;
     private static final ImmutableList<String> keys = ImmutableList.<String> builder().add("TABLENAME").add("FRISEUR_NAME").build();
-    private static final String TABLENAME = Friseur.class.getSimpleName();
+    public static final String TABLENAME = Friseur.class.getSimpleName();
 
     @Override
     public Iterable<Pair<String, String>> persistenceContext() {
@@ -48,27 +48,10 @@ public class Friseur extends Entity {
     }
 
     public static final Optional<Friseur> loadById(long entityId) {
-	Try<Pair<Long, Iterable<Pair<String, String>>>> loadContext = loadContext(entityId, TABLENAME, keys);
-	if (loadContext.isFailure()) {
-	    System.err.println(String.format("could not load Entity with id '%s', from table '%s', reason:", "" + entityId, TABLENAME));
-	    System.err.println(loadContext.failure().getLocalizedMessage());
-	    return Optional.absent();
-	}
-	Pair<Long, Iterable<Pair<String, String>>> context = loadContext.get();
-	if (FluentIterable.from(context._2).isEmpty()) {
-	    System.err.println(String.format("could not find Entity with id '%s', in table '%s', is it even persisted?", "" + entityId, TABLENAME));
-	    return Optional.absent();
-	}
-	Try<Friseur> friseur = build(context);
-	if (friseur.isFailure()) {
-	    System.err.println(String.format("could not parse Entity with id '%s', from table '%s', reason:", "" + entityId, TABLENAME));
-	    System.err.println(friseur.failure().getLocalizedMessage());
-	    return Optional.absent();
-	}
-	return Optional.of(friseur.get());
+	return loadFromTemplate(entityId, new Friseur(entityId), TABLENAME, keys);
     }
 
-    private static final Try<Friseur> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
+    public final Try<Friseur> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Friseur>() {
 	    @Override
 	    public Friseur get() {
