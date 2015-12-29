@@ -51,6 +51,10 @@ public class Friseur extends Entity implements Buildable<Friseur> {
 	return loadFromTemplate(entityId, new Friseur(entityId), TABLENAME, keys);
     }
 
+    public static final Iterable<Friseur> loadByParameter(final String parameter, final String value) {
+	return loadFromParameter(parameter, value, TABLENAME, new Friseur(0L), keys);
+    }
+
     public final Try<Friseur> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Friseur>() {
 	    @Override

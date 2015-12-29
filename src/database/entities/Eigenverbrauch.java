@@ -66,6 +66,10 @@ public class Eigenverbrauch extends Entity implements Buildable<Eigenverbrauch> 
 	return loadFromTemplate(entityId, new Eigenverbrauch(entityId), TABLENAME, keys);
     }
 
+    public static final Iterable<Eigenverbrauch> loadByParameter(final String parameter, final String value) {
+	return loadFromParameter(parameter, value, TABLENAME, new Eigenverbrauch(0L), keys);
+    }
+
     public final Try<Eigenverbrauch> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Eigenverbrauch>() {
 	    @Override

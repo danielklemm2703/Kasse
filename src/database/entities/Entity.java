@@ -8,9 +8,11 @@ import util.Unit;
 import database.DatabaseOperations;
 import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
+import datameer.com.google.common.base.Predicate;
 import datameer.com.google.common.base.Supplier;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
+import datameer.com.google.common.collect.ImmutableList.Builder;
 
 abstract class Entity {
 
@@ -25,6 +27,20 @@ abstract class Entity {
     Entity(final String tableName) {
 	_entityId = Optional.absent();
 	_tableName = tableName;
+    }
+
+    private static final <T> Function<Pair<Long, Iterable<Pair<String, String>>>, Try<T>> buildEntity(final Buildable<T> template) {
+	return new Function<Pair<Long, Iterable<Pair<String, String>>>, Try<T>>() {
+	    @Override
+	    public Try<T> apply(final Pair<Long, Iterable<Pair<String, String>>> input) {
+		if (FluentIterable.from(input._2).isEmpty()) {
+		    String error = String.format("could not find Entity, is it even persisted?");
+		    System.err.println(error);
+		    return Try.failure(new IllegalStateException(error));
+		}
+		return template.build(input);
+	    }
+	};
     }
 
     private static final Function<Unit, Try<Unit>> createTableIfNotExists(final Iterable<Pair<String, String>> persistenceContext) {
@@ -69,10 +85,6 @@ abstract class Entity {
 	};
     }
 
-    static final Try<Entity> loadByParameter(final String parameter, final String value) {
-	return null;
-    }
-
     static final Try<Pair<Long, Iterable<Pair<String, String>>>> loadContext(final long entityId, final String tableName, final ImmutableList<String> keys) {
 	return Try.of(new Supplier<Pair<Long, Iterable<Pair<String, String>>>>() {
 	    @Override
@@ -89,6 +101,71 @@ abstract class Entity {
 		return Pair.of(entityId, persistenceContext.get());
 	    }
 	});
+    }
+
+    private static final FluentIterable<Pair<Long, Iterable<Pair<String, String>>>> loadContexts(final String parameter, final String value,
+	    final String tableName, final ImmutableList<String> keys) {
+	Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> contexts = databaseExists()
+	//
+		.flatMap(tableExists(tableName))
+
+		.flatMap(loadPersistenceContexts(parameter, value, tableName, keys));
+	if (contexts.isFailure()) {
+	    System.err.println(String.format("could not load Entities with '%s' = '%s', from table '%s', reason:", "" + parameter, value, tableName));
+	    System.err.println(contexts.failure().getLocalizedMessage());
+	    // return empty iterable in error case
+	    Builder<Pair<Long, Iterable<Pair<String, String>>>> builder = ImmutableList.builder();
+	    return FluentIterable.from(builder.build());
+	}
+	return contexts.get();
+    }
+
+    private static Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>> loadPersistenceContexts(final String parameter,
+	    final String value,
+	    final String tableName, final ImmutableList<String> keys) {
+	return new Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>>() {
+	    @Override
+	    public Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> apply(final Boolean tableExists) {
+		if (!tableExists) {
+		    System.err.println(String.format("Table '%s' does not exist", tableName));
+		    throw new IllegalStateException(String.format("Table '%s' does not exist", tableName));
+		}
+		return DatabaseOperations.loadPersistenceContexts(parameter, value, tableName, keys);
+	    }
+	};
+    }
+
+    static final <T> Iterable<T> loadFromParameter(final String parameter, final String value, final String tableName, final Buildable<T> template,
+	    final ImmutableList<String> keys) {
+	Function<Try<T>, T> toTemplate = new Function<Try<T>, T>() {
+	    @Override
+	    public T apply(final Try<T> input) {
+		return input.get();
+	    }
+	};
+	Predicate<Try<T>> success = new Predicate<Try<T>>() {
+	    @Override
+	    public boolean apply(final Try<T> input) {
+		return input.isSuccess();
+	    }
+	};
+	return loadContexts(parameter, value, tableName, keys)
+		//
+		.transform(buildEntity(template))
+
+		.filter(success)
+
+		.transform(toTemplate);
+    }
+
+    static final <T> Optional<T> loadFromTemplate(final long entityId, final Buildable<T> template, final String tableName, final ImmutableList<String> keys) {
+	Try<T> entity = loadContext(entityId, tableName, keys).flatMap(buildEntity(template));
+	if (entity.isFailure()) {
+	    System.err.println(String.format("could not load Entity with id '%s', from table '%s', reason:", "" + entityId, tableName));
+	    System.err.println(entity.failure().getLocalizedMessage());
+	    return Optional.absent();
+	}
+	return Optional.of(entity.get());
     }
 
     private static final Function<Boolean, Try<Iterable<Pair<String, String>>>> loadPersistenceContext(final long entityId, final String tableName,
@@ -110,7 +187,7 @@ abstract class Entity {
 	    @Override
 	    public Long get() {
 		Try<Long> save = createDatabaseIfNotExists()
-		//
+			//
 			.flatMap(createTableIfNotExists(persistenceContext))
 
 			.flatMap(saveOrUpdate(persistenceContext, entityId));
@@ -169,30 +246,5 @@ abstract class Entity {
 
     public Try<Long> save() {
 	return Try.of(save(persistenceContext(), _entityId));
-    }
-
-    static final <T> Optional<T> loadFromTemplate(final long entityId, final Buildable<T> template, final String tableName, final ImmutableList<String> keys) {
-	Try<T> entity = loadContext(entityId, tableName, keys).flatMap(buildEntity(entityId, template, tableName));
-	if (entity.isFailure()) {
-	    System.err.println(String.format("could not load Entity with id '%s', from table '%s', reason:", "" + entityId, tableName));
-	    System.err.println(entity.failure().getLocalizedMessage());
-	    return Optional.absent();
-	}
-	return Optional.of(entity.get());
-    }
-
-    static final <T> Function<Pair<Long, Iterable<Pair<String, String>>>, Try<T>> buildEntity(final long entityId, final Buildable<T> template,
-	    final String tableName) {
-	return new Function<Pair<Long, Iterable<Pair<String, String>>>, Try<T>>() {
-	    @Override
-	    public Try<T> apply(Pair<Long, Iterable<Pair<String, String>>> input) {
-		if (FluentIterable.from(input._2).isEmpty()) {
-		    String error = String.format("could not find Entity with id '%s', in table '%s', is it even persisted?", "" + entityId, tableName);
-		    System.err.println(error);
-		    return Try.failure(new IllegalStateException(error));
-		}
-		return template.build(input);
-	    }
-	};
     }
 }

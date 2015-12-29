@@ -65,4 +65,13 @@ public final class Queries {
     public static final String deleteEntityQuery(long entityId, String tableName) {
 	return String.format("DELETE from %s where ID=%s;", tableName, "" + entityId);
     }
+
+    public static final String loadContextById(long entityId, String tableName) {
+	return String.format("SELECT * FROM " + tableName + " WHERE ID=" + entityId + ";");
+    }
+
+    public static final String loadContextByParameter(String parameter, String value, String tableName) {
+	System.err.println(String.format("SELECT * FROM '%s' WHERE %s='%s';", tableName, parameter, value));
+	return String.format("SELECT * FROM '%s' WHERE %s='%s';", tableName, parameter, value);
+    }
 }

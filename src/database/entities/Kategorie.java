@@ -77,6 +77,10 @@ public class Kategorie extends Entity implements Buildable<Kategorie> {
 	return loadFromTemplate(entityId, new Kategorie(entityId), TABLENAME, keys);
     }
 
+    public static final Iterable<Kategorie> loadByParameter(final String parameter, final String value) {
+	return loadFromParameter(parameter, value, TABLENAME, new Kategorie(0L), keys);
+    }
+
     public Try<Kategorie> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Kategorie>() {
 	    @Override

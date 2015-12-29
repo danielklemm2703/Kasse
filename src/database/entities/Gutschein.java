@@ -78,6 +78,10 @@ public class Gutschein extends Entity implements Buildable<Gutschein> {
 	return loadFromTemplate(entityId, new Gutschein(entityId), TABLENAME, keys);
     }
 
+    public static final Iterable<Gutschein> loadByParameter(final String parameter, final String value) {
+	return loadFromParameter(parameter, value, TABLENAME, new Gutschein(0L), keys);
+    }
+
     public final Try<Gutschein> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Gutschein>() {
 	    @Override

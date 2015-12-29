@@ -46,6 +46,10 @@ public class Dienstleistung extends Entity implements Buildable<Dienstleistung> 
 	return loadFromTemplate(entityId, new Dienstleistung(entityId), TABLENAME, keys);
     }
 
+    public static final Iterable<Dienstleistung> loadByParameter(final String parameter, final String value) {
+	return loadFromParameter(parameter, value, TABLENAME, new Dienstleistung(0L), keys);
+    }
+
     @Override
     public final Try<Dienstleistung> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Dienstleistung>() {

@@ -275,7 +275,7 @@ public class DatabaseOperations {
 		    c.setAutoCommit(false);
 
 		    Statement stmt = c.createStatement();
-		    ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " WHERE ID=" + entityId + ";");
+		    ResultSet rs = stmt.executeQuery(Queries.loadContextById(entityId, tableName));
 		    FluentIterable<String> loadableKeys = FluentIterable.from(keys).filter(Predicates.without(keys.get(0)));
 		    Builder<Pair<String, String>> accumulate = ImmutableList.builder();
 		    if (rs.next()) {
@@ -289,6 +289,43 @@ public class DatabaseOperations {
 		    stmt.close();
 		    c.close();
 		    return accumulate.build();
+		} catch (Exception e) {
+		    System.err.println(e.getClass().getName() + ": " + e.getMessage());
+		    throw new IllegalStateException(e.getClass().getName() + ": " + e.getMessage());
+		}
+	    }
+	});
+    }
+
+    public static final Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> loadPersistenceContexts(final String parameter, final String value,
+	    final String tableName, final ImmutableList<String> keys) {
+	return Try.of(new Supplier<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>() {
+	    @Override
+	    public FluentIterable<Pair<Long, Iterable<Pair<String, String>>>> get() {
+		try {
+		    Class.forName(CLASS_NAME);
+		    Connection c = DriverManager.getConnection(PATH);
+		    c.setAutoCommit(false);
+
+		    Statement stmt = c.createStatement();
+		    ResultSet rs = stmt.executeQuery(Queries.loadContextByParameter(parameter, value, tableName));
+		    FluentIterable<String> loadableKeys = FluentIterable.from(keys).filter(Predicates.without(keys.get(0)));
+		    Builder<Pair<Long, Iterable<Pair<String, String>>>> entities = ImmutableList.builder();
+		    while (rs.next()) {
+			Builder<Pair<String, String>> accumulate = ImmutableList.builder();
+			for (String key : loadableKeys) {
+			    String val = rs.getString(key);
+			    System.out.println(key + " , " + val);
+			    accumulate.add(Pair.of(key, val));
+			}
+			long entityId = rs.getLong("ID");
+			Iterable<Pair<String, String>> entity = accumulate.build();
+			entities.add(Pair.of(entityId, entity));
+		    }
+		    rs.close();
+		    stmt.close();
+		    c.close();
+		    return FluentIterable.from(entities.build());
 		} catch (Exception e) {
 		    System.err.println(e.getClass().getName() + ": " + e.getMessage());
 		    throw new IllegalStateException(e.getClass().getName() + ": " + e.getMessage());

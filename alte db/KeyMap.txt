@@ -3,7 +3,7 @@ Eigenverbrauch: Id,FriseurId, Datum, Aktiv
 Friseur: Id,name,aktiv
 Gutschein: Id,transaktionId,kundeId,Wert,aktiv
 Kategorie: Id,Name,Dienstleisung(bool),Verkauf(bool),aktiv
-Kunde: Id, Vorname,nachname,straﬂe,Ort,Plz,Geburtsdatum,Telmobil,TelPrivat,aktiv
+Kunde: Id, Vorname,nachname,strasse,Ort,Plz,Geburtsdatum,Telmobil,TelPrivat,aktiv
 Praeparat: Id,Name,aktiv
 Rezeptur: Id,
 Transaktion: Id, KundeId,DiensleistungenIds[],VerkaufIds[],Datum,(bool),(bool),,,

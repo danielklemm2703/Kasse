@@ -8,6 +8,7 @@ import util.Preis;
 import util.Try;
 import util.Unit;
 import datameer.com.google.common.base.Optional;
+import datameer.com.google.common.collect.FluentIterable;
 
 public class DienstleistungTest {
 
@@ -53,5 +54,13 @@ public class DienstleistungTest {
     public void testDeleteNotExistingEntity() {
 	Try<Unit> delete = Dienstleistung.delete(1132L, Dienstleistung.TABLENAME);
 	assertEquals(true, delete.isSuccess());
+    }
+
+    @Test
+    public void testloadByParameter() {
+	FluentIterable<Dienstleistung> loadByParameter = FluentIterable.from(Dienstleistung.loadByParameter("NAME", "Haare schneiden"));
+	assertEquals(false, loadByParameter.isEmpty());
+	loadByParameter = FluentIterable.from(Dienstleistung.loadByParameter("NAMER", "Haare schneiden"));
+	assertEquals(true, loadByParameter.isEmpty());
     }
 }
