@@ -298,7 +298,7 @@ public class DatabaseOperations {
     }
 
     public static final Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> loadPersistenceContexts(final String parameter, final String value,
-	    final String tableName, final ImmutableList<String> keys) {
+	    final String tableName, final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
 	return Try.of(new Supplier<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>() {
 	    @Override
 	    public FluentIterable<Pair<Long, Iterable<Pair<String, String>>>> get() {
@@ -308,7 +308,7 @@ public class DatabaseOperations {
 		    c.setAutoCommit(false);
 
 		    Statement stmt = c.createStatement();
-		    ResultSet rs = stmt.executeQuery(Queries.loadContextByParameter(parameter, value, tableName));
+		    ResultSet rs = stmt.executeQuery(Queries.loadContextByParameter(parameter, value, tableName, orderBy));
 		    FluentIterable<String> loadableKeys = FluentIterable.from(keys).filter(Predicates.without(keys.get(0)));
 		    Builder<Pair<Long, Iterable<Pair<String, String>>>> entities = ImmutableList.builder();
 		    while (rs.next()) {

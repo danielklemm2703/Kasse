@@ -6,6 +6,7 @@ import util.Pair;
 import util.Try;
 import util.Unit;
 import database.DatabaseOperations;
+import database.Ordering;
 import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Predicate;
@@ -104,12 +105,12 @@ abstract class Entity {
     }
 
     private static final FluentIterable<Pair<Long, Iterable<Pair<String, String>>>> loadContexts(final String parameter, final String value,
-	    final String tableName, final ImmutableList<String> keys) {
+	    final String tableName, final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
 	Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> contexts = databaseExists()
 	//
 		.flatMap(tableExists(tableName))
 
-		.flatMap(loadPersistenceContexts(parameter, value, tableName, keys));
+		.flatMap(loadPersistenceContexts(parameter, value, tableName, keys, orderBy));
 	if (contexts.isFailure()) {
 	    System.err.println(String.format("could not load Entities with '%s' = '%s', from table '%s', reason:", "" + parameter, value, tableName));
 	    System.err.println(contexts.failure().getLocalizedMessage());
@@ -121,8 +122,7 @@ abstract class Entity {
     }
 
     private static Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>> loadPersistenceContexts(final String parameter,
-	    final String value,
-	    final String tableName, final ImmutableList<String> keys) {
+	    final String value, final String tableName, final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
 	return new Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>>() {
 	    @Override
 	    public Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> apply(final Boolean tableExists) {
@@ -130,13 +130,13 @@ abstract class Entity {
 		    System.err.println(String.format("Table '%s' does not exist", tableName));
 		    throw new IllegalStateException(String.format("Table '%s' does not exist", tableName));
 		}
-		return DatabaseOperations.loadPersistenceContexts(parameter, value, tableName, keys);
+		return DatabaseOperations.loadPersistenceContexts(parameter, value, tableName, keys, orderBy);
 	    }
 	};
     }
 
     static final <T> Iterable<T> loadFromParameter(final String parameter, final String value, final String tableName, final Buildable<T> template,
-	    final ImmutableList<String> keys) {
+	    final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
 	Function<Try<T>, T> toTemplate = new Function<Try<T>, T>() {
 	    @Override
 	    public T apply(final Try<T> input) {
@@ -149,7 +149,7 @@ abstract class Entity {
 		return input.isSuccess();
 	    }
 	};
-	return loadContexts(parameter, value, tableName, keys)
+	return loadContexts(parameter, value, tableName, keys, orderBy)
 		//
 		.transform(buildEntity(template))
 

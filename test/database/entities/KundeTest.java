@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import util.Try;
 import util.Unit;
+import database.Ordering;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 
@@ -64,5 +65,33 @@ public class KundeTest {
 	assertEquals(true, load.isEmpty());
 	load = FluentIterable.from(Kunde.loadByParameter("VORNAMER", "Horst"));
 	assertEquals(true, load.isEmpty());
+    }
+
+    @Test
+    public void testLoadByParameterWithOrdering() {
+	new Kunde("Horst", "Zyxel", "OchsenStraße2", "Dorf", "90123", DateTime.now(), "0190/666", "0190/666").save();
+	new Kunde("Horst", "Zyyel", "OchsenStraße2", "Dorf", "90123", DateTime.now(), "0190/666", "0190/666").save();
+	FluentIterable<Kunde> load = FluentIterable.from(Kunde.loadByParameter("VORNAME", "Horst", new Ordering("NACHNAME", "DESC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Zyyel", load.first().get().getNachname());
+    }
+
+    @Test
+    public void testLoadByParameterNotEveryEntry() {
+	double random = Math.random();
+	new Kunde("Horst", "Zyxel", "OchsenStraße2", "Dorf", "90123", DateTime.now(), ""+random, "0190/666").save();
+
+	FluentIterable<Kunde> load = FluentIterable.from(Kunde.loadByParameter("TELEFON_PRIVAT", "" + random));
+	assertEquals(false, load.isEmpty());
+	assertEquals(1,load.size());
+    }
+
+    @Test
+    public void testLoadByParameterEveryEntry() {
+	double random = Math.random();
+	new Kunde("Horst", "Zyxel", "OchsenStraße2", "Dorf", "90123", DateTime.now(), "" + random, "0190/666").save();
+	FluentIterable<Kunde> load = FluentIterable.from(Kunde.loadByParameter("'1'", "1"));
+	assertEquals(false, load.isEmpty());
+	assertEquals(1, load.size());
     }
 }

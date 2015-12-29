@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
 import util.Pair;
 import util.Predicates;
 import util.Try;
+import database.Ordering;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Supplier;
 import datameer.com.google.common.collect.FluentIterable;
@@ -100,7 +101,11 @@ public class Kunde extends Entity implements Buildable<Kunde> {
     }
 
     public static final Iterable<Kunde> loadByParameter(final String parameter, final String value) {
-	return loadFromParameter(parameter, value, TABLENAME, new Kunde(0L), keys);
+	return loadFromParameter(parameter, value, TABLENAME, new Kunde(0L), keys, Optional.<Ordering> absent());
+    }
+
+    public static final Iterable<Kunde> loadByParameter(final String parameter, final String value, final Ordering orderBy) {
+	return loadFromParameter(parameter, value, TABLENAME, new Kunde(0L), keys, Optional.of(orderBy));
     }
 
     public final Try<Kunde> build(final Pair<Long, Iterable<Pair<String, String>>> context) {

@@ -2,6 +2,7 @@ package database;
 
 import util.Pair;
 import util.Predicates;
+import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Predicate;
 import datameer.com.google.common.collect.FluentIterable;
 
@@ -70,8 +71,14 @@ public final class Queries {
 	return String.format("SELECT * FROM " + tableName + " WHERE ID=" + entityId + ";");
     }
 
-    public static final String loadContextByParameter(String parameter, String value, String tableName) {
-	System.err.println(String.format("SELECT * FROM '%s' WHERE %s='%s';", tableName, parameter, value));
-	return String.format("SELECT * FROM '%s' WHERE %s='%s';", tableName, parameter, value);
+    public static final String loadContextByParameter(final String parameter, final String value, final String tableName, final Optional<Ordering> orderBy) {
+	if (!orderBy.isPresent()) {
+	    System.err.println(String.format("SELECT * FROM '%s' WHERE %s='%s';", tableName, parameter, value));
+	    return String.format("SELECT * FROM '%s' WHERE %s='%s';", tableName, parameter, value);
+	}
+	String order = orderBy.get()._orderBy;
+	String direction = orderBy.get()._direction;
+	System.err.println(String.format("SELECT * FROM '%s' WHERE %s='%s' ORDER BY %s %s;", tableName, parameter, value, order, direction));
+	return String.format("SELECT * FROM '%s' WHERE %s='%s' ORDER BY %s %s;", tableName, parameter, value, order, direction);
     }
 }
