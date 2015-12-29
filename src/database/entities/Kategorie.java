@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import util.Pair;
 import util.Predicates;
 import util.Try;
+import database.Ordering;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Supplier;
 import datameer.com.google.common.collect.FluentIterable;
@@ -78,7 +79,11 @@ public class Kategorie extends Entity implements Buildable<Kategorie> {
     }
 
     public static final Iterable<Kategorie> loadByParameter(final String parameter, final String value) {
-	return loadFromParameter(parameter, value, TABLENAME, new Kategorie(0L), keys);
+	return loadFromParameter(parameter, value, TABLENAME, new Kategorie(0L), keys, Optional.<Ordering> absent());
+    }
+
+    public static final Iterable<Kategorie> loadByParameter(final String parameter, final String value, final Ordering orderBy) {
+	return loadFromParameter(parameter, value, TABLENAME, new Kategorie(0L), keys, Optional.of(orderBy));
     }
 
     public Try<Kategorie> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
