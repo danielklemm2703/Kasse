@@ -7,6 +7,7 @@ import org.junit.Test;
 import util.Preis;
 import util.Try;
 import util.Unit;
+import database.Ordering;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 
@@ -62,5 +63,38 @@ public class DienstleistungTest {
 	assertEquals(false, loadByParameter.isEmpty());
 	loadByParameter = FluentIterable.from(Dienstleistung.loadByParameter("NAMER", "Haare schneiden"));
 	assertEquals(true, loadByParameter.isEmpty());
+    }
+
+    @Test
+    public void testLoadByParameterWithOrdering() {
+	String name = "Ziemlich viele Haare abschneiden";
+	new Dienstleistung(name, 1, Preis.of(122D), false).save();
+	new Dienstleistung("Haare abschneiden", 1, Preis.of(122D), false).save();
+	FluentIterable<Dienstleistung> load = FluentIterable.from(Dienstleistung.loadByParameter("PREIS", Preis.of(122D).toString(), new Ordering(
+"NAME", "DESC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals(name, load.first().get().getDienstleistungsName());
+    }
+
+    @Test
+    public void testLoadByParameterNotEveryEntry() {
+	double random = Math.random();
+	new Dienstleistung("" + random, 1, Preis.of(122D), false).save();
+
+	FluentIterable<Dienstleistung> load = FluentIterable.from(Dienstleistung.loadByParameter("NAME", "" + random));
+	assertEquals(false, load.isEmpty());
+	assertEquals(1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterEveryEntry() {
+	String name = "Ziemlich viele Haare abschneiden";
+	new Dienstleistung(name, 1, Preis.of(122D), false).save();
+	FluentIterable<Dienstleistung> load = FluentIterable.from(Dienstleistung.loadByParameter("'1'", "1"));
+	assertEquals(false, load.isEmpty());
+	int size = load.size();
+	new Dienstleistung(name, 1, Preis.of(122D), false).save();
+	load = FluentIterable.from(Dienstleistung.loadByParameter("'1'", "1"));
+	assertEquals(size + 1, load.size());
     }
 }
