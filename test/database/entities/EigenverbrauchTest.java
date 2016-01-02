@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import util.Preis;
 import util.Try;
 import util.Unit;
 import database.Ordering;
@@ -60,9 +59,10 @@ public class EigenverbrauchTest {
 
     @Test
     public void testloadByParameter() {
-	FluentIterable<Eigenverbrauch> loadByParameter = FluentIterable.from(Eigenverbrauch.loadByParameter("NAME", "Haare schneiden"));
+	String now = DateTime.now().toString();
+	FluentIterable<Eigenverbrauch> loadByParameter = FluentIterable.from(Eigenverbrauch.loadByParameter("ID", "1"));
 	assertEquals(false, loadByParameter.isEmpty());
-	loadByParameter = FluentIterable.from(Eigenverbrauch.loadByParameter("NAMER", "Haare schneiden"));
+	loadByParameter = FluentIterable.from(Eigenverbrauch.loadByParameter("DAUTUUM", now));
 	assertEquals(true, loadByParameter.isEmpty());
     }
 
@@ -79,22 +79,21 @@ public class EigenverbrauchTest {
 
     @Test
     public void testLoadByParameterNotEveryEntry() {
-	double random = Math.random();
-	new Eigenverbrauch("" + random, 1, Preis.of(122D), false).save();
+	DateTime now = DateTime.now();
+	new Eigenverbrauch(1L, now).save();
 
-	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameter("NAME", "" + random));
+	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameter("DATUM", now.toString()));
 	assertEquals(false, load.isEmpty());
 	assertEquals(1, load.size());
     }
 
     @Test
     public void testLoadByParameterEveryEntry() {
-	String name = "Ziemlich viele Haare abschneiden";
-	new Eigenverbrauch(name, 1, Preis.of(122D), false).save();
+	new Eigenverbrauch(1L, DateTime.now()).save();
 	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameter("'1'", "1"));
 	assertEquals(false, load.isEmpty());
 	int size = load.size();
-	new Eigenverbrauch(name, 1, Preis.of(122D), false).save();
+	new Eigenverbrauch(1L, DateTime.now()).save();
 	load = FluentIterable.from(Eigenverbrauch.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
     }

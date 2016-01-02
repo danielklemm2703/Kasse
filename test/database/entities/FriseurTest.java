@@ -6,7 +6,9 @@ import org.junit.Test;
 
 import util.Try;
 import util.Unit;
+import database.Ordering;
 import datameer.com.google.common.base.Optional;
+import datameer.com.google.common.collect.FluentIterable;
 
 public class FriseurTest {
 
@@ -52,5 +54,44 @@ public class FriseurTest {
     public void testDeleteNotExistingEntity() {
 	Try<Unit> delete = Friseur.delete(1132L, Friseur.TABLENAME);
 	assertEquals(true, delete.isSuccess());
+    }
+
+    @Test
+    public void testloadByParameter() {
+	FluentIterable<Friseur> loadByParameter = FluentIterable.from(Friseur.loadByParameter("ID", "1"));
+	assertEquals(false, loadByParameter.isEmpty());
+	loadByParameter = FluentIterable.from(Friseur.loadByParameter("EIDIE", "4"));
+	assertEquals(true, loadByParameter.isEmpty());
+    }
+
+    @Test
+    public void testLoadByParameterWithOrdering() {
+	new Friseur("Aanne").save();
+	new Friseur("ZAanne").save();
+	FluentIterable<Friseur> load = FluentIterable.from(Friseur.loadByParameter("FRISEUR_NAME", "ZAanne", new Ordering("FRISEUR_NAME",
+		"DESC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("ZAanne", load.first().get().getFriseurName());
+    }
+
+    @Test
+    public void testLoadByParameterNotEveryEntry() {
+	double random = Math.random();
+	new Friseur("" + random).save();
+
+	FluentIterable<Friseur> load = FluentIterable.from(Friseur.loadByParameter("FRISEUR_NAME", "" + random));
+	assertEquals(false, load.isEmpty());
+	assertEquals(1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterEveryEntry() {
+	new Friseur("Aanne").save();
+	FluentIterable<Friseur> load = FluentIterable.from(Friseur.loadByParameter("'1'", "1"));
+	assertEquals(false, load.isEmpty());
+	int size = load.size();
+	new Friseur("Aanne").save();
+	load = FluentIterable.from(Friseur.loadByParameter("'1'", "1"));
+	assertEquals(size + 1, load.size());
     }
 }

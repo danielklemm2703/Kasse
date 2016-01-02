@@ -25,7 +25,7 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
     //
 	    .add("TABLENAME")
 
-	    .add("TRANSAKTION-ID")
+	    .add("TRANSAKTION_ID")
 
 	    .add("FARB_IDS")
 
@@ -99,7 +99,9 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 		ImmutableList<Pair<String, String>> values = ImmutableList.copyOf(FluentIterable.from(context._2).filter(Predicates.withoutSecond(TABLENAME)));
 
 		rezeptur.setTransaktionId(Long.parseLong(values.get(0)._2));
-		FluentIterable<String> farben = FluentIterable.from(ImmutableList.copyOf(values.get(1)._2.split(",")));
+		String farbIds = values.get(1)._2.replace("[", "");
+		farbIds = farbIds.replace("]", "");
+		FluentIterable<String> farben = FluentIterable.from(ImmutableList.copyOf(farbIds.split(",")));
 		if(farben.isEmpty()){
 		    rezeptur.setFarbIds(Optional.<FluentIterable<Long>> absent());
 		} else {

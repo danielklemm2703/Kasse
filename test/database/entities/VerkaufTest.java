@@ -2,12 +2,15 @@ package database.entities;
 
 import static org.junit.Assert.assertEquals;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import util.Preis;
 import util.Try;
 import util.Unit;
+import database.Ordering;
 import datameer.com.google.common.base.Optional;
+import datameer.com.google.common.collect.FluentIterable;
 
 public class VerkaufTest {
 
@@ -53,5 +56,44 @@ public class VerkaufTest {
     public void testDeleteNotExistingEntity() {
 	Try<Unit> delete = Verkauf.delete(1132L, Verkauf.TABLENAME);
 	assertEquals(true, delete.isSuccess());
+    }
+
+    @Test
+    public void testloadByParameter() {
+	String now = DateTime.now().toString();
+	FluentIterable<Verkauf> loadByParameter = FluentIterable.from(Verkauf.loadByParameter("ID", "1"));
+	assertEquals(false, loadByParameter.isEmpty());
+	loadByParameter = FluentIterable.from(Verkauf.loadByParameter("DAUTUUM", now));
+	assertEquals(true, loadByParameter.isEmpty());
+    }
+
+    @Test
+    public void testLoadByParameterWithOrdering() {
+	new Verkauf("Haare schneiden", 2, Preis.of("22,22")).save();
+	new Verkauf("ZhHaare schneiden", 2, Preis.of("22,22")).save();
+	FluentIterable<Verkauf> load = FluentIterable.from(Verkauf.loadByParameter("NAME", "ZhHaare schneiden", new Ordering("NAME", "DESC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("ZhHaare schneiden", load.first().get().getVerkaufsName());
+    }
+
+    @Test
+    public void testLoadByParameterNotEveryEntry() {
+	Preis preis = Preis.of(Math.random());
+	new Verkauf("Haare schneiden", 2, preis).save();
+
+	FluentIterable<Verkauf> load = FluentIterable.from(Verkauf.loadByParameter("PREIS", preis.toString()));
+	assertEquals(false, load.isEmpty());
+	assertEquals(1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterEveryEntry() {
+	new Verkauf("Haare schneiden", 2, Preis.of("22,22")).save();
+	FluentIterable<Verkauf> load = FluentIterable.from(Verkauf.loadByParameter("'1'", "1"));
+	assertEquals(false, load.isEmpty());
+	int size = load.size();
+	new Verkauf("Haare schneiden", 2, Preis.of("22,22")).save();
+	load = FluentIterable.from(Verkauf.loadByParameter("'1'", "1"));
+	assertEquals(size + 1, load.size());
     }
 }

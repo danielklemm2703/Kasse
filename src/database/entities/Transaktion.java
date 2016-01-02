@@ -135,10 +135,17 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 		Transaktion transaktion = new Transaktion(context._1);
 		ImmutableList<Pair<String, String>> values = ImmutableList.copyOf(FluentIterable.from(context._2).filter(Predicates.withoutSecond(TABLENAME)));
 		transaktion.setKundeId(Long.parseLong(values.get(0)._2));
-		String[] dienstleistungen = values.get(1)._2.split(",");
+
+		String dienstleistungsIds = values.get(1)._2.replace("[", "");
+		dienstleistungsIds = dienstleistungsIds.replace("]", "");
+		String[] dienstleistungen = dienstleistungsIds.split(",");
 		transaktion.setDienstleistungsIds(FluentIterable.of(dienstleistungen).transform(Functions.toLong));
-		String[] verkaeufe = values.get(2)._2.split(",");
+
+		String verkaufsIds = values.get(2)._2.replace("[", "");
+		verkaufsIds = verkaufsIds.replace("]", "");
+		String[] verkaeufe = verkaufsIds.split(",");
 		transaktion.setVerkaufIds(FluentIterable.of(verkaeufe).transform(Functions.toLong));
+
 		transaktion.setDatum(DateTime.parse(values.get(3)._2));
 		transaktion.setFriseurId(Long.parseLong(values.get(4)._2));
 		transaktion.setLaufkunde(Boolean.parseBoolean(values.get(5)._2));
