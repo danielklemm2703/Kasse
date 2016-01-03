@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import util.Pair;
 import util.Predicates;
 import util.Try;
-import backend.FaerbeTechnik;
+import backend.enums.FaerbeTechnik;
 import database.Ordering;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Supplier;

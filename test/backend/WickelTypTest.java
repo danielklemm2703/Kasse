@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import backend.enums.WickelTyp;
+
 public class WickelTypTest {
 
     @Test

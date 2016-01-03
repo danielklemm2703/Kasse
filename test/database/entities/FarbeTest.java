@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import util.Try;
 import util.Unit;
-import backend.FaerbeTechnik;
+import backend.enums.FaerbeTechnik;
 import database.Ordering;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
