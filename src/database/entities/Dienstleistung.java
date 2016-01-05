@@ -55,6 +55,14 @@ public class Dienstleistung extends Entity implements Buildable<Dienstleistung> 
 	return loadFromParameter(parameter, value, TABLENAME, new Dienstleistung(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Dienstleistung> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Dienstleistung(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Dienstleistung> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Dienstleistung(0L), keys, Optional.<Ordering> absent());
+    }
+
     @Override
     public final Try<Dienstleistung> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Dienstleistung>() {

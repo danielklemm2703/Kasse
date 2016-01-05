@@ -60,6 +60,14 @@ public class Friseur extends Entity implements Buildable<Friseur> {
 	return loadFromParameter(parameter, value, TABLENAME, new Friseur(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Friseur> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Friseur(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Friseur> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Friseur(0L), keys, Optional.<Ordering> absent());
+    }
+
     public final Try<Friseur> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Friseur>() {
 	    @Override

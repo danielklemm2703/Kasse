@@ -87,6 +87,14 @@ public class Gutschein extends Entity implements Buildable<Gutschein> {
 	return loadFromParameter(parameter, value, TABLENAME, new Gutschein(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Gutschein> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Gutschein(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Gutschein> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Gutschein(0L), keys, Optional.<Ordering> absent());
+    }
+
     public final Try<Gutschein> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Gutschein>() {
 	    @Override

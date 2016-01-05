@@ -55,6 +55,14 @@ public class Farbe extends Entity implements Buildable<Farbe> {
 	return loadFromParameter(parameter, value, TABLENAME, new Farbe(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Farbe> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Farbe(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Farbe> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Farbe(0L), keys, Optional.<Ordering> absent());
+    }
+
     @Override
     public final Try<Farbe> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Farbe>() {

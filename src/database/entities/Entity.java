@@ -104,6 +104,24 @@ abstract class Entity {
 	});
     }
 
+    private static final FluentIterable<Pair<Long, Iterable<Pair<String, String>>>> loadContextsStartsWith(final String parameter, final String startsWith,
+	    final String tablename,
+	    final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
+	Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> contexts = databaseExists()
+	//
+		.flatMap(tableExists(tablename))
+
+		.flatMap(loadPersistenceContextsStartsWith(parameter, startsWith, tablename, keys, orderBy));
+	if (contexts.isFailure()) {
+	    System.err.println("could not load Entities with '" + parameter + "' LIKE '" + startsWith + "%', from table '" + tablename + "', reason:");
+	    System.err.println(contexts.failure().getLocalizedMessage());
+	    // return empty iterable in error case
+	    Builder<Pair<Long, Iterable<Pair<String, String>>>> builder = ImmutableList.builder();
+	    return FluentIterable.from(builder.build());
+	}
+	return contexts.get();
+    }
+
     private static final FluentIterable<Pair<Long, Iterable<Pair<String, String>>>> loadContexts(final String parameter, final String value,
 	    final String tableName, final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
 	Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> contexts = databaseExists()
@@ -121,6 +139,20 @@ abstract class Entity {
 	return contexts.get();
     }
 
+    private static Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>> loadPersistenceContextsStartsWith(final String parameter,
+	    final String startsWith, final String tablename, final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
+	return new Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>>() {
+	    @Override
+	    public Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>> apply(final Boolean tableExists) {
+		if (!tableExists) {
+		    System.err.println(String.format("Table '%s' does not exist", tablename));
+		    throw new IllegalStateException(String.format("Table '%s' does not exist", tablename));
+		}
+		return DatabaseOperations.loadPersistenceContextsStartsWith(parameter, startsWith, tablename, keys, orderBy);
+	    }
+	};
+    }
+
     private static Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>> loadPersistenceContexts(final String parameter,
 	    final String value, final String tableName, final ImmutableList<String> keys, final Optional<Ordering> orderBy) {
 	return new Function<Boolean, Try<FluentIterable<Pair<Long, Iterable<Pair<String, String>>>>>>() {
@@ -133,6 +165,30 @@ abstract class Entity {
 		return DatabaseOperations.loadPersistenceContexts(parameter, value, tableName, keys, orderBy);
 	    }
 	};
+    }
+
+    static final <T> Iterable<T> loadFromParameterStartsWith(final String parameter, final String startsWith, final String tablename,
+	    final Buildable<T> template, final ImmutableList<String> keys,
+ Optional<Ordering> orderBy) {
+	Function<Try<T>, T> toTemplate = new Function<Try<T>, T>() {
+	    @Override
+	    public T apply(final Try<T> input) {
+		return input.get();
+	    }
+	};
+	Predicate<Try<T>> success = new Predicate<Try<T>>() {
+	    @Override
+	    public boolean apply(final Try<T> input) {
+		return input.isSuccess();
+	    }
+	};
+	return loadContextsStartsWith(parameter, startsWith, tablename, keys, orderBy)
+	//
+		.transform(buildEntity(template))
+
+		.filter(success)
+
+		.transform(toTemplate);
     }
 
     static final <T> Iterable<T> loadFromParameter(final String parameter, final String value, final String tableName, final Buildable<T> template,

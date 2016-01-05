@@ -80,6 +80,14 @@ public class Eigenverbrauch extends Entity implements Buildable<Eigenverbrauch> 
 	return loadFromParameter(parameter, value, TABLENAME, new Eigenverbrauch(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Eigenverbrauch> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Eigenverbrauch(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Eigenverbrauch> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Eigenverbrauch(0L), keys, Optional.<Ordering> absent());
+    }
+
     public final Try<Eigenverbrauch> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Eigenverbrauch>() {
 	    @Override

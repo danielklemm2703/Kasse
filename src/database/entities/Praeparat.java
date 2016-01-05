@@ -52,6 +52,15 @@ public class Praeparat extends Entity implements Buildable<Praeparat> {
     public static final Iterable<Praeparat> loadByParameter(final String parameter, final String value, final Ordering orderBy) {
 	return loadFromParameter(parameter, value, TABLENAME, new Praeparat(0L), keys, Optional.of(orderBy));
     }
+
+    public static final Iterable<Praeparat> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Praeparat(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Praeparat> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Praeparat(0L), keys, Optional.<Ordering> absent());
+    }
+
     public final Try<Praeparat> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Praeparat>() {
 	    @Override

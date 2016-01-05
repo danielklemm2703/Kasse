@@ -79,6 +79,14 @@ public class Kunde extends Entity implements Buildable<Kunde> {
 	return loadFromParameter(parameter, value, TABLENAME, new Kunde(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Kunde> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Kunde(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Kunde> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Kunde(0L), keys, Optional.<Ordering> absent());
+    }
+
     public final Try<Kunde> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Kunde>() {
 	    @Override

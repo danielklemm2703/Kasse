@@ -81,4 +81,16 @@ public final class Queries {
 	System.err.println(String.format("SELECT * FROM '%s' WHERE %s='%s' ORDER BY %s %s;", tableName, parameter, value, order, direction));
 	return String.format("SELECT * FROM '%s' WHERE %s='%s' ORDER BY %s %s;", tableName, parameter, value, order, direction);
     }
+
+    public static final String loadContextByParameterStartsWith(final String parameter, final String startsWith, final String tablename,
+	    final Optional<Ordering> orderBy) {
+	if (!orderBy.isPresent()) {
+	    System.err.println("SELECT * FROM '" + tablename + "' WHERE " + parameter + " LIKE '" + startsWith + "%';");
+	    return "SELECT * FROM '" + tablename + "' WHERE " + parameter + " LIKE '" + startsWith + "%';";
+	}
+	String order = orderBy.get()._orderBy;
+	String direction = orderBy.get()._direction;
+	System.err.println("SELECT * FROM '" + tablename + "' WHERE " + parameter + " LIKE '" + startsWith + "%' ORDER BY " + order + " " + direction + ";");
+	return "SELECT * FROM '" + tablename + "' WHERE " + parameter + " LIKE '" + startsWith + "%' ORDER BY " + order + " " + direction + ";";
+    }
 }

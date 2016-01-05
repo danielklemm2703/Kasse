@@ -71,4 +71,12 @@ public class Ort extends Entity implements Buildable<Ort> {
     public static final Iterable<Ort> loadByParameter(final String parameter, final String value, final Ordering orderBy) {
 	return loadFromParameter(parameter, value, TABLENAME, new Ort(0L), keys, Optional.of(orderBy));
     }
+
+    public static final Iterable<Ort> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Ort(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Ort> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Ort(0L), keys, Optional.<Ordering> absent());
+    }
 }

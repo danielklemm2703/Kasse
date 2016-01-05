@@ -95,6 +95,14 @@ public class Wickel extends Entity implements Buildable<Wickel> {
 	return loadFromParameter(parameter, value, TABLENAME, new Wickel(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Wickel> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Wickel(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Wickel> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Wickel(0L), keys, Optional.<Ordering> absent());
+    }
+
     public final Try<Wickel> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Wickel>() {
 	    @Override

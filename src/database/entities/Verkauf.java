@@ -51,6 +51,14 @@ public class Verkauf extends Entity implements Buildable<Verkauf> {
 	return loadFromParameter(parameter, value, TABLENAME, new Verkauf(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Verkauf> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Verkauf(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Verkauf> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Verkauf(0L), keys, Optional.<Ordering> absent());
+    }
+
     @Override
     public final Try<Verkauf> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Verkauf>() {

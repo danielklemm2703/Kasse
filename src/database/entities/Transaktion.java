@@ -17,10 +17,6 @@ import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Lists;
 
 public class Transaktion extends Entity implements Buildable<Transaktion> {
-    // Transaktion: Id, KundeId,DiensleistungenIds[],VerkaufIds[],Datum,
-    // FriseurId,Preis(AbzüglichEingelösterGutschein,inklusivegekaufterGutschein),
-    // aktiv,laufTransaktion(bool true->TransaktionId
-    // ==0),GutscheinStartwert,GutscheinIdEingelöst,GutscheinIdGekauft
 
     private long _kundeId;
     private FluentIterable<Long> _dienstleistungsIds;
@@ -126,6 +122,14 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 
     public static final Iterable<Transaktion> loadByParameter(final String parameter, final String value, final Ordering orderBy) {
 	return loadFromParameter(parameter, value, TABLENAME, new Transaktion(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Transaktion> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Transaktion(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Transaktion> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Transaktion(0L), keys, Optional.<Ordering> absent());
     }
 
     public final Try<Transaktion> build(final Pair<Long, Iterable<Pair<String, String>>> context) {

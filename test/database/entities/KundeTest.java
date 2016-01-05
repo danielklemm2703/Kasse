@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -94,5 +95,30 @@ public class KundeTest {
 	new Kunde("Horst", "Klinker", 1L, "0190/666").save();
 	load = FluentIterable.from(Kunde.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	double random = Math.random();
+	new Kunde("Horst", "Klinker", 1L, "" + random).save();
+
+	FluentIterable<Kunde> load = FluentIterable.from(Kunde.loadByParameterStartsWith("NACHNAME", "K"));
+	assertEquals(false, load.isEmpty());
+	for (Kunde kunde : load) {
+	    assertTrue(kunde.getNachname().startsWith("K"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	double random = Math.random();
+	new Kunde("Horst", "Kacka", 1L, "" + random).save();
+
+	FluentIterable<Kunde> load = FluentIterable.from(Kunde.loadByParameterStartsWith("NACHNAME", "K", new Ordering("NACHNAME", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Kacka", load.first().get().getNachname());
+	for (Kunde kunde : load) {
+	    assertTrue(kunde.getNachname().startsWith("K"));
+	}
     }
 }

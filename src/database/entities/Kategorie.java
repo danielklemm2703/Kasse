@@ -86,6 +86,14 @@ public class Kategorie extends Entity implements Buildable<Kategorie> {
 	return loadFromParameter(parameter, value, TABLENAME, new Kategorie(0L), keys, Optional.of(orderBy));
     }
 
+    public static final Iterable<Kategorie> loadByParameterStartsWith(final String parameter, final String startsWith, final Ordering orderBy) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Kategorie(0L), keys, Optional.of(orderBy));
+    }
+
+    public static final Iterable<Kategorie> loadByParameterStartsWith(final String parameter, final String startsWith) {
+	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Kategorie(0L), keys, Optional.<Ordering> absent());
+    }
+
     public Try<Kategorie> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Kategorie>() {
 	    @Override
