@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -93,5 +94,28 @@ public class FarbeTest {
 	new Farbe(1L, FaerbeTechnik.ANSATZ, "rot", "3%").save();
 	load = FluentIterable.from(Farbe.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Farbe(1L, FaerbeTechnik.ANSATZ, "rot", "3%").save();
+
+	FluentIterable<Farbe> load = FluentIterable.from(Farbe.loadByParameterStartsWith("FAERBETECHNIK", "A"));
+	assertEquals(false, load.isEmpty());
+	for (Farbe Farbe : load) {
+	    assertTrue(Farbe.getFaerbeTechnik().toString().startsWith("A"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Farbe(1L, FaerbeTechnik.ANSATZ, "rot", "0%").save();
+
+	FluentIterable<Farbe> load = FluentIterable.from(Farbe.loadByParameterStartsWith("FAERBETECHNIK", "A", new Ordering("OXYD", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("0%", load.first().get().getOxyd());
+	for (Farbe farbe : load) {
+	    assertTrue(farbe.getFaerbeTechnik().toString().startsWith("A"));
+	}
     }
 }

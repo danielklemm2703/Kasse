@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -114,5 +115,32 @@ public class TransaktionTest {
 	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
 	load = FluentIterable.from(Transaktion.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
+	DateTime now = DateTime.now();
+	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
+
+	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameterStartsWith("LAUFKUNDE", "tr"));
+	assertEquals(false, load.isEmpty());
+	for (Transaktion transaktion : load) {
+	    assertTrue(transaktion.isLaufkunde());
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
+	DateTime now = DateTime.now();
+	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
+
+	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameterStartsWith("LAUFKUNDE", "tr", new Ordering("LAUFKUNDE", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals(true, load.first().get().isLaufkunde());
+	for (Transaktion transaktion : load) {
+	    assertTrue(transaktion.isLaufkunde());
+	}
     }
 }

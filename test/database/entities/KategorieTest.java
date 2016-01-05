@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -94,5 +95,28 @@ public class KategorieTest {
 	new Kategorie("Herren", false, false).save();
 	load = FluentIterable.from(Kategorie.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Kategorie("Herren", false, false).save();
+
+	FluentIterable<Kategorie> load = FluentIterable.from(Kategorie.loadByParameterStartsWith("KATEGORIE_NAME", "H"));
+	assertEquals(false, load.isEmpty());
+	for (Kategorie kategorie : load) {
+	    assertTrue(kategorie.getKategorieName().startsWith("H"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Kategorie("Haaaaerren", false, false).save();
+
+	FluentIterable<Kategorie> load = FluentIterable.from(Kategorie.loadByParameterStartsWith("KATEGORIE_NAME", "H", new Ordering("KATEGORIE_NAME", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Haaaaerren", load.first().get().getKategorieName());
+	for (Kategorie kategorie : load) {
+	    assertTrue(kategorie.getKategorieName().startsWith("H"));
+	}
     }
 }

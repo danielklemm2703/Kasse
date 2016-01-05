@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -97,5 +98,28 @@ public class WickelTest {
 	new Wickel(112L, WickelTyp.DAUERWELL, WickelStaerke.F, "rot", 112L, false).save();
 	load = FluentIterable.from(Wickel.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Wickel(112L, WickelTyp.DAUERWELL, WickelStaerke.F, "rot", 112L, false).save();
+
+	FluentIterable<Wickel> load = FluentIterable.from(Wickel.loadByParameterStartsWith("WICKELTYP", "D"));
+	assertEquals(false, load.isEmpty());
+	for (Wickel wickel : load) {
+	    assertTrue(wickel.getWickelTyp().toString().startsWith("D"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Wickel(112L, WickelTyp.DAUERWELL, WickelStaerke.F, "rot", 112L, false).save();
+
+	FluentIterable<Wickel> load = FluentIterable.from(Wickel.loadByParameterStartsWith("WICKELTYP", "D", new Ordering("WICKELTYP", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals(WickelTyp.DAUERWELL.toString(), load.first().get().getWickelTyp().toString());
+	for (Wickel wickel : load) {
+	    assertTrue(wickel.getWickelTyp().toString().startsWith("D"));
+	}
     }
 }

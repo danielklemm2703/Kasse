@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -100,5 +101,28 @@ public class RezepturTest {
 	new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
 	load = FluentIterable.from(Rezeptur.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
+
+	FluentIterable<Rezeptur> load = FluentIterable.from(Rezeptur.loadByParameterStartsWith("ERGEBNIS", "v"));
+	assertEquals(false, load.isEmpty());
+	for (Rezeptur rezeptur : load) {
+	    assertTrue(rezeptur.getErgebnis().startsWith("v"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vaaaaorhanden", false).save();
+
+	FluentIterable<Rezeptur> load = FluentIterable.from(Rezeptur.loadByParameterStartsWith("ERGEBNIS", "v", new Ordering("ERGEBNIS", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("vaaaaorhanden", load.first().get().getErgebnis());
+	for (Rezeptur rezeptur : load) {
+	    assertTrue(rezeptur.getErgebnis().startsWith("v"));
+	}
     }
 }

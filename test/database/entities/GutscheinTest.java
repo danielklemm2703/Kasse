@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -94,5 +95,28 @@ public class GutscheinTest {
 	new Gutschein(1L, 1L, Preis.of(22D)).save();
 	load = FluentIterable.from(Gutschein.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Gutschein(1L, 1L, Preis.of(22D)).save();
+
+	FluentIterable<Gutschein> load = FluentIterable.from(Gutschein.loadByParameterStartsWith("RESTWERT", "1"));
+	assertEquals(false, load.isEmpty());
+	for (Gutschein gutschein : load) {
+	    assertTrue(gutschein.getRestWert().toString().startsWith("1"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Gutschein(1L, 1L, Preis.of(1.00D)).save();
+
+	FluentIterable<Gutschein> load = FluentIterable.from(Gutschein.loadByParameterStartsWith("RESTWERT", "1", new Ordering("RESTWERT", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals(Preis.of(1.00D).toString(), load.first().get().getRestWert().toString());
+	for (Gutschein gutschein : load) {
+	    assertTrue(gutschein.getRestWert().toString().startsWith("1"));
+	}
     }
 }

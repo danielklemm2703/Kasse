@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -97,5 +98,28 @@ public class EigenverbrauchTest {
 	new Eigenverbrauch(1L, Preis.of(122D), DateTime.now()).save();
 	load = FluentIterable.from(Eigenverbrauch.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Eigenverbrauch(1L, Preis.of(122D), DateTime.now()).save();
+
+	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameterStartsWith("PREIS", "1"));
+	assertEquals(false, load.isEmpty());
+	for (Eigenverbrauch eigenverbrauch : load) {
+	    assertTrue(eigenverbrauch.getPreis().toString().startsWith("1"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Eigenverbrauch(1L, Preis.of(1.00D), DateTime.now()).save();
+
+	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameterStartsWith("PREIS", "1", new Ordering("PREIS", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals(Preis.of(1.00D).toString(), load.first().get().getPreis().toString());
+	for (Eigenverbrauch eigenverbrauch : load) {
+	    assertTrue(eigenverbrauch.getPreis().toString().startsWith("1"));
+	}
     }
 }

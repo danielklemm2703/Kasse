@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -95,5 +96,28 @@ public class VerkaufTest {
 	new Verkauf("Haare schneiden", 2, Preis.of("22,22")).save();
 	load = FluentIterable.from(Verkauf.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Verkauf("Haare schneiden", 2, Preis.of("22,22")).save();
+
+	FluentIterable<Verkauf> load = FluentIterable.from(Verkauf.loadByParameterStartsWith("NAME", "H"));
+	assertEquals(false, load.isEmpty());
+	for (Verkauf verkauf : load) {
+	    assertTrue(verkauf.getVerkaufsName().startsWith("H"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Verkauf("Haaare schneiden", 2, Preis.of("22,22")).save();
+
+	FluentIterable<Verkauf> load = FluentIterable.from(Verkauf.loadByParameterStartsWith("NAME", "H", new Ordering("NAME", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Haaare schneiden", load.first().get().getVerkaufsName());
+	for (Verkauf verkauf : load) {
+	    assertTrue(verkauf.getVerkaufsName().startsWith("H"));
+	}
     }
 }

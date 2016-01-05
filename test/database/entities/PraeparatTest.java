@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -92,5 +93,28 @@ public class PraeparatTest {
 	new Praeparat("Divano").save();
 	load = FluentIterable.from(Praeparat.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Praeparat("Divano").save();
+
+	FluentIterable<Praeparat> load = FluentIterable.from(Praeparat.loadByParameterStartsWith("NAME", "D"));
+	assertEquals(false, load.isEmpty());
+	for (Praeparat praeparat : load) {
+	    assertTrue(praeparat.getName().startsWith("D"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Praeparat("Daaaaivano").save();
+
+	FluentIterable<Praeparat> load = FluentIterable.from(Praeparat.loadByParameterStartsWith("NAME", "D", new Ordering("NAME", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Daaaaivano", load.first().get().getName());
+	for (Praeparat praeparat : load) {
+	    assertTrue(praeparat.getName().startsWith("D"));
+	}
     }
 }

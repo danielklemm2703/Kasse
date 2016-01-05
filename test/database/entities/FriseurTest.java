@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -93,5 +94,28 @@ public class FriseurTest {
 	new Friseur("Aanne").save();
 	load = FluentIterable.from(Friseur.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Friseur("Aanne").save();
+
+	FluentIterable<Friseur> load = FluentIterable.from(Friseur.loadByParameterStartsWith("FRISEUR_NAME", "A"));
+	assertEquals(false, load.isEmpty());
+	for (Friseur friseur : load) {
+	    assertTrue(friseur.getFriseurName().startsWith("A"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Friseur("Aaannee").save();
+
+	FluentIterable<Friseur> load = FluentIterable.from(Friseur.loadByParameterStartsWith("FRISEUR_NAME", "A", new Ordering("FRISEUR_NAME", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Aaannee", load.first().get().getFriseurName());
+	for (Friseur friseur : load) {
+	    assertTrue(friseur.getFriseurName().startsWith("A"));
+	}
     }
 }

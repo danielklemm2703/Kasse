@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -91,5 +92,28 @@ public class OrtTest {
 	new Ort("Brand-Erbisdorf").save();
 	load = FluentIterable.from(Ort.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Ort("Brand-Erbisdorf").save();
+
+	FluentIterable<Ort> load = FluentIterable.from(Ort.loadByParameterStartsWith("ORT_NAME", "B"));
+	assertEquals(false, load.isEmpty());
+	for (Ort Ort : load) {
+	    assertTrue(Ort.getOrtName().startsWith("B"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Ort("Baaarand-Erbisdorf").save();
+
+	FluentIterable<Ort> load = FluentIterable.from(Ort.loadByParameterStartsWith("ORT_NAME", "B", new Ordering("ORT_NAME", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Baaarand-Erbisdorf", load.first().get().getOrtName());
+	for (Ort Ort : load) {
+	    assertTrue(Ort.getOrtName().startsWith("B"));
+	}
     }
 }

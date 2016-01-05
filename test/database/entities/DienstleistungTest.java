@@ -1,6 +1,7 @@
 package database.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -96,5 +97,28 @@ public class DienstleistungTest {
 	new Dienstleistung(name, 1, Preis.of(122D), false).save();
 	load = FluentIterable.from(Dienstleistung.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith() {
+	new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), false).save();
+
+	FluentIterable<Dienstleistung> load = FluentIterable.from(Dienstleistung.loadByParameterStartsWith("NAME", "H"));
+	assertEquals(false, load.isEmpty());
+	for (Dienstleistung dienstleistung : load) {
+	    assertTrue(dienstleistung.getDienstleistungsName().startsWith("H"));
+	}
+    }
+
+    @Test
+    public void testLoadByParameterStartsWith_Ordering() {
+	new Dienstleistung("Haaare schneiden", 2, Preis.of("22,22"), false).save();
+
+	FluentIterable<Dienstleistung> load = FluentIterable.from(Dienstleistung.loadByParameterStartsWith("NAME", "H", new Ordering("NAME", "ASC")));
+	assertEquals(false, load.isEmpty());
+	assertEquals("Haaare schneiden", load.first().get().getDienstleistungsName());
+	for (Dienstleistung dienstleistung : load) {
+	    assertTrue(dienstleistung.getDienstleistungsName().startsWith("H"));
+	}
     }
 }
