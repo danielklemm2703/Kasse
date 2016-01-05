@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import util.Preis;
 import util.Try;
 import util.Unit;
 import database.Ordering;
@@ -15,24 +16,24 @@ public class EigenverbrauchTest {
 
     @Test
     public void testSaveNewEntity() {
-	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, DateTime.now());
+	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, Preis.of(122D), DateTime.now());
 	Try<Long> save = eigenverbrauch.save();
 	assertEquals(true, save.isSuccess());
     }
 
     @Test
     public void testUpdateExistingEntity() {
-	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, DateTime.now());
+	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, Preis.of(122D), DateTime.now());
 	Try<Long> save = eigenverbrauch.save();
 	Long entityId = save.get();
-	eigenverbrauch = new Eigenverbrauch(entityId, 1L, DateTime.now());
+	eigenverbrauch = new Eigenverbrauch(entityId, 1L, Preis.of(122D), DateTime.now());
 	save = eigenverbrauch.save();
 	assertEquals(save.get(), eigenverbrauch.getEntityId().get());
     }
 
     @Test
     public void testLoadExistingEntity() {
-	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, DateTime.now());
+	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, Preis.of(122D), DateTime.now());
 	Try<Long> save = eigenverbrauch.save();
 	Long entityId = save.get();
 	Optional<Eigenverbrauch> loadById = Eigenverbrauch.loadById(entityId);
@@ -42,7 +43,7 @@ public class EigenverbrauchTest {
 
     @Test
     public void testDeleteExistingEntity() {
-	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, DateTime.now());
+	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, Preis.of(122D), DateTime.now());
 	Try<Long> save = eigenverbrauch.save();
 	Long entityId = save.get();
 	Try<Unit> delete = Eigenverbrauch.delete(entityId, Eigenverbrauch.TABLENAME);
@@ -69,8 +70,8 @@ public class EigenverbrauchTest {
     @Test
     public void testLoadByParameterWithOrdering() {
 	DateTime now = DateTime.now();
-	new Eigenverbrauch(1, now).save();
-	new Eigenverbrauch(2, now).save();
+	new Eigenverbrauch(1, Preis.of(122D), now).save();
+	new Eigenverbrauch(2, Preis.of(122D), now).save();
 	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameter("DATUM", now.toString(), new Ordering("FRISEUR_ID",
 		"DESC")));
 	assertEquals(false, load.isEmpty());
@@ -80,7 +81,7 @@ public class EigenverbrauchTest {
     @Test
     public void testLoadByParameterNotEveryEntry() {
 	DateTime now = DateTime.now();
-	new Eigenverbrauch(1L, now).save();
+	new Eigenverbrauch(1L, Preis.of(122D), now).save();
 
 	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameter("DATUM", now.toString()));
 	assertEquals(false, load.isEmpty());
@@ -89,11 +90,11 @@ public class EigenverbrauchTest {
 
     @Test
     public void testLoadByParameterEveryEntry() {
-	new Eigenverbrauch(1L, DateTime.now()).save();
+	new Eigenverbrauch(1L, Preis.of(122D), DateTime.now()).save();
 	FluentIterable<Eigenverbrauch> load = FluentIterable.from(Eigenverbrauch.loadByParameter("'1'", "1"));
 	assertEquals(false, load.isEmpty());
 	int size = load.size();
-	new Eigenverbrauch(1L, DateTime.now()).save();
+	new Eigenverbrauch(1L, Preis.of(122D), DateTime.now()).save();
 	load = FluentIterable.from(Eigenverbrauch.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
     }

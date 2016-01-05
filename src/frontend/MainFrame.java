@@ -10,6 +10,8 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
@@ -17,10 +19,12 @@ import javax.swing.JFrame;
 
 import util.Images;
 import util.Try;
+import backend.NotificationKeeper;
 
-public class Kasse {
+public class MainFrame {
 
     private JFrame _frame;
+    public static NotificationKeeper _keeper = new NotificationKeeper();
 
     /**
      * Launch the application.
@@ -29,7 +33,7 @@ public class Kasse {
 	EventQueue.invokeLater(new Runnable() {
 	    public void run() {
 		try {
-		    Kasse window = new Kasse();
+		    MainFrame window = new MainFrame();
 		    window._frame.setVisible(true);
 		} catch (Exception e) {
 		    e.printStackTrace();
@@ -41,7 +45,7 @@ public class Kasse {
     /**
      * Create the application.
      */
-    public Kasse() {
+    public MainFrame() {
 	initialize();
     }
 
@@ -55,6 +59,7 @@ public class Kasse {
 	_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	_frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	_frame.getContentPane().setLayout(null);
+	_frame.addWindowFocusListener(checkError());
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	int width = (int) Math.round(screenSize.getWidth());
@@ -98,5 +103,21 @@ public class Kasse {
 	adminBereichBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	adminBereichBtn.setBounds(22, starting + 240, 205, 45);
 	_frame.getContentPane().add(adminBereichBtn);
+    }
+
+    private static final WindowFocusListener checkError() {
+	return new WindowFocusListener() {
+	    public void windowGainedFocus(WindowEvent e) {
+		System.err.println("MainFrame window gained focus");
+		if (MainFrame._keeper._notification.isPresent()) {
+		    System.err.println("Notification window request focus");
+		    MainFrame._keeper._notification.get().requestFocus();
+		}
+	    }
+
+	    public void windowLostFocus(WindowEvent e) {
+		System.err.println("MainFrame window lost focus");
+	    }
+	};
     }
 }

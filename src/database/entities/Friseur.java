@@ -71,4 +71,9 @@ public class Friseur extends Entity implements Buildable<Friseur> {
 	    }
 	});
     }
+
+    @Override
+    public String toString() {
+	return getFriseurName();
+    }
 }
