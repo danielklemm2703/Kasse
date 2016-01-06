@@ -66,20 +66,6 @@ public class FrameManager {
 	    @Override
 	    public void actionPerformed(ActionEvent e) {
 		frame.dispose();
-		MainFrame._keeper._notification = Optional.absent();
-	    }
-	};
-    }
-
-    public static final WindowFocusListener closeOnLeave(final TypedJFrame frame) {
-	return new WindowFocusListener() {
-	    public void windowGainedFocus(WindowEvent e) {
-		System.err.println(frame._type.toString() + " window gained focus");
-	    }
-
-	    public void windowLostFocus(WindowEvent e) {
-		System.err.println(frame._type.toString() + " window lost focus");
-		frame.dispose();
 	    }
 	};
     }
@@ -98,10 +84,8 @@ public class FrameManager {
 	};
     }
 
-    public static void showNotification(final boolean error, final String message1, final String message2) {
 	Notification notification = new Notification(error, message1, message2);
 	notification.setVisible(true);
-	MainFrame._keeper._notification = Optional.<TypedJFrame> of(notification);
     }
 
     public static final KeyAdapter numbersOnly() {
@@ -123,4 +107,5 @@ public class FrameManager {
 	    }
 	};
     }
+
 }

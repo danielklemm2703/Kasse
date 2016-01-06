@@ -3,7 +3,6 @@ package frontend;
 import static backend.FrameManager.closeFrame;
 import static backend.FrameManager.numbersOnly;
 import static backend.FrameManager.showNotification;
-import static backend.FrameManager.closeOnLeave;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -42,7 +41,6 @@ public class EigenverbrauchFrame extends TypedJFrame {
      */
     public EigenverbrauchFrame() {
 	_type = FrameType.EIGENVERBRAUCH;
-	addWindowFocusListener(closeOnLeave(this));
 	setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	setResizable(false);
 	setTitle("Eigenverbrauch");

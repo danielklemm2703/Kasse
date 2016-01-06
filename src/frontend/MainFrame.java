@@ -1,5 +1,6 @@
 package frontend;
 
+import static backend.FrameManager.checkOtherOpenFrames;
 import static backend.FrameManager.openAdmin;
 import static backend.FrameManager.openEigenverbrauch;
 import static backend.FrameManager.openKasse;
@@ -9,9 +10,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
@@ -19,12 +21,14 @@ import javax.swing.JFrame;
 
 import util.Images;
 import util.Try;
+import backend.FrameKeeper;
 import backend.NotificationKeeper;
 
 public class MainFrame {
 
     private JFrame _frame;
-    public static NotificationKeeper _keeper = new NotificationKeeper();
+    public static NotificationKeeper _notificationKeeper = new NotificationKeeper();
+    public static FrameKeeper _frameKeeper = new FrameKeeper();
 
     /**
      * Launch the application.
@@ -59,7 +63,8 @@ public class MainFrame {
 	_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	_frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	_frame.getContentPane().setLayout(null);
-	_frame.addWindowFocusListener(checkError());
+	_frame.addWindowFocusListener(checkOtherOpenFrames());
+	_frame.addWindowStateListener(onMinimize());
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	int width = (int) Math.round(screenSize.getWidth());
@@ -105,18 +110,20 @@ public class MainFrame {
 	_frame.getContentPane().add(adminBereichBtn);
     }
 
-    private static final WindowFocusListener checkError() {
-	return new WindowFocusListener() {
-	    public void windowGainedFocus(WindowEvent e) {
-		System.err.println("MainFrame window gained focus");
-		if (MainFrame._keeper._notification.isPresent()) {
-		    System.err.println("Notification window request focus");
-		    MainFrame._keeper._notification.get().requestFocus();
+    private WindowStateListener onMinimize() {
+	return new WindowStateListener() {
+	    public void windowStateChanged(WindowEvent event) {
+		if ((event.getNewState() & Frame.ICONIFIED) == Frame.ICONIFIED) {
+		    System.err.println("minimized main Frame");
+		    if (MainFrame._notificationKeeper._notification.isPresent()) {
+			System.err.println("Notification window closed");
+			MainFrame._notificationKeeper._notification.get().dispose();
+		    }
+		    if (MainFrame._frameKeeper._openFrame.isPresent()) {
+			System.err.println("Open window closed");
+			MainFrame._frameKeeper._openFrame.get().dispose();
+		    }
 		}
-	    }
-
-	    public void windowLostFocus(WindowEvent e) {
-		System.err.println("MainFrame window lost focus");
 	    }
 	};
     }

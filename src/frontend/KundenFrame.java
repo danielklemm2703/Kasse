@@ -1,15 +1,18 @@
 package frontend;
 
 import static backend.FrameManager.closeFrame;
-import static backend.FrameManager.closeOnLeave;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -19,24 +22,27 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import backend.FrameManager;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
 import datameer.com.google.common.collect.ImmutableList;
+import datameer.com.google.common.collect.Maps;
 
 public class KundenFrame extends TypedJFrame {
 
     private static final long serialVersionUID = 4794193793492079259L;
     private JTable _table;
+    private HashMap<Integer, Kunde> _kundenMapping = Maps.newHashMap();
+    private static KundenFrame _instance;
 
     /**
      * Create the frame.
      */
     public KundenFrame() {
 	_type = FrameType.KUNDE;
-	addWindowFocusListener(closeOnLeave(this));
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	setResizable(false);
 	setTitle("Kunden");
@@ -49,27 +55,26 @@ public class KundenFrame extends TypedJFrame {
 	int startingWidth = ((width / 2) - (602 / 2));
 	int startingHeigth = ((height / 2) - (542 / 2));
 
-	setBounds(startingWidth, startingHeigth, 602, 542);
+	setBounds(startingWidth, startingHeigth, 602, 536);
 
 	getContentPane().setLayout(null);
 
 	JScrollPane scrollPane = new JScrollPane();
-	scrollPane.setBounds(0, 62, 602, 480);
+	scrollPane.setBounds(0, 62, 602, 444);
 	getContentPane().add(scrollPane);
 	_table = new JTable(createEmptyKundenModel());
 	_table.setShowHorizontalLines(true);
 	_table.setShowVerticalLines(true);
 	_table.setGridColor(Color.BLACK);
-	_table.addMouseListener(kundeChooser());
 	scrollPane.setViewportView(_table);
-	loadKundeData("A", _table);
+	loadKundeData("A");
 
 	JLabel lblKunden = new JLabel("Kunden");
 	lblKunden.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblKunden.setBounds(6, 6, 104, 25);
 	getContentPane().add(lblKunden);
 
-	JMenuBar menuBar = createMenuBar(_table);
+	JMenuBar menuBar = createMenuBar();
 	menuBar.setBounds(0, 40, 602, 22);
 	getContentPane().add(menuBar);
 
@@ -80,6 +85,70 @@ public class KundenFrame extends TypedJFrame {
 	lblX.setBounds(570, 10, 26, 16);
 	getContentPane().add(lblX);
 
+	JButton neuerKundeBtn = new JButton("Neu Anlegen");
+	neuerKundeBtn.addActionListener(neuerKunde());
+	neuerKundeBtn.setBounds(10, 507, 117, 29);
+	getContentPane().add(neuerKundeBtn);
+
+	JButton btnNewButton = new JButton("Rezepturen Anzeigen");
+	btnNewButton.addActionListener(kundeAnzeigen());
+	btnNewButton.setBounds(154, 507, 168, 29);
+	getContentPane().add(btnNewButton);
+
+	JButton btnDatenndern = new JButton("Daten Ändern");
+	btnDatenndern.addActionListener(kundeUpdate());
+	btnDatenndern.setBounds(347, 507, 117, 29);
+	getContentPane().add(btnDatenndern);
+
+	JButton btnLschen = new JButton("Löschen");
+	btnLschen.addActionListener(kundeDelete());
+	btnLschen.setBounds(485, 507, 117, 29);
+	getContentPane().add(btnLschen);
+
+	_instance = this;
+    }
+
+    private final ActionListener kundeDelete() {
+	return new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		int selectedRow = _table.getSelectedRow();
+		if (selectedRow == -1) {
+		    FrameManager.showNotification(true, "Es wurde kein", "Kunde ausgewählt!");
+		    return;
+		}
+		Kunde kunde = _kundenMapping.get(selectedRow);
+		if (kunde == null) {
+		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    return;
+		}
+		FrameManager.showKundeDeleteCheck(kunde);
+	    }
+	};
+    }
+
+    private final ActionListener kundeUpdate() {
+	return new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		// TODO
+	    }
+	};
+    }
+
+    private final ActionListener kundeAnzeigen() {
+	return new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		// TODO
+	    }
+	};
+    }
+
+    private final ActionListener neuerKunde() {
+	return new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		// TODO
+
+	    }
+	};
     }
 
     private static final DefaultTableModel createEmptyKundenModel() {
@@ -91,41 +160,42 @@ public class KundenFrame extends TypedJFrame {
 	return model;
     }
 
-    private MouseAdapter kundeChooser() {
-	return new MouseAdapter() {
-	    @Override
-	    public void mouseClicked(MouseEvent e) {
-	    }
-	};
-    }
-
-    private static final JMenuBar createMenuBar(final JTable table) {
+    private final JMenuBar createMenuBar() {
 	JMenuBar menuBar = new JMenuBar();
 	ImmutableList<String> letters = ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
 		"U", "V", "W", "X", "Y", "Z");
 	for (String letter : letters) {
 	    JMenu a = new JMenu(letter);
-	    a.addMouseListener(loadKundenOnKlick(letter, table));
+	    a.addMouseListener(loadKundenOnKlick(letter));
 	    menuBar.add(a);
 	}
 	return menuBar;
     }
 
-    private static final void loadKundeData(final String letter, final JTable table) {
+    private final void loadKundeData(final String letter) {
 	Iterable<Kunde> kunden = Kunde.loadByParameterStartsWith("NACHNAME", letter, new Ordering("NACHNAME", "ASC"));
 	DefaultTableModel model = createEmptyKundenModel();
+	_kundenMapping = new HashMap<Integer, Kunde>();
+	int index = 0;
 	for (Kunde kunde : kunden) {
 	    model.addRow(new Object[] { kunde.getNachname(), kunde.getVorname(), Ort.loadById(kunde.getOrtId()).get().getOrtName(), kunde.getTelefon() });
+	    _kundenMapping.put(index++, kunde);
 	}
-	table.setModel(model);
+	_table.setModel(model);
     }
 
-    private static final MouseAdapter loadKundenOnKlick(final String letter, final JTable table) {
+    private final MouseAdapter loadKundenOnKlick(final String letter) {
 	return new MouseAdapter() {
 	    @Override
 	    public void mouseClicked(MouseEvent e) {
-		loadKundeData(letter, table);
+		loadKundeData(letter);
 	    }
 	};
+    }
+
+    public static final void refresh() {
+	if (_instance != null) {
+	    _instance.loadKundeData("A");
+	}
     }
 }

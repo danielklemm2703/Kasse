@@ -1,7 +1,7 @@
 package backend.enums;
 
 public enum FrameType {
-    NOTIFICATION("Notification"), KASSE("Kasse"), EIGENVERBRAUCH("Eigenverbrauch"), KUNDE("Kunde"), ADMIN("Admin"), NOT_FOUND("Not found");
+    CHECK("Check"), NOTIFICATION("Notification"), KASSE("Kasse"), EIGENVERBRAUCH("Eigenverbrauch"), KUNDE("Kunde"), ADMIN("Admin"), NOT_FOUND("Not found");
 
     private final String _name;
 
