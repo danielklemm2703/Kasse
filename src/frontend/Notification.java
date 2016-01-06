@@ -6,6 +6,7 @@ import static backend.FrameManager.holdFocus;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -14,6 +15,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import util.Images;
+import util.Try;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 
@@ -68,8 +71,17 @@ public class Notification extends TypedJFrame {
 	lblZweiterText.setBounds(75, 62, 192, 27);
 	_contentPane.add(lblZweiterText);
 
-	JLabel lblNewLabel_2 = new JLabel(new ImageIcon("1.png"));
-	lblNewLabel_2.setBounds(6, 38, 61, 51);
+	String pic = "check.png";
+	if (error) {
+	    pic = "ausrufezeichen.png";
+	}
+	ImageIcon image = new ImageIcon();
+	Try<BufferedImage> loadImage = Images.loadImage(pic);
+	if (loadImage.isSuccess()) {
+	    image = new ImageIcon(Images.resize(loadImage.get(), 51, 51));
+	}
+	JLabel lblNewLabel_2 = new JLabel(image);
+	lblNewLabel_2.setBounds(16, 36, 51, 51);
 	_contentPane.add(lblNewLabel_2);
 	setUndecorated(true);
     }
