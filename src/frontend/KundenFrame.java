@@ -28,6 +28,7 @@ import backend.enums.FrameType;
 import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
+import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Maps;
 
@@ -86,7 +87,7 @@ public class KundenFrame extends TypedJFrame {
 	getContentPane().add(lblX);
 
 	JButton neuerKundeBtn = new JButton("Neu Anlegen");
-	neuerKundeBtn.addActionListener(neuerKunde());
+	neuerKundeBtn.addActionListener(neuerKunde(this));
 	neuerKundeBtn.setBounds(10, 507, 117, 29);
 	getContentPane().add(neuerKundeBtn);
 
@@ -96,7 +97,7 @@ public class KundenFrame extends TypedJFrame {
 	getContentPane().add(btnNewButton);
 
 	JButton btnDatenndern = new JButton("Daten Ändern");
-	btnDatenndern.addActionListener(kundeUpdate());
+	btnDatenndern.addActionListener(kundeUpdate(this));
 	btnDatenndern.setBounds(347, 507, 117, 29);
 	getContentPane().add(btnDatenndern);
 
@@ -126,27 +127,36 @@ public class KundenFrame extends TypedJFrame {
 	};
     }
 
-    private final ActionListener kundeUpdate() {
-	return new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-		// TODO
-	    }
-	};
-    }
-
     private final ActionListener kundeAnzeigen() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		// TODO
+		//TODO 
 	    }
 	};
     }
 
-    private final ActionListener neuerKunde() {
+    private final ActionListener kundeUpdate(final KundenFrame kundenFrame) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		// TODO
+		int selectedRow = _table.getSelectedRow();
+		if (selectedRow == -1) {
+		    FrameManager.showNotification(true, "Es wurde kein", "Kunde ausgewählt!");
+		    return;
+		}
+		Kunde kunde = _kundenMapping.get(selectedRow);
+		if (kunde == null) {
+		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    return;
+		}
+		FrameManager.showKundeDataFrame(Optional.of(kunde), kundenFrame);
+	    }
+	};
+    }
 
+    private final ActionListener neuerKunde(final KundenFrame kundenFrame) {
+	return new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		FrameManager.showKundeDataFrame(Optional.<Kunde> absent(), kundenFrame);
 	    }
 	};
     }
