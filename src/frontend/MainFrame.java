@@ -89,14 +89,14 @@ public class MainFrame {
 	_frame.getContentPane().add(kasseBtn);
 
 	JButton eigenVerbrauchBtn = new JButton("Eigenverbrauch");
-	eigenVerbrauchBtn.addActionListener(openEigenverbrauch(this._frame));
+	eigenVerbrauchBtn.addActionListener(openEigenverbrauch());
 	eigenVerbrauchBtn.setBackground(Color.GRAY);
 	eigenVerbrauchBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	eigenVerbrauchBtn.setBounds(22, starting + 80, 205, 45);
 	_frame.getContentPane().add(eigenVerbrauchBtn);
 
 	JButton kundenBtn = new JButton("Kunden");
-	kundenBtn.addActionListener(openKunden(this._frame));
+	kundenBtn.addActionListener(openKunden());
 	kundenBtn.setBackground(Color.GRAY);
 	kundenBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	kundenBtn.setBounds(22, starting + 160, 205, 45);

@@ -29,7 +29,7 @@ public class FrameManager {
 	};
     }
 
-    public static final ActionListener openKunden(final JFrame frame) {
+    public static final ActionListener openKunden() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		if (!MainFrame._notificationKeeper._notification.isPresent()) {
@@ -41,7 +41,7 @@ public class FrameManager {
 	};
     }
 
-    public static final ActionListener openEigenverbrauch(final JFrame frame) {
+    public static final ActionListener openEigenverbrauch() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		if (!MainFrame._notificationKeeper._notification.isPresent()) {
@@ -115,6 +115,21 @@ public class FrameManager {
 	return new MouseAdapter() {
 	    @Override
 	    public void mouseClicked(MouseEvent e) {
+		frame.dispose();
+	    }
+	};
+    }
+
+    public static final MouseAdapter closeFrameAndOpenKundenFrame(final JFrame frame) {
+	return new MouseAdapter() {
+	    @Override
+	    public void mouseClicked(MouseEvent e) {
+		if (MainFrame._notificationKeeper._notification.isPresent()) {
+		    MainFrame._notificationKeeper._notification = Optional.<TypedJFrame> absent();
+		}
+		KundenFrame kundenFrame = new KundenFrame();
+		kundenFrame.setVisible(true);
+		MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundenFrame);
 		frame.dispose();
 	    }
 	};

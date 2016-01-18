@@ -223,19 +223,17 @@ public class DatabaseOperations {
 		    c.setAutoCommit(false);
 		    Statement stmt = c.createStatement();
 
-		    Statement s = c.createStatement();
-		    ResultSet r = s.executeQuery(Queries.rowCount(FluentIterable.from(persistenceContext)));
-		    r.next();
-		    Long entityId = r.getLong("rowcount");
-		    r.close();
-		    System.out.println("computed entity id is " + entityId);
-
-		    String saveEntityQuery = Queries.saveEntityQuery(FluentIterable.from(persistenceContext), entityId);
+		    String saveEntityQuery = Queries.saveEntityQuery(FluentIterable.from(persistenceContext));
 		    stmt.executeUpdate(saveEntityQuery);
 		    stmt.close();
+
+		    stmt = c.createStatement();
+		    ResultSet executeQuery = stmt.executeQuery(Queries.entityIdQuery(FluentIterable.from(persistenceContext)));
+		    int entityId = executeQuery.getInt("LAST");
 		    c.commit();
 		    c.close();
-		    return entityId;
+		    System.err.println("computed entityId: " + entityId);
+		    return (long) entityId;
 		} catch (Exception e) {
 		    throw new IllegalStateException(e.getClass().getName() + ": " + e.getMessage());
 		}

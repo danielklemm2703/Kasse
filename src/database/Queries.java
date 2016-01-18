@@ -7,15 +7,17 @@ import datameer.com.google.common.base.Predicate;
 import datameer.com.google.common.collect.FluentIterable;
 
 public final class Queries {
-    public static final String saveEntityQuery(final FluentIterable<Pair<String, String>> persistenceContext, final Long entityId) {
+    public static final String saveEntityQuery(final FluentIterable<Pair<String, String>> persistenceContext) {
 	final String tableName = persistenceContext.first().get()._2;
-	String saveEntityQuery = "INSERT INTO " + tableName + " (ID";
-	String saveEntityQueryValues = "VALUES (" + entityId + " ";
+	String saveEntityQuery = "INSERT INTO " + tableName + " (";
+	String saveEntityQueryValues = "VALUES (";
 	FluentIterable<Pair<String, String>> withoutTableName = persistenceContext.filter(Predicates.withoutSecond(tableName));
 	for (Pair<String, String> pair : withoutTableName) {
-	    saveEntityQuery += ", " + pair._1 + " ";
-	    saveEntityQueryValues += ", '" + pair._2 + "' ";
+	    saveEntityQuery += " " + pair._1 + ", ";
+	    saveEntityQueryValues += " '" + pair._2 + "', ";
 	}
+	saveEntityQuery = saveEntityQuery.substring(0, saveEntityQuery.length() - 2);
+	saveEntityQueryValues = saveEntityQueryValues.substring(0, saveEntityQueryValues.length() - 2);
 	saveEntityQuery += ") ";
 	saveEntityQueryValues += ");";
 	String returnQuery = saveEntityQuery + saveEntityQueryValues;
@@ -25,7 +27,7 @@ public final class Queries {
 
     public static final String createTableQuery(final FluentIterable<String> columnNames, final String tableName) {
 	FluentIterable<String> withoutTableName = columnNames.filter(Predicates.without(columnNames.first().get()));
-	String createTableQuery = "CREATE TABLE " + tableName + "(ID LONG PRIMARY KEY NOT NULL";
+	String createTableQuery = "CREATE TABLE " + tableName + "(ID INTEGER PRIMARY KEY AUTOINCREMENT";
 	for (String columnName : withoutTableName) {
 	    createTableQuery += " ," + columnName + " TEXT NOT NULL ";
 	}
@@ -92,5 +94,11 @@ public final class Queries {
 	String direction = orderBy.get()._direction;
 	System.err.println("SELECT * FROM '" + tablename + "' WHERE " + parameter + " LIKE '" + startsWith + "%' ORDER BY " + order + " " + direction + ";");
 	return "SELECT * FROM '" + tablename + "' WHERE " + parameter + " LIKE '" + startsWith + "%' ORDER BY " + order + " " + direction + ";";
+    }
+
+    public static final String entityIdQuery(final FluentIterable<Pair<String, String>> persistenceContext) {
+	final String tableName = persistenceContext.first().get()._2;
+	System.err.println("SELECT MAX(ID) AS LAST FROM " + tableName);
+	return "SELECT MAX(ID) AS LAST FROM " + tableName;
     }
 }
