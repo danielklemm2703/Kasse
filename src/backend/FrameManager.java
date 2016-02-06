@@ -12,13 +12,16 @@ import java.awt.event.WindowFocusListener;
 import javax.swing.JFrame;
 
 import database.entities.Kunde;
+import database.entities.Rezeptur;
 import datameer.com.google.common.base.Optional;
+import datameer.com.google.common.collect.FluentIterable;
 import frontend.EigenverbrauchFrame;
 import frontend.KundeDataFrame;
 import frontend.KundeDeleteFrame;
 import frontend.KundenFrame;
 import frontend.MainFrame;
 import frontend.Notification;
+import frontend.RezepturenFrame;
 
 public class FrameManager {
     public static final ActionListener openAdmin(final JFrame frame) {
@@ -168,6 +171,18 @@ public class FrameManager {
 		MainFrame._frameKeeper._openFrame = Optional.absent();
 	    }
 	    KundeDataFrame kundeDataFrame = new KundeDataFrame(kunde);
+	    kundeDataFrame.setVisible(true);
+	    kundenFrame.dispose();
+	    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundeDataFrame);
+	}
+    }
+
+    public static final void showRezepturenFrame(FluentIterable<Rezeptur> rezepturen, KundenFrame kundenFrame) {
+	if (!MainFrame._notificationKeeper._notification.isPresent()) {
+	    if (MainFrame._frameKeeper._openFrame.isPresent()) {
+		MainFrame._frameKeeper._openFrame = Optional.absent();
+	    }
+	    RezepturenFrame kundeDataFrame = new RezepturenFrame(rezepturen);
 	    kundeDataFrame.setVisible(true);
 	    kundenFrame.dispose();
 	    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundeDataFrame);

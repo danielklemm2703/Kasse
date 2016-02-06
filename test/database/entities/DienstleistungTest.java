@@ -16,24 +16,24 @@ public class DienstleistungTest {
 
     @Test
     public void testSaveNewEntity() {
-	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), false);
+	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), true);
 	Try<Long> save = dienstleistung.save();
 	assertEquals(true, save.isSuccess());
     }
 
     @Test
     public void testUpdateExistingEntity() {
-	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), false);
+	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), true);
 	Try<Long> save = dienstleistung.save();
 	Long entityId = save.get();
-	dienstleistung = new Dienstleistung(entityId, "Haare schneiden", 2, Preis.of("22,22"), false);
+	dienstleistung = new Dienstleistung(entityId, "Haare schneiden", 2, Preis.of("22,22"), true);
 	save = dienstleistung.save();
 	assertEquals(save.get(), dienstleistung.getEntityId().get());
     }
 
     @Test
     public void testLoadExistingEntity() {
-	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), false);
+	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), true);
 	Try<Long> save = dienstleistung.save();
 	Long entityId = save.get();
 	Optional<Dienstleistung> loadById = Dienstleistung.loadById(entityId);
@@ -43,7 +43,7 @@ public class DienstleistungTest {
 
     @Test
     public void testDeleteExistingEntity() {
-	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), false);
+	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), true);
 	Try<Long> save = dienstleistung.save();
 	Long entityId = save.get();
 	Try<Unit> delete = Dienstleistung.delete(entityId, Dienstleistung.TABLENAME);

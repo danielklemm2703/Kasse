@@ -143,7 +143,11 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 		String dienstleistungsIds = values.get(1)._2.replace("[", "");
 		dienstleistungsIds = dienstleistungsIds.replace("]", "");
 		String[] dienstleistungen = dienstleistungsIds.split(",");
-		transaktion.setDienstleistungsIds(FluentIterable.of(dienstleistungen).transform(Functions.toLong));
+		if (dienstleistungen.length == 1 && dienstleistungen[0].equals("")) {
+		    System.err.println("error case");
+		}
+		FluentIterable<Long> transform = FluentIterable.of(dienstleistungen).transform(Functions.toLong);
+		transaktion.setDienstleistungsIds(transform);
 
 		String verkaufsIds = values.get(2)._2.replace("[", "");
 		verkaufsIds = verkaufsIds.replace("]", "");

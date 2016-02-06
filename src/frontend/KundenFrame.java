@@ -1,6 +1,11 @@
 package frontend;
 
 import static backend.FrameManager.closeFrame;
+import static util.Functions.toPresent;
+import static util.Functions.toRezeptur;
+import static util.Predicates.eingetragen;
+import static util.Predicates.present;
+import static util.Predicates.withRezept;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -28,7 +33,10 @@ import backend.enums.FrameType;
 import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
+import database.entities.Rezeptur;
+import database.entities.Transaktion;
 import datameer.com.google.common.base.Optional;
+import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Maps;
 
@@ -92,7 +100,7 @@ public class KundenFrame extends TypedJFrame {
 	getContentPane().add(neuerKundeBtn);
 
 	JButton btnNewButton = new JButton("Rezepturen Anzeigen");
-	btnNewButton.addActionListener(kundeAnzeigen());
+	btnNewButton.addActionListener(kundeAnzeigen(this));
 	btnNewButton.setBounds(154, 507, 168, 29);
 	getContentPane().add(btnNewButton);
 
@@ -127,10 +135,27 @@ public class KundenFrame extends TypedJFrame {
 	};
     }
 
-    private final ActionListener kundeAnzeigen() {
+    private final ActionListener kundeAnzeigen(final KundenFrame kundenFrame) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		//TODO 
+		int selectedRow = _table.getSelectedRow();
+		if (selectedRow == -1) {
+		    FrameManager.showNotification(true, "Es wurde kein", "Kunde ausgewählt!");
+		    return;
+		}
+		Kunde kunde = _kundenMapping.get(selectedRow);
+		if (kunde == null) {
+		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    return;
+		}
+		FluentIterable<Rezeptur> rezepturen = FluentIterable
+			.from(Transaktion.loadByParameter("KUNDE_ID", "" + kunde.getEntityId().get(), new Ordering("DATUM", "DESC"))).filter(withRezept)
+			.transform(toRezeptur).filter(present).transform(toPresent).filter(eingetragen);
+		if (rezepturen.isEmpty()) {
+		    FrameManager.showNotification(true, "Kunde hat noch", "keine Rezepturen");
+		    return;
+		}
+		FrameManager.showRezepturenFrame(rezepturen, kundenFrame);
 	    }
 	};
     }
