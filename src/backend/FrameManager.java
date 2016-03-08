@@ -12,6 +12,7 @@ import java.awt.event.WindowFocusListener;
 import javax.swing.JFrame;
 
 import database.entities.Kunde;
+import database.entities.Ort;
 import database.entities.Rezeptur;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
@@ -177,12 +178,12 @@ public class FrameManager {
 	}
     }
 
-    public static final void showRezepturenFrame(FluentIterable<Rezeptur> rezepturen, KundenFrame kundenFrame) {
+    public static final void showRezepturenFrame(Ort ort, Kunde kunde, FluentIterable<Rezeptur> rezepturen, KundenFrame kundenFrame) {
 	if (!MainFrame._notificationKeeper._notification.isPresent()) {
 	    if (MainFrame._frameKeeper._openFrame.isPresent()) {
 		MainFrame._frameKeeper._openFrame = Optional.absent();
 	    }
-	    RezepturenFrame kundeDataFrame = new RezepturenFrame(rezepturen);
+	    RezepturenFrame kundeDataFrame = new RezepturenFrame(ort, kunde, rezepturen);
 	    kundeDataFrame.setVisible(true);
 	    kundenFrame.dispose();
 	    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundeDataFrame);

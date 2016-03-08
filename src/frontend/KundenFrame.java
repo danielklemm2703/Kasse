@@ -148,6 +148,11 @@ public class KundenFrame extends TypedJFrame {
 		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
 		    return;
 		}
+		Optional<Ort> ort = Ort.loadById(kunde.getOrtId());
+		if (!ort.isPresent()) {
+		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    return;
+		}
 		FluentIterable<Rezeptur> rezepturen = FluentIterable
 			.from(Transaktion.loadByParameter("KUNDE_ID", "" + kunde.getEntityId().get(), new Ordering("DATUM", "DESC"))).filter(withRezept)
 			.transform(toRezeptur).filter(present).transform(toPresent).filter(eingetragen);
@@ -155,7 +160,7 @@ public class KundenFrame extends TypedJFrame {
 		    FrameManager.showNotification(true, "Kunde hat noch", "keine Rezepturen");
 		    return;
 		}
-		FrameManager.showRezepturenFrame(rezepturen, kundenFrame);
+		FrameManager.showRezepturenFrame(ort.get(), kunde, rezepturen, kundenFrame);
 	    }
 	};
     }
