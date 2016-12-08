@@ -1,7 +1,6 @@
 package frontend;
 
 import static backend.FrameManager.closeFrame;
-import static backend.FrameManager.numbersOnly;
 import static backend.FrameManager.showNotification;
 
 import java.awt.Dimension;
@@ -20,6 +19,7 @@ import javax.swing.SwingConstants;
 
 import org.joda.time.DateTime;
 
+import util.KeyAdapters;
 import util.Preis;
 import util.Try;
 import backend.TypedJFrame;
@@ -98,7 +98,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 	_textField = new JTextField();
 	_textField.setBounds(157, 83, 117, 28);
 	getContentPane().add(_textField);
-	_textField.addKeyListener(numbersOnly());
+	_textField.addKeyListener(KeyAdapters.numbersOnly());
 
 	JLabel lblEur = new JLabel("EUR");
 	lblEur.setBounds(274, 89, 31, 16);

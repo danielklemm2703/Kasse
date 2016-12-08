@@ -43,7 +43,7 @@ public final class Pair<A, B> implements Serializable {
         };
     }
 
-    public static <A> Function<Pair<A, ?>, A> left(@SuppressWarnings("unused") final Class<A> returnType) {
+    public static <A> Function<Pair<A, ?>, A> left(final Class<A> returnType) {
         return left();
     }
 
@@ -56,7 +56,7 @@ public final class Pair<A, B> implements Serializable {
         };
     }
 
-    public static <A extends Comparable<A>> Comparator<Pair<A, ?>> leftComparator(@SuppressWarnings("unused") final Class<A> returnType) {
+    public static <A extends Comparable<A>> Comparator<Pair<A, ?>> leftComparator(final Class<A> returnType) {
         return leftComparator();
     }
 
@@ -75,7 +75,7 @@ public final class Pair<A, B> implements Serializable {
         };
     }
 
-    public static <B> Function<Pair<?, B>, B> right(@SuppressWarnings("unused") final Class<B> returnType) {
+    public static <B> Function<Pair<?, B>, B> right(final Class<B> returnType) {
         return right();
     }
 
@@ -88,7 +88,7 @@ public final class Pair<A, B> implements Serializable {
         };
     }
 
-    public static <B extends Comparable<B>> Comparator<Pair<?, B>> rightComparator(@SuppressWarnings("unused") final Class<B> returnType) {
+    public static <B extends Comparable<B>> Comparator<Pair<?, B>> rightComparator(final Class<B> returnType) {
         return rightComparator();
     }
 

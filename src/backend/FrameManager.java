@@ -2,8 +2,6 @@ package backend;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -17,6 +15,7 @@ import database.entities.Rezeptur;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import frontend.EigenverbrauchFrame;
+import frontend.KasseFrame;
 import frontend.KundeDataFrame;
 import frontend.KundeDeleteFrame;
 import frontend.KundenFrame;
@@ -25,10 +24,17 @@ import frontend.Notification;
 import frontend.RezepturenFrame;
 
 public class FrameManager {
+    //TODO Planning List:
+    //first code formatting dm
+    // 1. design kasse frame
+    // 2. design how to enter and create rezepturen
+    // 3. design kollegen umsatz fenster stuff
+    // 4. design admin area
+    
     public static final ActionListener openAdmin(final JFrame frame) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		// TODO
+		//TODO implement admin area
 	    }
 	};
     }
@@ -60,7 +66,11 @@ public class FrameManager {
     public static final ActionListener openKasse(final JFrame frame) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		// TODO
+		if (!MainFrame._notificationKeeper._notification.isPresent()) {
+		    KasseFrame kasseFrame = new KasseFrame();
+		    kasseFrame.setVisible(true);
+		    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kasseFrame);
+		}
 	    }
 	};
     }
@@ -93,26 +103,6 @@ public class FrameManager {
 	Notification notification = new Notification(error, message1, message2);
 	notification.setVisible(true);
 	MainFrame._notificationKeeper._notification = Optional.<TypedJFrame> of(notification);
-    }
-
-    public static final KeyAdapter numbersOnly() {
-	return new KeyAdapter() {
-	    private boolean dot = false;
-
-	    public void keyTyped(KeyEvent e) {
-		char caracter = e.getKeyChar();
-		if (dot) {
-		    if (((caracter < '0') || (caracter > '9')) && (caracter != '\b')) {
-			e.consume();
-		    }
-		} else if (((caracter < '0') || (caracter > '9')) && (caracter != '\b') && (caracter != '.') && (caracter != ',')) {
-		    e.consume();
-		}
-		if (caracter == '.' || caracter == ',') {
-		    dot = true;
-		}
-	    }
-	};
     }
 
     public static final MouseAdapter closeFrame(final JFrame frame) {
@@ -148,7 +138,7 @@ public class FrameManager {
 		    MainFrame._notificationKeeper._notification.get().requestFocus();
 		}
 		if (MainFrame._frameKeeper._openFrame.isPresent()) {
-		    System.err.println("Open window closed");
+		    System.err.println("Currently opened window closed");
 		    MainFrame._frameKeeper._openFrame.get().dispose();
 		    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> absent();
 		}
