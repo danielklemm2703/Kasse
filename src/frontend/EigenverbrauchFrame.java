@@ -24,6 +24,7 @@ import util.Preis;
 import util.Try;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import database.Ordering;
 import database.entities.Eigenverbrauch;
 import database.entities.Friseur;
 import datameer.com.google.common.collect.FluentIterable;
@@ -64,7 +65,8 @@ public class EigenverbrauchFrame extends TypedJFrame {
 	_friseurComboBox = new JComboBox<String>();
 	_friseurComboBox.setBounds(157, 47, 117, 27);
 
-	FluentIterable<Friseur> frisuere = FluentIterable.from(Friseur.loadByParameter("'1'", "1"));
+	Ordering ordering = new Ordering("FRISEUR_NAME", "ASC");
+	FluentIterable<Friseur> frisuere = FluentIterable.from(Friseur.loadByParameter("'1'", "1", ordering));
 	int index = 0;
 	for (Friseur friseur : frisuere) {
 	    _friseurMapping.put(index++, friseur);
@@ -120,7 +122,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 			message2 = "erfolgreich gespeichert.";
 		    }
 		    if (save.isFailure()) {
-			error=true;
+			error = true;
 			message1 = "Fehler beim speichern";
 			message2 = "des Eigenverbrauchs.";
 			System.err.println(save.failure().getMessage());
