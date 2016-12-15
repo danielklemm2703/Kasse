@@ -15,26 +15,28 @@ import database.entities.Rezeptur;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import frontend.EigenverbrauchFrame;
-import frontend.KasseFrame;
-import frontend.KundeDataFrame;
-import frontend.KundeDeleteFrame;
-import frontend.KundenFrame;
 import frontend.MainFrame;
-import frontend.Notification;
 import frontend.RezepturenFrame;
+import frontend.kasse.KasseFrame;
+import frontend.kunde.KundeDataFrame;
+import frontend.kunde.KundeDeleteFrame;
+import frontend.kunde.KundenFrame;
+import frontend.util.Notification;
 
 public class FrameManager {
-    //TODO Planning List:
-    //first code formatting dm
+    // TODO Planning List:
+    // first code formatting dm
     // 1. design kasse frame
     // 2. design how to enter and create rezepturen
     // 3. design kollegen umsatz fenster stuff
     // 4. design admin area
-    
+    // BUG: Opened error -> minimize main window -Y maximize it, nothing is
+    // clickable and error is gone
+
     public static final ActionListener openAdmin(final JFrame frame) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		//TODO implement admin area
+		// TODO implement admin area
 	    }
 	};
     }

@@ -1,4 +1,4 @@
-package frontend;
+package frontend.kasse;
 
 import static backend.FrameManager.closeFrame;
 

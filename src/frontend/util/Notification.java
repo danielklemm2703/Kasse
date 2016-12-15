@@ -1,4 +1,4 @@
-package frontend;
+package frontend.util;
 
 import static backend.FrameManager.closeNotificationByButton;
 import static backend.FrameManager.holdFocus;

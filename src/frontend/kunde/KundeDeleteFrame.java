@@ -1,4 +1,4 @@
-package frontend;
+package frontend.kunde;
 
 import static backend.FrameManager.holdFocus;
 
@@ -21,6 +21,7 @@ import backend.TypedJFrame;
 import backend.enums.FrameType;
 import database.entities.Kunde;
 import datameer.com.google.common.base.Optional;
+import frontend.MainFrame;
 
 public class KundeDeleteFrame extends TypedJFrame {
 

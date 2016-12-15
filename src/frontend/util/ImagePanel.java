@@ -1,11 +1,11 @@
-package frontend;
+package frontend.util;
 
 import java.awt.Graphics;
 import java.awt.Image;
 
 import javax.swing.JComponent;
 
-class ImagePanel extends JComponent {
+public class ImagePanel extends JComponent {
     private static final long serialVersionUID = -136351743711903762L;
     private Image image;
     public ImagePanel(Image image) {

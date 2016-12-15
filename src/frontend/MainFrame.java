@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import frontend.util.ImagePanel;
 import util.Images;
 import util.Try;
 import backend.FrameKeeper;

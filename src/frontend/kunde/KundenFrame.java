@@ -1,4 +1,4 @@
-package frontend;
+package frontend.kunde;
 
 import static backend.FrameManager.closeFrame;
 import static util.Functions.toPresent;
