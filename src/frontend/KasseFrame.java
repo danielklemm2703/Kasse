@@ -1,8 +1,12 @@
 package frontend;
 
+import static backend.FrameManager.closeFrame;
+
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -10,14 +14,20 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import util.PopupTriggerListener;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 import database.Ordering;
 import database.entities.Friseur;
 import database.entities.Kunde;
+import database.entities.Ort;
+import datameer.com.google.common.base.Function;
+import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.Maps;
 
@@ -29,6 +39,31 @@ public class KasseFrame extends TypedJFrame {
     private HashMap<Integer, Friseur> _friseurMapping = Maps.newHashMap();
     private JComboBox<String> _kundeComboBox;
     private HashMap<Integer, Kunde> _kundeMapping = Maps.newHashMap();
+    private JCheckBox _chckbxLaufkunde;
+    private JPopupMenu _dienstleistungPopUpMenu;
+    private JPopupMenu _verkaufPopUpMenu;
+
+    private final ActionListener _laufKundeActionListener = new ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	    if (_chckbxLaufkunde.isSelected()) {
+		_kundeComboBox.setEnabled(false);
+	    } else {
+		_kundeComboBox.setEnabled(true);
+	    }
+	}
+    };
+
+    private final ActionListener _diensleistungChoser = new ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	    System.out.println("Menu item Test1");
+	}
+    };
+
+    private final ActionListener _verkaufChoser = new ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	    System.out.println("Menu item Test1");
+	}
+    };
 
     public KasseFrame() {
 	_type = FrameType.KASSE;
@@ -54,17 +89,38 @@ public class KasseFrame extends TypedJFrame {
 	getContentPane().add(lblKasse);
 
 	JLabel lblX = new JLabel("X");
+	lblX.addMouseListener(closeFrame(this));
 	lblX.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 	lblX.setBounds(571, 12, 13, 16);
 	getContentPane().add(lblX);
 
-	JScrollPane scrollPane = new JScrollPane();
-	scrollPane.setBounds(25, 130, 559, 179);
-	getContentPane().add(scrollPane);
+	_dienstleistungPopUpMenu = new JPopupMenu("Dienstleistungen");
+	JMenuItem itemDL1 = new JMenuItem("Hinzufügen");
+	itemDL1.addActionListener(_diensleistungChoser);
+	JMenuItem itemDL2 = new JMenuItem("Entfernen");
+	// TODO delete action listener
+	// itemDL2.addActionListener();
+	_dienstleistungPopUpMenu.add(itemDL1);
+	_dienstleistungPopUpMenu.add(itemDL2);
 
-	JScrollPane scrollPane_1 = new JScrollPane();
-	scrollPane_1.setBounds(25, 344, 559, 179);
-	getContentPane().add(scrollPane_1);
+	JScrollPane scrollPaneDienstleistungen = new JScrollPane();
+	scrollPaneDienstleistungen.addMouseListener(new PopupTriggerListener(_dienstleistungPopUpMenu));
+	scrollPaneDienstleistungen.setBounds(25, 130, 559, 179);
+	getContentPane().add(scrollPaneDienstleistungen);
+
+	_verkaufPopUpMenu = new JPopupMenu("Verkäufe");
+	JMenuItem itemVK1 = new JMenuItem("Hinzufügen");
+	itemVK1.addActionListener(_verkaufChoser);
+	JMenuItem itemVK2 = new JMenuItem("Entfernen");
+	// TODO delete action listener
+	// itemVK2.addActionListener();
+	_verkaufPopUpMenu.add(itemVK1);
+	_verkaufPopUpMenu.add(itemVK2);
+
+	JScrollPane scrollPaneVerkaeufe = new JScrollPane();
+	scrollPaneVerkaeufe.addMouseListener(new PopupTriggerListener(_verkaufPopUpMenu));
+	scrollPaneVerkaeufe.setBounds(25, 344, 559, 179);
+	getContentPane().add(scrollPaneVerkaeufe);
 
 	JButton btnZurcksetzen = new JButton("Zurücksetzen");
 	btnZurcksetzen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
@@ -149,16 +205,25 @@ public class KasseFrame extends TypedJFrame {
 	Ordering kundeOrdering = new Ordering("NACHNAME", "ASC");
 	FluentIterable<Kunde> kunden = FluentIterable.from(Kunde.loadByParameter("'1'", "1", kundeOrdering));
 	index = 0;
+	Optional<Ort> ort;
 	for (Kunde kunde : kunden) {
 	    _kundeMapping.put(index++, kunde);
-	    _kundeComboBox.addItem(kunde.getNachname() + ", " + kunde.getVorname());
+	    ort = Ort.loadById(kunde.getOrtId());
+	    String ortString = ort.transform(new Function<Ort, String>() {
+		@Override
+		public String apply(Ort input) {
+		    return "(" + input.getOrtName() + ")";
+		}
+	    }).or("");
+	    _kundeComboBox.addItem(kunde.getNachname() + ", " + kunde.getVorname() + " " + ortString);
 	}
 	getContentPane().add(_kundeComboBox);
 
-	JCheckBox chckbxLaufkunde = new JCheckBox("Laufkunde");
-	chckbxLaufkunde.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-	chckbxLaufkunde.setBounds(413, 73, 128, 23);
-	getContentPane().add(chckbxLaufkunde);
+	_chckbxLaufkunde = new JCheckBox("Laufkunde");
+	_chckbxLaufkunde.addActionListener(_laufKundeActionListener);
+	_chckbxLaufkunde.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+	_chckbxLaufkunde.setBounds(413, 73, 128, 23);
+	getContentPane().add(_chckbxLaufkunde);
 
 	JLabel lblGesamtWert = new JLabel("");
 	lblGesamtWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
@@ -174,6 +239,7 @@ public class KasseFrame extends TypedJFrame {
 	lblZuZahlenWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	lblZuZahlenWert.setBounds(411, 654, 130, 16);
 	getContentPane().add(lblZuZahlenWert);
+
 	setUndecorated(true);
     }
 }
