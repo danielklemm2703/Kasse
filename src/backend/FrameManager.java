@@ -9,6 +9,7 @@ import java.awt.event.WindowFocusListener;
 
 import javax.swing.JFrame;
 
+import database.entities.Friseur;
 import database.entities.Kunde;
 import database.entities.Ort;
 import database.entities.Rezeptur;
@@ -17,6 +18,7 @@ import datameer.com.google.common.collect.FluentIterable;
 import frontend.EigenverbrauchFrame;
 import frontend.MainFrame;
 import frontend.RezepturenFrame;
+import frontend.kasse.DienstleisungChoserFrame;
 import frontend.kasse.KasseFrame;
 import frontend.kunde.KundeDataFrame;
 import frontend.kunde.KundeDeleteFrame;
@@ -37,6 +39,7 @@ public class FrameManager {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		// TODO implement admin area
+		// _stack.openAndDisposeOthers(FrameType.ADMIN);
 	    }
 	};
     }
@@ -44,11 +47,14 @@ public class FrameManager {
     public static final ActionListener openKunden() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		if (!MainFrame._notificationKeeper._notification.isPresent()) {
-		    KundenFrame kundenFrame = new KundenFrame();
-		    kundenFrame.setVisible(true);
-		    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundenFrame);
-		}
+		KundenFrame kundenFrame = new KundenFrame();
+		FrameStack.openAndDisposeOthers(kundenFrame);
+		// TODO
+		// if (!MainFrame._notificationKeeper._notification.isPresent())
+		// {
+		// kundenFrame.setVisible(true);
+		// changeActiveFrame(kundenFrame);
+		// }
 	    }
 	};
     }
@@ -56,10 +62,11 @@ public class FrameManager {
     public static final ActionListener openEigenverbrauch() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
+		// _stack.openAndDisposeOthers(eigenverbrauchFrame);
 		if (!MainFrame._notificationKeeper._notification.isPresent()) {
 		    EigenverbrauchFrame eigenverbrauchFrame = new EigenverbrauchFrame();
 		    eigenverbrauchFrame.setVisible(true);
-		    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(eigenverbrauchFrame);
+		    changeActiveFrame(eigenverbrauchFrame);
 		}
 	    }
 	};
@@ -68,19 +75,21 @@ public class FrameManager {
     public static final ActionListener openKasse(final JFrame frame) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
+		// _stack.openAndDisposeOthers(kasseFrame);
 		if (!MainFrame._notificationKeeper._notification.isPresent()) {
 		    KasseFrame kasseFrame = new KasseFrame();
 		    kasseFrame.setVisible(true);
-		    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kasseFrame);
+		    changeActiveFrame(kasseFrame);
 		}
 	    }
 	};
     }
 
-    public static final ActionListener closeNotificationByButton(final JFrame frame) {
+    public static final ActionListener closeNotificationByButton(final TypedJFrame frame) {
 	return new ActionListener() {
 	    @Override
 	    public void actionPerformed(ActionEvent e) {
+		// _stack.close(frame);
 		frame.dispose();
 		MainFrame._notificationKeeper._notification = Optional.absent();
 	    }
@@ -104,6 +113,7 @@ public class FrameManager {
     public static final void showNotification(final boolean error, final String message1, final String message2) {
 	Notification notification = new Notification(error, message1, message2);
 	notification.setVisible(true);
+	// _stack.addFrame(notification);
 	MainFrame._notificationKeeper._notification = Optional.<TypedJFrame> of(notification);
     }
 
@@ -125,13 +135,14 @@ public class FrameManager {
 		}
 		KundenFrame kundenFrame = new KundenFrame();
 		kundenFrame.setVisible(true);
-		MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundenFrame);
+		changeActiveFrame(kundenFrame);
 		frame.dispose();
 	    }
 	};
     }
 
     public static final WindowFocusListener checkOtherOpenFrames() {
+	// TODO check
 	return new WindowFocusListener() {
 	    public void windowGainedFocus(WindowEvent e) {
 		System.err.println("MainFrame window gained focus");
@@ -166,8 +177,24 @@ public class FrameManager {
 	    KundeDataFrame kundeDataFrame = new KundeDataFrame(kunde);
 	    kundeDataFrame.setVisible(true);
 	    kundenFrame.dispose();
-	    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundeDataFrame);
+	    changeActiveFrame(kundeDataFrame);
 	}
+    }
+
+    public static final void showKasseDienstleisungChoserFrame(final Optional<Kunde> kunde, final Friseur friseur) {
+	if (!MainFrame._notificationKeeper._notification.isPresent()) {
+	    if (MainFrame._frameKeeper._openFrame.isPresent()) {
+		MainFrame._frameKeeper._openFrame = Optional.absent();
+	    }
+	    DienstleisungChoserFrame dienstleisungChoserFrame = new DienstleisungChoserFrame(kunde, friseur);
+	    dienstleisungChoserFrame.setVisible(true);
+	    changeActiveFrame(dienstleisungChoserFrame);
+	}
+    }
+
+    private static void changeActiveFrame(TypedJFrame frame) {
+	System.err.println("open frame " + frame._type.toString());
+	MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(frame);
     }
 
     public static final void showRezepturenFrame(Ort ort, Kunde kunde, FluentIterable<Rezeptur> rezepturen, KundenFrame kundenFrame) {
@@ -178,7 +205,7 @@ public class FrameManager {
 	    RezepturenFrame kundeDataFrame = new RezepturenFrame(ort, kunde, rezepturen);
 	    kundeDataFrame.setVisible(true);
 	    kundenFrame.dispose();
-	    MainFrame._frameKeeper._openFrame = Optional.<TypedJFrame> of(kundeDataFrame);
+	    changeActiveFrame(kundeDataFrame);
 	}
     }
 }

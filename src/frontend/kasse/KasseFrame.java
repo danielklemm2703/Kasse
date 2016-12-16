@@ -1,6 +1,7 @@
 package frontend.kasse;
-
 import static backend.FrameManager.closeFrame;
+import static backend.FrameManager.showKasseDienstleisungChoserFrame;
+import static backend.FrameManager.showNotification;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -55,7 +56,16 @@ public class KasseFrame extends TypedJFrame {
 
     private final ActionListener _diensleistungChoser = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {
-	    System.out.println("Menu item Test1");
+	    Friseur friseur = _friseurMapping.get(_friseurComboBox.getSelectedIndex());
+	    Optional<Kunde> kunde = Optional.absent();
+	    if (!_chckbxLaufkunde.isSelected()) {
+		kunde = Optional.fromNullable(_kundeMapping.get(_kundeComboBox.getSelectedIndex()));
+	    }
+	    if (friseur == null) {
+		showNotification(true, "Ein Friseur muss", "ausgewählt sein");
+	    } else {
+		showKasseDienstleisungChoserFrame(kunde, friseur);
+	    }
 	}
     };
 
@@ -239,7 +249,5 @@ public class KasseFrame extends TypedJFrame {
 	lblZuZahlenWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	lblZuZahlenWert.setBounds(411, 654, 130, 16);
 	getContentPane().add(lblZuZahlenWert);
-
-	setUndecorated(true);
     }
 }
