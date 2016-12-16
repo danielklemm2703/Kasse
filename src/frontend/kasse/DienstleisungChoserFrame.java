@@ -1,6 +1,6 @@
 package frontend.kasse;
 
-import static backend.FrameManager.closeFrame;
+import static backend.FrameManager.closeFrameMouseAdapter;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -42,7 +42,7 @@ public class DienstleisungChoserFrame extends TypedJFrame {
 	getContentPane().add(lblDienstleistungenHinzufgen);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrame(this));
+	lblX.addMouseListener(closeFrameMouseAdapter(this));
 	lblX.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 	lblX.setBounds(421, 10, 13, 16);
 	getContentPane().add(lblX);

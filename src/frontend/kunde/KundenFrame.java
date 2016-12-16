@@ -1,6 +1,6 @@
 package frontend.kunde;
 
-import static backend.FrameManager.closeFrame;
+import static backend.FrameManager.closeFrameMouseAdapter;
 import static util.Functions.toPresent;
 import static util.Functions.toRezeptur;
 import static util.Predicates.eingetragen;
@@ -45,7 +45,6 @@ public class KundenFrame extends TypedJFrame {
     private static final long serialVersionUID = 4794193793492079259L;
     private JTable _table;
     private HashMap<Integer, Kunde> _kundenMapping = Maps.newHashMap();
-    private static KundenFrame _instance;
 
     /**
      * Create the frame.
@@ -88,7 +87,7 @@ public class KundenFrame extends TypedJFrame {
 	getContentPane().add(menuBar);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrame(this));
+	lblX.addMouseListener(closeFrameMouseAdapter(this));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setBounds(570, 10, 26, 16);
@@ -113,8 +112,6 @@ public class KundenFrame extends TypedJFrame {
 	btnLschen.addActionListener(kundeDelete());
 	btnLschen.setBounds(485, 507, 117, 29);
 	getContentPane().add(btnLschen);
-
-	_instance = this;
     }
 
     private final ActionListener kundeDelete() {
@@ -160,7 +157,7 @@ public class KundenFrame extends TypedJFrame {
 		    FrameManager.showNotification(true, "Kunde hat noch", "keine Rezepturen");
 		    return;
 		}
-		FrameManager.showRezepturenFrame(ort.get(), kunde, rezepturen, kundenFrame);
+		FrameManager.showRezepturenFrame(ort.get(), kunde, rezepturen);
 	    }
 	};
     }
@@ -231,11 +228,5 @@ public class KundenFrame extends TypedJFrame {
 		loadKundeData(letter);
 	    }
 	};
-    }
-
-    public static final void refresh() {
-	if (_instance != null) {
-	    _instance.loadKundeData("A");
-	}
     }
 }

@@ -1,5 +1,5 @@
 package frontend.kasse;
-import static backend.FrameManager.closeFrame;
+import static backend.FrameManager.closeFrameMouseAdapter;
 import static backend.FrameManager.showKasseDienstleisungChoserFrame;
 import static backend.FrameManager.showNotification;
 
@@ -99,7 +99,7 @@ public class KasseFrame extends TypedJFrame {
 	getContentPane().add(lblKasse);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrame(this));
+	lblX.addMouseListener(closeFrameMouseAdapter(this));
 	lblX.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 	lblX.setBounds(571, 12, 13, 16);
 	getContentPane().add(lblX);

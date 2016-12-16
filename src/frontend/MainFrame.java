@@ -1,6 +1,7 @@
 package frontend;
 
 import static backend.FrameManager.checkOtherOpenFrames;
+import static backend.FrameManager.onMinimize;
 import static backend.FrameManager.openAdmin;
 import static backend.FrameManager.openEigenverbrauch;
 import static backend.FrameManager.openKasse;
@@ -10,26 +11,19 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Toolkit;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import frontend.util.ImagePanel;
 import util.Images;
 import util.Try;
-import backend.FrameKeeper;
-import backend.NotificationKeeper;
+import frontend.util.ImagePanel;
 
 public class MainFrame {
 
     private JFrame _frame;
-    public static NotificationKeeper _notificationKeeper = new NotificationKeeper();
-    public static FrameKeeper _frameKeeper = new FrameKeeper();
 
     /**
      * Launch the application.
@@ -109,23 +103,5 @@ public class MainFrame {
 	adminBereichBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	adminBereichBtn.setBounds(22, starting + 240, 205, 45);
 	_frame.getContentPane().add(adminBereichBtn);
-    }
-
-    private WindowStateListener onMinimize() {
-	return new WindowStateListener() {
-	    public void windowStateChanged(WindowEvent event) {
-		if ((event.getNewState() & Frame.ICONIFIED) == Frame.ICONIFIED) {
-		    System.err.println("minimized main Frame");
-		    if (MainFrame._notificationKeeper._notification.isPresent()) {
-			System.err.println("Notification window closed");
-			MainFrame._notificationKeeper._notification.get().dispose();
-		    }
-		    if (MainFrame._frameKeeper._openFrame.isPresent()) {
-			System.err.println("Open window closed");
-			MainFrame._frameKeeper._openFrame.get().dispose();
-		    }
-		}
-	    }
-	};
     }
 }

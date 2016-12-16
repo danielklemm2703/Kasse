@@ -1,6 +1,6 @@
 package frontend;
 
-import static backend.FrameManager.closeFrame;
+import static backend.FrameManager.closeFrameMouseAdapter;
 import static backend.FrameManager.showNotification;
 
 import java.awt.Dimension;
@@ -86,7 +86,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 	getContentPane().add(friseurLbl);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrame(this));
+	lblX.addMouseListener(closeFrameMouseAdapter(this));
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setBounds(274, 12, 26, 16);

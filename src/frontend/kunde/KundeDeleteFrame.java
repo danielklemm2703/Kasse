@@ -1,7 +1,5 @@
 package frontend.kunde;
 
-import static backend.FrameManager.holdFocus;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -20,8 +18,6 @@ import backend.FrameManager;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 import database.entities.Kunde;
-import datameer.com.google.common.base.Optional;
-import frontend.MainFrame;
 
 public class KundeDeleteFrame extends TypedJFrame {
 
@@ -36,7 +32,8 @@ public class KundeDeleteFrame extends TypedJFrame {
     public KundeDeleteFrame(final Kunde kunde) {
 	_type = FrameType.CHECK;
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	addWindowFocusListener(holdFocus(this));
+	// TODO handle focus
+	// addWindowFocusListener(holdFocus(this));
 	setUndecorated(true);
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -85,19 +82,15 @@ public class KundeDeleteFrame extends TypedJFrame {
     private static final ActionListener closeKundeDeleteFrame(final boolean deleteKunde, final KundeDeleteFrame kundeDeleteFrame, final Kunde kunde) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		if (MainFrame._notificationKeeper._notification.isPresent()) {
-		    MainFrame._notificationKeeper._notification = Optional.<TypedJFrame> absent();
-		}
+		FrameManager.closeFrame(kundeDeleteFrame);
 		if (deleteKunde) {
 		    Try<Unit> delete = kunde.delete();
 		    if (delete.isSuccess()) {
 			FrameManager.showNotification(false, "Kunde wurde erfolgreich", "gelöscht.");
-			KundenFrame.refresh();
 		    } else {
 			FrameManager.showNotification(true, "Kunde konnte nicht", "gelöscht werden");
 		    }
 		}
-		kundeDeleteFrame.dispose();
 	    }
 	};
     }
