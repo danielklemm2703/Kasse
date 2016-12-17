@@ -1,7 +1,5 @@
 package frontend;
 
-import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -24,6 +22,7 @@ import util.Try;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 import backend.framemanagement.FrameManager;
+import backend.framemanagement.MouseAdapters;
 import database.Ordering;
 import database.entities.Eigenverbrauch;
 import database.entities.Friseur;
@@ -87,7 +86,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 	getContentPane().add(friseurLbl);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setBounds(274, 12, 26, 16);

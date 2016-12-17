@@ -1,7 +1,5 @@
 package frontend.kunde;
 
-import static backend.framemanagement.FrameManager.closeFrameAndOpenKundenFrame;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -22,6 +20,7 @@ import util.Try;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 import backend.framemanagement.FrameManager;
+import backend.framemanagement.MouseAdapters;
 import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
@@ -90,7 +89,7 @@ public class KundeDataFrame extends TypedJFrame {
 	_contentPane.add(btnNewButton);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrameAndOpenKundenFrame(this));
+	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setBounds(300, 10, 29, 16);
@@ -138,6 +137,8 @@ public class KundeDataFrame extends TypedJFrame {
     }
 
     private ActionListener saveKunde(final Optional<Kunde> kunde) {
+	// TODO make better
+	final KundeDataFrame kundeDataFrame = this;
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		if (_textField.getText().isEmpty() || _textField_1.getText().isEmpty() || _textField_3.getText().isEmpty()) {
@@ -164,7 +165,9 @@ public class KundeDataFrame extends TypedJFrame {
 		}
 
 		if (save.isSuccess()) {
+		    FrameManager.closeFrameOnTop(kundeDataFrame);
 		    FrameManager.addFrame(new Notification(false, "Kunde wurde", "erfolgreich gespeichert"));
+		    // TODO refresh kunde frame afterwards
 		} else {
 		    FrameManager.addFrame(new Notification(true, "Kunde konnte nicht", "gespeichert werden"));
 		}

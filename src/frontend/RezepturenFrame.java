@@ -1,7 +1,5 @@
 package frontend;
 
-import static backend.framemanagement.FrameManager.closeFrameAndOpenKundenFrame;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,6 +22,7 @@ import org.joda.time.DateTime;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 import backend.framemanagement.FrameManager;
+import backend.framemanagement.MouseAdapters;
 import database.entities.Farbe;
 import database.entities.Kunde;
 import database.entities.Ort;
@@ -88,7 +87,7 @@ public class RezepturenFrame extends TypedJFrame {
 	_contentPane.add(lblRezepturen);
 
 	JLabel label = new JLabel("X");
-	label.addMouseListener(closeFrameAndOpenKundenFrame(this));
+	label.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
 	label.setHorizontalAlignment(SwingConstants.CENTER);
 	label.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	label.setBounds(560, 8, 26, 18);

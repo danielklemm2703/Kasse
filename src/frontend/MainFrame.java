@@ -1,5 +1,6 @@
 package frontend;
 
+import static backend.framemanagement.ActionListeners.openAndDisposeOthersFrameListener;
 import static backend.framemanagement.FrameManager.checkOtherOpenFrames;
 import static backend.framemanagement.FrameManager.onMinimize;
 
@@ -15,7 +16,8 @@ import javax.swing.JFrame;
 
 import util.Images;
 import util.Try;
-import backend.framemanagement.ActionListeners;
+import frontend.kasse.KasseFrame;
+import frontend.kunde.KundenFrame;
 import frontend.util.ImagePanel;
 
 public class MainFrame {
@@ -74,28 +76,28 @@ public class MainFrame {
 	int starting = ((width / 2) - (totalWidth / 2)) / 2;
 
 	JButton kasseBtn = new JButton("Kasse");
-	kasseBtn.addActionListener(ActionListeners.openKasseFrameListener);
+	kasseBtn.addActionListener(openAndDisposeOthersFrameListener(new KasseFrame()));
 	kasseBtn.setBackground(Color.GRAY);
 	kasseBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	kasseBtn.setBounds(22, starting, 205, 45);
 	_frame.getContentPane().add(kasseBtn);
 
 	JButton eigenVerbrauchBtn = new JButton("Eigenverbrauch");
-	eigenVerbrauchBtn.addActionListener(ActionListeners.openEigenverbrauchFrameListener);
+	eigenVerbrauchBtn.addActionListener(openAndDisposeOthersFrameListener(new EigenverbrauchFrame()));
 	eigenVerbrauchBtn.setBackground(Color.GRAY);
 	eigenVerbrauchBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	eigenVerbrauchBtn.setBounds(22, starting + 80, 205, 45);
 	_frame.getContentPane().add(eigenVerbrauchBtn);
 
 	JButton kundenBtn = new JButton("Kunden");
-	kundenBtn.addActionListener(ActionListeners.openKundeFrameListener);
+	kundenBtn.addActionListener(openAndDisposeOthersFrameListener(new KundenFrame()));
 	kundenBtn.setBackground(Color.GRAY);
 	kundenBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	kundenBtn.setBounds(22, starting + 160, 205, 45);
 	_frame.getContentPane().add(kundenBtn);
 
 	JButton adminBereichBtn = new JButton("Admin Bereich");
-	adminBereichBtn.addActionListener(ActionListeners.openAdminFrameListener);
+	adminBereichBtn.addActionListener(openAndDisposeOthersFrameListener(null));
 	adminBereichBtn.setBackground(Color.GRAY);
 	adminBereichBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	adminBereichBtn.setBounds(22, starting + 240, 205, 45);

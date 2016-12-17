@@ -1,24 +1,11 @@
 package backend.framemanagement;
 
 import java.awt.Frame;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 
 import backend.TypedJFrame;
-import database.entities.Friseur;
-import database.entities.Kunde;
-import database.entities.Ort;
-import database.entities.Rezeptur;
-import datameer.com.google.common.base.Optional;
-import datameer.com.google.common.collect.FluentIterable;
-import frontend.RezepturenFrame;
-import frontend.kasse.DienstleisungChoserFrame;
-import frontend.kunde.KundeDataFrame;
-import frontend.kunde.KundeDeleteFrame;
-import frontend.kunde.KundenFrame;
 
 public class FrameManager {
     // TODO Planning List:
@@ -31,21 +18,6 @@ public class FrameManager {
     // clickable and error is gone
 
 
-    // public static final WindowFocusListener holdFocus(final TypedJFrame
-    // frame) {
-    // return new WindowFocusListener() {
-    // public void windowGainedFocus(WindowEvent e) {
-    // System.err.println(frame._type.toString() + " window gained focus");
-    // }
-    //
-    // public void windowLostFocus(WindowEvent e) {
-    // System.err.println(frame._type.toString() + " window lost focus");
-    // frame.toFront();
-    // frame.requestFocus();
-    // }
-    // };
-    // }
-
     public static final void closeFrameOnTop(final TypedJFrame frame) {
 	FrameStack.closeFrameOnTop(frame);
     }
@@ -56,28 +28,6 @@ public class FrameManager {
 
     public static final void addFrame(final TypedJFrame frame) {
 	FrameStack.addFrame(frame);
-    }
-
-    public static final MouseAdapter closeFrameMouseAdapter(final TypedJFrame frame) {
-	return new MouseAdapter() {
-	    @Override
-	    public void mouseClicked(MouseEvent e) {
-		FrameStack.closeFrameOnTop(frame);
-	    }
-	};
-    }
-
-    public static final void closeFrame(final TypedJFrame frame) {
-	FrameStack.closeFrameOnTop(frame);
-    }
-
-    public static final MouseAdapter closeFrameAndOpenKundenFrame(final TypedJFrame frame) {
-	return new MouseAdapter() {
-	    @Override
-	    public void mouseClicked(MouseEvent e) {
-		FrameStack.closeFrameOnTop(frame);
-	    }
-	};
     }
 
     public static final WindowStateListener onMinimize() {
@@ -107,25 +57,5 @@ public class FrameManager {
 		System.err.println("MainFrame window lost focus");
 	    }
 	};
-    }
-
-    public static final void showKundeDeleteCheck(Kunde kunde) {
-	KundeDeleteFrame kundeDeleteFrame = new KundeDeleteFrame(kunde);
-	FrameStack.addFrame(kundeDeleteFrame);
-    }
-
-    public static final void showKundeDataFrame(final Optional<Kunde> kunde, final KundenFrame kundenFrame) {
-	KundeDataFrame kundeDataFrame = new KundeDataFrame(kunde);
-	FrameStack.addFrame(kundeDataFrame);
-    }
-
-    public static final void showKasseDienstleisungChoserFrame(final Optional<Kunde> kunde, final Friseur friseur) {
-	DienstleisungChoserFrame dienstleisungChoserFrame = new DienstleisungChoserFrame(kunde, friseur);
-	FrameStack.addFrame(dienstleisungChoserFrame);
-    }
-
-    public static final void showRezepturenFrame(Ort ort, Kunde kunde, FluentIterable<Rezeptur> rezepturen) {
-	RezepturenFrame kundeDataFrame = new RezepturenFrame(ort, kunde, rezepturen);
-	FrameStack.addFrame(kundeDataFrame);
     }
 }

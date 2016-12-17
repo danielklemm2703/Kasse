@@ -1,8 +1,5 @@
 package frontend.kasse;
 
-import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
-import static backend.framemanagement.FrameManager.showKasseDienstleisungChoserFrame;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -24,6 +21,7 @@ import util.PopupTriggerListener;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
 import backend.framemanagement.FrameManager;
+import backend.framemanagement.MouseAdapters;
 import database.Ordering;
 import database.entities.Friseur;
 import database.entities.Kunde;
@@ -66,7 +64,8 @@ public class KasseFrame extends TypedJFrame {
 	    if (friseur == null) {
 		FrameManager.addFrame(new Notification(true, "Ein Friseur muss", "ausgewählt sein"));
 	    } else {
-		showKasseDienstleisungChoserFrame(kunde, friseur);
+		DienstleisungChoserFrame dienstleisungChoserFrame = new DienstleisungChoserFrame(kunde, friseur);
+		FrameManager.addFrame(dienstleisungChoserFrame);
 	    }
 	}
     };
@@ -101,7 +100,7 @@ public class KasseFrame extends TypedJFrame {
 	getContentPane().add(lblKasse);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
 	lblX.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 	lblX.setBounds(571, 12, 13, 16);
 	getContentPane().add(lblX);

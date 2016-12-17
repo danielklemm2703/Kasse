@@ -1,6 +1,5 @@
 package frontend.kunde;
 
-import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
 import static util.Functions.toPresent;
 import static util.Functions.toRezeptur;
 import static util.Predicates.eingetragen;
@@ -29,7 +28,9 @@ import javax.swing.table.DefaultTableModel;
 
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.ActionListeners;
 import backend.framemanagement.FrameManager;
+import backend.framemanagement.MouseAdapters;
 import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
@@ -39,6 +40,7 @@ import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Maps;
+import frontend.RezepturenFrame;
 import frontend.util.Notification;
 
 public class KundenFrame extends TypedJFrame {
@@ -88,24 +90,25 @@ public class KundenFrame extends TypedJFrame {
 	getContentPane().add(menuBar);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setBounds(570, 10, 26, 16);
 	getContentPane().add(lblX);
 
 	JButton neuerKundeBtn = new JButton("Neu Anlegen");
-	neuerKundeBtn.addActionListener(neuerKunde(this));
+	KundeDataFrame kundeDataFrame = new KundeDataFrame(Optional.<Kunde> absent());
+	neuerKundeBtn.addActionListener(ActionListeners.addFrameListener(kundeDataFrame));
 	neuerKundeBtn.setBounds(10, 507, 117, 29);
 	getContentPane().add(neuerKundeBtn);
 
 	JButton btnNewButton = new JButton("Rezepturen Anzeigen");
-	btnNewButton.addActionListener(kundeAnzeigen(this));
+	btnNewButton.addActionListener(kundeAnzeigen());
 	btnNewButton.setBounds(154, 507, 168, 29);
 	getContentPane().add(btnNewButton);
 
 	JButton btnDatenndern = new JButton("Daten Ändern");
-	btnDatenndern.addActionListener(kundeUpdate(this));
+	btnDatenndern.addActionListener(kundeUpdate());
 	btnDatenndern.setBounds(347, 507, 117, 29);
 	getContentPane().add(btnDatenndern);
 
@@ -128,12 +131,13 @@ public class KundenFrame extends TypedJFrame {
 		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
 		    return;
 		}
-		FrameManager.showKundeDeleteCheck(kunde);
+		KundeDeleteFrame kundeDeleteFrame = new KundeDeleteFrame(kunde);
+		FrameManager.addFrame(kundeDeleteFrame);
 	    }
 	};
     }
 
-    private final ActionListener kundeAnzeigen(final KundenFrame kundenFrame) {
+    private final ActionListener kundeAnzeigen() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		int selectedRow = _table.getSelectedRow();
@@ -158,33 +162,8 @@ public class KundenFrame extends TypedJFrame {
 		    FrameManager.addFrame(new Notification(true, "Kunde hat noch", "keine Rezepturen"));
 		    return;
 		}
-		FrameManager.showRezepturenFrame(ort.get(), kunde, rezepturen);
-	    }
-	};
-    }
-
-    private final ActionListener kundeUpdate(final KundenFrame kundenFrame) {
-	return new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-		int selectedRow = _table.getSelectedRow();
-		if (selectedRow == -1) {
-		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
-		    return;
-		}
-		Kunde kunde = _kundenMapping.get(selectedRow);
-		if (kunde == null) {
-		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
-		    return;
-		}
-		FrameManager.showKundeDataFrame(Optional.of(kunde), kundenFrame);
-	    }
-	};
-    }
-
-    private final ActionListener neuerKunde(final KundenFrame kundenFrame) {
-	return new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-		FrameManager.showKundeDataFrame(Optional.<Kunde> absent(), kundenFrame);
+		RezepturenFrame kundeDataFrame = new RezepturenFrame(ort.get(), kunde, rezepturen);
+		FrameManager.addFrame(kundeDataFrame);
 	    }
 	};
     }
@@ -227,6 +206,25 @@ public class KundenFrame extends TypedJFrame {
 	    @Override
 	    public void mouseClicked(MouseEvent e) {
 		loadKundeData(letter);
+	    }
+	};
+    }
+
+    private final ActionListener kundeUpdate() {
+	return new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		int selectedRow = _table.getSelectedRow();
+		if (selectedRow == -1) {
+		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
+		    return;
+		}
+		Kunde kunde = _kundenMapping.get(selectedRow);
+		if (kunde == null) {
+		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
+		    return;
+		}
+		KundeDataFrame kundeDataFrame = new KundeDataFrame(Optional.of(kunde));
+		FrameManager.addFrame(kundeDataFrame);
 	    }
 	};
     }

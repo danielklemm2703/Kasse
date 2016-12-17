@@ -1,7 +1,5 @@
 package frontend.kasse;
 
-import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -11,6 +9,7 @@ import javax.swing.JLabel;
 
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.MouseAdapters;
 import database.entities.Friseur;
 import database.entities.Kunde;
 import datameer.com.google.common.base.Optional;
@@ -42,7 +41,7 @@ public class DienstleisungChoserFrame extends TypedJFrame {
 	getContentPane().add(lblDienstleistungenHinzufgen);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
 	lblX.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 	lblX.setBounds(421, 10, 13, 16);
 	getContentPane().add(lblX);

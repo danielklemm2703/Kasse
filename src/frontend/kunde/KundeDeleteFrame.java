@@ -83,7 +83,7 @@ public class KundeDeleteFrame extends TypedJFrame {
     private static final ActionListener closeKundeDeleteFrame(final boolean deleteKunde, final KundeDeleteFrame kundeDeleteFrame, final Kunde kunde) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		FrameManager.closeFrame(kundeDeleteFrame);
+		FrameManager.closeFrameOnTop(kundeDeleteFrame);
 		if (deleteKunde) {
 		    Try<Unit> delete = kunde.delete();
 		    if (delete.isSuccess()) {
