@@ -89,7 +89,7 @@ public class KundeDataFrame extends TypedJFrame {
 	_contentPane.add(btnNewButton);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrame(this));
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setBounds(300, 10, 29, 16);

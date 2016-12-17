@@ -87,7 +87,7 @@ public class RezepturenFrame extends TypedJFrame {
 	_contentPane.add(lblRezepturen);
 
 	JLabel label = new JLabel("X");
-	label.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
+	label.addMouseListener(MouseAdapters.closeFrame(this));
 	label.setHorizontalAlignment(SwingConstants.CENTER);
 	label.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	label.setBounds(560, 8, 26, 18);

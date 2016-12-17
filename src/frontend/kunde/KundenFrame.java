@@ -90,7 +90,7 @@ public class KundenFrame extends TypedJFrame {
 	getContentPane().add(menuBar);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrame(this));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setBounds(570, 10, 26, 16);
@@ -98,7 +98,7 @@ public class KundenFrame extends TypedJFrame {
 
 	JButton neuerKundeBtn = new JButton("Neu Anlegen");
 	KundeDataFrame kundeDataFrame = new KundeDataFrame(Optional.<Kunde> absent());
-	neuerKundeBtn.addActionListener(ActionListeners.addFrameListener(kundeDataFrame));
+	neuerKundeBtn.addActionListener(ActionListeners.addFrame(kundeDataFrame));
 	neuerKundeBtn.setBounds(10, 507, 117, 29);
 	getContentPane().add(neuerKundeBtn);
 

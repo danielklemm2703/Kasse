@@ -27,7 +27,6 @@ public class WindowListeners {
     public static final WindowFocusListener handleFramePrioritiesForMainFrame = new WindowFocusListener() {
 	@Override
 	public void windowLostFocus(WindowEvent e) {
-	    // TODO Auto-generated method stub
 	}
 
 	@Override
@@ -40,7 +39,6 @@ public class WindowListeners {
 	return new WindowFocusListener() {
 	    @Override
 	    public void windowLostFocus(WindowEvent e) {
-		// TODO Auto-generated method stub
 	    }
 
 	    @Override

@@ -7,7 +7,7 @@ import backend.TypedJFrame;
 
 public class ActionListeners {
 
-    public static final ActionListener openAndDisposeOthersFrameListener(final TypedJFrame frame) {
+    public static final ActionListener openAndDisposeOthers(final TypedJFrame frame) {
 	return new ActionListener() {
 	    @Override
 	    public void actionPerformed(ActionEvent e) {
@@ -25,7 +25,7 @@ public class ActionListeners {
 	};
     }
 
-    public static final ActionListener addFrameListener(final TypedJFrame frame) {
+    public static final ActionListener addFrame(final TypedJFrame frame) {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		FrameManager.addFrame(frame);

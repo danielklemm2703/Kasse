@@ -86,7 +86,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 	getContentPane().add(friseurLbl);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrame(this));
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setHorizontalAlignment(SwingConstants.CENTER);
 	lblX.setBounds(274, 12, 26, 16);

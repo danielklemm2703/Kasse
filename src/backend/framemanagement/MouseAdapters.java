@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import backend.TypedJFrame;
 
 public class MouseAdapters {
-    public static final MouseAdapter closeFrameMouseAdapter(final TypedJFrame frame) {
+    public static final MouseAdapter closeFrame(final TypedJFrame frame) {
 	return new MouseAdapter() {
 	    @Override
 	    public void mouseClicked(MouseEvent e) {

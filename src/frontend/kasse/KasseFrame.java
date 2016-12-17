@@ -100,7 +100,7 @@ public class KasseFrame extends TypedJFrame {
 	getContentPane().add(lblKasse);
 
 	JLabel lblX = new JLabel("X");
-	lblX.addMouseListener(MouseAdapters.closeFrameMouseAdapter(this));
+	lblX.addMouseListener(MouseAdapters.closeFrame(this));
 	lblX.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 	lblX.setBounds(571, 12, 13, 16);
 	getContentPane().add(lblX);

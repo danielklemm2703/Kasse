@@ -1,6 +1,6 @@
 package frontend;
 
-import static backend.framemanagement.ActionListeners.openAndDisposeOthersFrameListener;
+import static backend.framemanagement.ActionListeners.openAndDisposeOthers;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -75,28 +75,28 @@ public class MainFrame {
 	int starting = ((width / 2) - (totalWidth / 2)) / 2;
 
 	JButton kasseBtn = new JButton("Kasse");
-	kasseBtn.addActionListener(openAndDisposeOthersFrameListener(new KasseFrame()));
+	kasseBtn.addActionListener(openAndDisposeOthers(new KasseFrame()));
 	kasseBtn.setBackground(Color.GRAY);
 	kasseBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	kasseBtn.setBounds(22, starting, 205, 45);
 	_frame.getContentPane().add(kasseBtn);
 
 	JButton eigenVerbrauchBtn = new JButton("Eigenverbrauch");
-	eigenVerbrauchBtn.addActionListener(openAndDisposeOthersFrameListener(new EigenverbrauchFrame()));
+	eigenVerbrauchBtn.addActionListener(openAndDisposeOthers(new EigenverbrauchFrame()));
 	eigenVerbrauchBtn.setBackground(Color.GRAY);
 	eigenVerbrauchBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	eigenVerbrauchBtn.setBounds(22, starting + 80, 205, 45);
 	_frame.getContentPane().add(eigenVerbrauchBtn);
 
 	JButton kundenBtn = new JButton("Kunden");
-	kundenBtn.addActionListener(openAndDisposeOthersFrameListener(new KundenFrame()));
+	kundenBtn.addActionListener(openAndDisposeOthers(new KundenFrame()));
 	kundenBtn.setBackground(Color.GRAY);
 	kundenBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	kundenBtn.setBounds(22, starting + 160, 205, 45);
 	_frame.getContentPane().add(kundenBtn);
 
 	JButton adminBereichBtn = new JButton("Admin Bereich");
-	adminBereichBtn.addActionListener(openAndDisposeOthersFrameListener(null));
+	adminBereichBtn.addActionListener(openAndDisposeOthers(null));
 	adminBereichBtn.setBackground(Color.GRAY);
 	adminBereichBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	adminBereichBtn.setBounds(22, starting + 240, 205, 45);
