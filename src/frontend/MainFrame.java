@@ -22,6 +22,7 @@ import frontend.util.ImagePanel;
 public class MainFrame {
 
     // TODO Planning List:
+    // first: Manage main window focus & Main window minimize / maximize
     // 1. design kasse frame
     // 2. design how to enter and create rezepturen
     // 3. design kollegen umsatz fenster stuff
