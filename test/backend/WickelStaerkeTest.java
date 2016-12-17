@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import backend.enums.WickelStaerke;
+import database.enums.WickelStaerke;
 
 public class WickelStaerkeTest {
 

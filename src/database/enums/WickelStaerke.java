@@ -1,4 +1,4 @@
-package backend.enums;
+package database.enums;
 
 public enum WickelStaerke {
     F("F"), G("G"), N("N"), NOT_FOUND("n.V.");

@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import util.Try;
 import util.Unit;
-import backend.enums.FaerbeTechnik;
 import database.Ordering;
+import database.enums.FaerbeTechnik;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 

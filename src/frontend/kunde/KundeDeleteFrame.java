@@ -15,9 +15,9 @@ import javax.swing.border.EmptyBorder;
 import util.Try;
 import util.Unit;
 import backend.TypedJFrame;
-import backend.enums.FrameType;
 import backend.framemanagement.FrameManager;
 import database.entities.Kunde;
+import database.enums.FrameType;
 import frontend.util.Notification;
 
 public class KundeDeleteFrame extends TypedJFrame {

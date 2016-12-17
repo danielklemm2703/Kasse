@@ -2,7 +2,7 @@ package backend;
 
 import javax.swing.JFrame;
 
-import backend.enums.FrameType;
+import database.enums.FrameType;
 
 public abstract class TypedJFrame extends JFrame {
 

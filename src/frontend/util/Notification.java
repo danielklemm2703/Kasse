@@ -12,10 +12,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import database.enums.FrameType;
 import util.Images;
 import util.Try;
 import backend.TypedJFrame;
-import backend.enums.FrameType;
 import backend.framemanagement.ActionListeners;
 
 public class Notification extends TypedJFrame {

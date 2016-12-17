@@ -27,7 +27,6 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import backend.TypedJFrame;
-import backend.enums.FrameType;
 import backend.framemanagement.ActionListeners;
 import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
@@ -36,6 +35,7 @@ import database.entities.Kunde;
 import database.entities.Ort;
 import database.entities.Rezeptur;
 import database.entities.Transaktion;
+import database.enums.FrameType;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;

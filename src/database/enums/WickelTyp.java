@@ -1,4 +1,4 @@
-package backend.enums;
+package database.enums;
 
 public enum WickelTyp {
     DAUERWELL("Dauerwellwickel"), VOLUMENWELL("Volumenwellwickel"), NOT_FOUND("keine Angabe");

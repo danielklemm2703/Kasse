@@ -19,13 +19,13 @@ import javax.swing.JTextField;
 
 import util.PopupTriggerListener;
 import backend.TypedJFrame;
-import backend.enums.FrameType;
 import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
 import database.Ordering;
 import database.entities.Friseur;
 import database.entities.Kunde;
 import database.entities.Ort;
+import database.enums.FrameType;
 import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;

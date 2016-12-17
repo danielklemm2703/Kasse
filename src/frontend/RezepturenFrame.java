@@ -20,7 +20,6 @@ import javax.swing.table.DefaultTableModel;
 import org.joda.time.DateTime;
 
 import backend.TypedJFrame;
-import backend.enums.FrameType;
 import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
 import database.entities.Farbe;
@@ -30,6 +29,7 @@ import database.entities.Praeparat;
 import database.entities.Rezeptur;
 import database.entities.Transaktion;
 import database.entities.Wickel;
+import database.enums.FrameType;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import frontend.util.Notification;

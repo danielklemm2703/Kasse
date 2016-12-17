@@ -1,8 +1,6 @@
 package frontend;
 
 import static backend.framemanagement.ActionListeners.openAndDisposeOthersFrameListener;
-import static backend.framemanagement.FrameManager.checkOtherOpenFrames;
-import static backend.framemanagement.FrameManager.onMinimize;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,17 +14,23 @@ import javax.swing.JFrame;
 
 import util.Images;
 import util.Try;
+import backend.framemanagement.WindowListeners;
 import frontend.kasse.KasseFrame;
 import frontend.kunde.KundenFrame;
 import frontend.util.ImagePanel;
 
 public class MainFrame {
 
+    // TODO Planning List:
+    // 1. design kasse frame
+    // 2. design how to enter and create rezepturen
+    // 3. design kollegen umsatz fenster stuff
+    // 4. design admin area
+    // BUG: Opened error -> minimize main window -Y maximize it, nothing is
+    // clickable and error is gone
+
     private JFrame _frame;
 
-    /**
-     * Launch the application.
-     */
     public static void main(String[] args) {
 	EventQueue.invokeLater(new Runnable() {
 	    public void run() {
@@ -40,16 +44,10 @@ public class MainFrame {
 	});
     }
 
-    /**
-     * Create the application.
-     */
     public MainFrame() {
 	initialize();
     }
 
-    /**
-     * Initialize the contents of the frame.
-     */
     private void initialize() {
 	_frame = new JFrame();
 	_frame.setIconImage(Toolkit.getDefaultToolkit().getImage("/Users/dklemm/Documents/workspace/Kasse/kassaicon.ico"));
@@ -57,8 +55,8 @@ public class MainFrame {
 	_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	_frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	_frame.getContentPane().setLayout(null);
-	_frame.addWindowFocusListener(checkOtherOpenFrames());
-	_frame.addWindowStateListener(onMinimize());
+	// _frame.addWindowFocusListener(checkOtherOpenFrames());
+	_frame.addWindowStateListener(WindowListeners.onMinimize());
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	int width = (int) Math.round(screenSize.getWidth());

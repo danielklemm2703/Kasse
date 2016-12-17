@@ -1,4 +1,4 @@
-package backend.enums;
+package database.enums;
 
 public enum FaerbeTechnik {
     ANSATZ("Ansatz"), STRAEHNE("Strähne"), NOT_FOUND("keine Angabe");

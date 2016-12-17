@@ -8,10 +8,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import backend.TypedJFrame;
-import backend.enums.FrameType;
 import backend.framemanagement.MouseAdapters;
 import database.entities.Friseur;
 import database.entities.Kunde;
+import database.enums.FrameType;
 import datameer.com.google.common.base.Optional;
 
 public class DienstleisungChoserFrame extends TypedJFrame {

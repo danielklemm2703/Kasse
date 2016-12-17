@@ -8,9 +8,9 @@ import org.junit.Test;
 
 import util.Try;
 import util.Unit;
-import backend.enums.WickelStaerke;
-import backend.enums.WickelTyp;
 import database.Ordering;
+import database.enums.WickelStaerke;
+import database.enums.WickelTyp;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 

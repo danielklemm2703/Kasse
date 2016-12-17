@@ -1,4 +1,4 @@
-package backend.enums;
+package database.enums;
 
 public enum FrameType {
 
