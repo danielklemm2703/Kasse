@@ -2,8 +2,8 @@ package backend.framemanagement;
 
 import java.util.LinkedList;
 
-import database.enums.FrameType;
 import backend.TypedJFrame;
+import database.enums.FrameType;
 
 public class FrameManager {
     private static LinkedList<TypedJFrame> _frameStack = new LinkedList<TypedJFrame>();
@@ -12,6 +12,7 @@ public class FrameManager {
 	// do not open requested frame, because a not answered notification
 	// is opened. Try to request focus for the other open frames.
 	for (TypedJFrame jframe : _frameStack) {
+	    jframe.setVisible(true);
 	    jframe.requestFocus();
 	    System.err.println("Set focus to underlaying or top " + jframe._type.toString());
 	}
@@ -58,6 +59,16 @@ public class FrameManager {
 	    System.err.println("Closed " + frame._type.toString() + "-Frame.");
 	} else {
 	    System.err.println("Tried to find " + frame._type.toString() + "-Frame to close it, but was not opened on top.");
+	}
+    }
+
+    public static final void adjustFocus(TypedJFrame frame) {
+	if (_frameStack.size() != 0) {
+	    if (_frameStack.getLast().equals(frame)) {
+		return;
+	    }
+	    _frameStack.getLast().setVisible(true);
+	    _frameStack.getLast().requestFocus();
 	}
     }
 }
