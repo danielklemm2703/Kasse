@@ -1,6 +1,8 @@
-package backend;
+package backend.framemanagement;
 
 import java.util.LinkedList;
+
+import backend.TypedJFrame;
 
 public class FrameStack {
 

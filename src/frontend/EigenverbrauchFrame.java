@@ -1,7 +1,6 @@
 package frontend;
 
-import static backend.FrameManager.closeFrameMouseAdapter;
-import static backend.FrameManager.showNotification;
+import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,11 +23,13 @@ import util.Preis;
 import util.Try;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.FrameManager;
 import database.Ordering;
 import database.entities.Eigenverbrauch;
 import database.entities.Friseur;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.Maps;
+import frontend.util.Notification;
 
 public class EigenverbrauchFrame extends TypedJFrame {
 
@@ -133,7 +134,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 		    message2 = "nicht gespeichert werden.";
 		    e.printStackTrace();
 		}
-		showNotification(error, message1, message2);
+		FrameManager.addFrame(new Notification(error, message1, message2));
 	    }
 	};
     }

@@ -1,7 +1,5 @@
 package frontend.util;
 
-import static backend.FrameManager.closeNotificationByButton;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -18,6 +16,7 @@ import util.Images;
 import util.Try;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.ActionListeners;
 
 public class Notification extends TypedJFrame {
 
@@ -62,7 +61,7 @@ public class Notification extends TypedJFrame {
 	_contentPane.add(lblNewLabel_1);
 
 	JButton btnOk = new JButton("OK");
-	btnOk.addActionListener(closeNotificationByButton(this));
+	btnOk.addActionListener(ActionListeners.closeFrameOnTop(this));
 	btnOk.setBounds(85, 101, 117, 29);
 	_contentPane.add(btnOk);
 

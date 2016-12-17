@@ -14,10 +14,11 @@ import javax.swing.border.EmptyBorder;
 
 import util.Try;
 import util.Unit;
-import backend.FrameManager;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.FrameManager;
 import database.entities.Kunde;
+import frontend.util.Notification;
 
 public class KundeDeleteFrame extends TypedJFrame {
 
@@ -86,9 +87,9 @@ public class KundeDeleteFrame extends TypedJFrame {
 		if (deleteKunde) {
 		    Try<Unit> delete = kunde.delete();
 		    if (delete.isSuccess()) {
-			FrameManager.showNotification(false, "Kunde wurde erfolgreich", "gelöscht.");
+			FrameManager.addFrame(new Notification(false, "Kunde wurde erfolgreich", "gelöscht."));
 		    } else {
-			FrameManager.showNotification(true, "Kunde konnte nicht", "gelöscht werden");
+			FrameManager.addFrame(new Notification(true, "Kunde konnte nicht", "gelöscht werden"));
 		    }
 		}
 	    }

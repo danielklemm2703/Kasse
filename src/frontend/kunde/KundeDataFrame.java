@@ -1,6 +1,6 @@
 package frontend.kunde;
 
-import static backend.FrameManager.closeFrameAndOpenKundenFrame;
+import static backend.framemanagement.FrameManager.closeFrameAndOpenKundenFrame;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -19,14 +19,15 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import util.Try;
-import backend.FrameManager;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.FrameManager;
 import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.Maps;
+import frontend.util.Notification;
 
 public class KundeDataFrame extends TypedJFrame {
 
@@ -140,11 +141,11 @@ public class KundeDataFrame extends TypedJFrame {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
 		if (_textField.getText().isEmpty() || _textField_1.getText().isEmpty() || _textField_3.getText().isEmpty()) {
-		    FrameManager.showNotification(true, "Es müssen alle", "Felder gefüllt sein!");
+		    FrameManager.addFrame(new Notification(true, "Es müssen alle", "Felder gefüllt sein!"));
 		    return;
 		}
 		if (_comboBox.getSelectedIndex() == -1) {
-		    FrameManager.showNotification(true, "Es muss ein Ort", "gewählt werden!");
+		    FrameManager.addFrame(new Notification(true, "Es muss ein Ort", "gewählt werden!"));
 		    return;
 		}
 		String vorname = _textField.getText();
@@ -163,9 +164,9 @@ public class KundeDataFrame extends TypedJFrame {
 		}
 
 		if (save.isSuccess()) {
-		    FrameManager.showNotification(false, "Kunde wurde", "erfolgreich gespeichert");
+		    FrameManager.addFrame(new Notification(false, "Kunde wurde", "erfolgreich gespeichert"));
 		} else {
-		    FrameManager.showNotification(true, "Kunde konnte nicht", "gespeichert werden");
+		    FrameManager.addFrame(new Notification(true, "Kunde konnte nicht", "gespeichert werden"));
 		}
 	    }
 	};

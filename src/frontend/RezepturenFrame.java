@@ -1,7 +1,6 @@
 package frontend;
 
-import static backend.FrameManager.closeFrameAndOpenKundenFrame;
-import static backend.FrameManager.showNotification;
+import static backend.framemanagement.FrameManager.closeFrameAndOpenKundenFrame;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -24,6 +23,7 @@ import org.joda.time.DateTime;
 
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.FrameManager;
 import database.entities.Farbe;
 import database.entities.Kunde;
 import database.entities.Ort;
@@ -33,6 +33,7 @@ import database.entities.Transaktion;
 import database.entities.Wickel;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
+import frontend.util.Notification;
 
 public class RezepturenFrame extends TypedJFrame {
 
@@ -259,7 +260,7 @@ public class RezepturenFrame extends TypedJFrame {
 	}
 	Optional<Transaktion> transaktion = Transaktion.loadById(rezeptur.getTransaktionId());
 	if (!transaktion.isPresent()) {
-	    showNotification(true, "Rezeptur konnte nicht", "geladen werden");
+	    FrameManager.addFrame(new Notification(true, "Rezeptur konnte nicht", "geladen werden"));
 	}
 	DateTime datum = transaktion.get().getDatum();
 	_datumText.setText(datum.toString("dd. MMMM yyyy"));

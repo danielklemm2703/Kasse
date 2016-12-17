@@ -1,7 +1,7 @@
 package frontend.kasse;
-import static backend.FrameManager.closeFrameMouseAdapter;
-import static backend.FrameManager.showKasseDienstleisungChoserFrame;
-import static backend.FrameManager.showNotification;
+
+import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
+import static backend.framemanagement.FrameManager.showKasseDienstleisungChoserFrame;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -23,6 +23,7 @@ import javax.swing.JTextField;
 import util.PopupTriggerListener;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.FrameManager;
 import database.Ordering;
 import database.entities.Friseur;
 import database.entities.Kunde;
@@ -31,6 +32,7 @@ import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.Maps;
+import frontend.util.Notification;
 
 public class KasseFrame extends TypedJFrame {
 
@@ -62,7 +64,7 @@ public class KasseFrame extends TypedJFrame {
 		kunde = Optional.fromNullable(_kundeMapping.get(_kundeComboBox.getSelectedIndex()));
 	    }
 	    if (friseur == null) {
-		showNotification(true, "Ein Friseur muss", "ausgewählt sein");
+		FrameManager.addFrame(new Notification(true, "Ein Friseur muss", "ausgewählt sein"));
 	    } else {
 		showKasseDienstleisungChoserFrame(kunde, friseur);
 	    }

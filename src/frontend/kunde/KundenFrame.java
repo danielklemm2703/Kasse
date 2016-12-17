@@ -1,6 +1,6 @@
 package frontend.kunde;
 
-import static backend.FrameManager.closeFrameMouseAdapter;
+import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
 import static util.Functions.toPresent;
 import static util.Functions.toRezeptur;
 import static util.Predicates.eingetragen;
@@ -27,9 +27,9 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
-import backend.FrameManager;
 import backend.TypedJFrame;
 import backend.enums.FrameType;
+import backend.framemanagement.FrameManager;
 import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
@@ -39,6 +39,7 @@ import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Maps;
+import frontend.util.Notification;
 
 public class KundenFrame extends TypedJFrame {
 
@@ -119,12 +120,12 @@ public class KundenFrame extends TypedJFrame {
 	    public void actionPerformed(ActionEvent e) {
 		int selectedRow = _table.getSelectedRow();
 		if (selectedRow == -1) {
-		    FrameManager.showNotification(true, "Es wurde kein", "Kunde ausgewählt!");
+		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
 		    return;
 		}
 		Kunde kunde = _kundenMapping.get(selectedRow);
 		if (kunde == null) {
-		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
 		    return;
 		}
 		FrameManager.showKundeDeleteCheck(kunde);
@@ -137,24 +138,24 @@ public class KundenFrame extends TypedJFrame {
 	    public void actionPerformed(ActionEvent e) {
 		int selectedRow = _table.getSelectedRow();
 		if (selectedRow == -1) {
-		    FrameManager.showNotification(true, "Es wurde kein", "Kunde ausgewählt!");
+		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
 		    return;
 		}
 		Kunde kunde = _kundenMapping.get(selectedRow);
 		if (kunde == null) {
-		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
 		    return;
 		}
 		Optional<Ort> ort = Ort.loadById(kunde.getOrtId());
 		if (!ort.isPresent()) {
-		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
 		    return;
 		}
 		FluentIterable<Rezeptur> rezepturen = FluentIterable
 			.from(Transaktion.loadByParameter("KUNDE_ID", "" + kunde.getEntityId().get(), new Ordering("DATUM", "DESC"))).filter(withRezept)
 			.transform(toRezeptur).filter(present).transform(toPresent).filter(eingetragen);
 		if (rezepturen.isEmpty()) {
-		    FrameManager.showNotification(true, "Kunde hat noch", "keine Rezepturen");
+		    FrameManager.addFrame(new Notification(true, "Kunde hat noch", "keine Rezepturen"));
 		    return;
 		}
 		FrameManager.showRezepturenFrame(ort.get(), kunde, rezepturen);
@@ -167,12 +168,12 @@ public class KundenFrame extends TypedJFrame {
 	    public void actionPerformed(ActionEvent e) {
 		int selectedRow = _table.getSelectedRow();
 		if (selectedRow == -1) {
-		    FrameManager.showNotification(true, "Es wurde kein", "Kunde ausgewählt!");
+		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
 		    return;
 		}
 		Kunde kunde = _kundenMapping.get(selectedRow);
 		if (kunde == null) {
-		    FrameManager.showNotification(true, "Beim Laden des Kunden", "trat ein Fehler auf");
+		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
 		    return;
 		}
 		FrameManager.showKundeDataFrame(Optional.of(kunde), kundenFrame);

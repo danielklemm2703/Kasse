@@ -1,6 +1,6 @@
 package frontend.kasse;
 
-import static backend.FrameManager.closeFrameMouseAdapter;
+import static backend.framemanagement.FrameManager.closeFrameMouseAdapter;
 
 import java.awt.Dimension;
 import java.awt.Font;
