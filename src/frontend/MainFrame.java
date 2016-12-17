@@ -56,7 +56,8 @@ public class MainFrame {
 	_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	_frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	_frame.getContentPane().setLayout(null);
-	_frame.addWindowStateListener(WindowListeners.onMinimize());
+	_frame.addWindowFocusListener(WindowListeners.handleFramePrioritiesForMainFrame);
+	_frame.addWindowStateListener(WindowListeners.onMinimizeOrMaximizeMainFrame);
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	int width = (int) Math.round(screenSize.getWidth());

@@ -8,19 +8,33 @@ import java.awt.event.WindowStateListener;
 import backend.TypedJFrame;
 
 public class WindowListeners {
-    public static final WindowStateListener onMinimize() {
-	// TODO try to make all other frames invisible and restore them on
-	// maximize and gain focus events
-	return new WindowStateListener() {
+    public static final WindowStateListener onMinimizeOrMaximizeMainFrame = new WindowStateListener() {
 	    public void windowStateChanged(WindowEvent event) {
+		// minimized
 		if ((event.getNewState() & Frame.ICONIFIED) == Frame.ICONIFIED) {
-		    System.err.println("minimized main Frame");
-		    System.err.println("Notification window closed");
-		    System.err.println("Open window closed");
+		    System.err.println("minimized Main Frame");
+		    FrameManager.minimizeAll();
+		}
+		// maximized
+		else if ((event.getNewState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
+		    System.err.println("maximized Main Frame");
+		    // do nothing, when main frame gets focus, it will build all
+		    // active frames again
 		}
 	    }
 	};
-    }
+
+    public static final WindowFocusListener handleFramePrioritiesForMainFrame = new WindowFocusListener() {
+	@Override
+	public void windowLostFocus(WindowEvent e) {
+	    // TODO Auto-generated method stub
+	}
+
+	@Override
+	public void windowGainedFocus(WindowEvent e) {
+	    FrameManager.adjustFocusForMainFrame();
+	}
+    };
 
     public static final WindowFocusListener handleFramePriorities(final TypedJFrame frame) {
 	return new WindowFocusListener() {

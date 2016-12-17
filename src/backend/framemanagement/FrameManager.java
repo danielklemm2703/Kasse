@@ -33,7 +33,7 @@ public class FrameManager {
 	}
 	for (TypedJFrame jframe : _frameStack) {
 	    jframe.dispose();
-	    System.err.println("Disposed " + frame._type.toString());
+	    System.err.println("Disposed " + jframe._type.toString());
 	}
 	_frameStack.clear();
 	System.err.println("Cleared all Frames in Stack");
@@ -69,6 +69,20 @@ public class FrameManager {
 	    }
 	    _frameStack.getLast().setVisible(true);
 	    _frameStack.getLast().requestFocus();
+	}
+    }
+
+    public static final void minimizeAll() {
+	for (TypedJFrame jframe : _frameStack) {
+	    jframe.setVisible(false);
+	    System.err.println("Set visible false to  " + jframe._type.toString());
+	}
+    }
+
+    public static final void adjustFocusForMainFrame() {
+	for (TypedJFrame jframe : _frameStack) {
+	    jframe.setVisible(true);
+	    System.err.println("Set visible true to  " + jframe._type.toString());
 	}
     }
 }
