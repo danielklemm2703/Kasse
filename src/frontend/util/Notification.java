@@ -12,11 +12,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import database.enums.FrameType;
 import util.Images;
 import util.Try;
 import backend.TypedJFrame;
 import backend.framemanagement.ActionListeners;
+import database.enums.FrameType;
 
 public class Notification extends TypedJFrame {
 
@@ -61,8 +61,9 @@ public class Notification extends TypedJFrame {
 	_contentPane.add(lblNewLabel_1);
 
 	JButton btnOk = new JButton("OK");
+	btnOk.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	btnOk.addActionListener(ActionListeners.closeFrameOnTop(this));
-	btnOk.setBounds(85, 101, 117, 29);
+	btnOk.setBounds(75, 101, 137, 29);
 	_contentPane.add(btnOk);
 
 	JLabel lblZweiterText = new JLabel(message2);

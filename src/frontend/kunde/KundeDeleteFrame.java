@@ -70,11 +70,13 @@ public class KundeDeleteFrame extends TypedJFrame {
 	_contentPane.add(lblWirklichGelschtWerden);
 
 	JButton btnJa = new JButton("Ja");
+	btnJa.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	btnJa.addActionListener(closeKundeDeleteFrame(true, this, kunde));
 	btnJa.setBounds(6, 127, 117, 29);
 	_contentPane.add(btnJa);
 
 	JButton btnNein = new JButton("Nein");
+	btnNein.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	btnNein.addActionListener(closeKundeDeleteFrame(false, this, kunde));
 	btnNein.setBounds(145, 127, 117, 29);
 	_contentPane.add(btnNein);

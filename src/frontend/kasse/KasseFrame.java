@@ -1,5 +1,6 @@
 package frontend.kasse;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -15,7 +16,9 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 import util.PopupTriggerListener;
 import backend.TypedJFrame;
@@ -43,6 +46,8 @@ public class KasseFrame extends TypedJFrame {
     private JCheckBox _chckbxLaufkunde;
     private JPopupMenu _dienstleistungPopUpMenu;
     private JPopupMenu _verkaufPopUpMenu;
+    private JTable _dienstleistungsEintragTable;
+    private JTable _verkaufsEintragTable;
 
     private final ActionListener _laufKundeActionListener = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {
@@ -117,6 +122,11 @@ public class KasseFrame extends TypedJFrame {
 	JScrollPane scrollPaneDienstleistungen = new JScrollPane();
 	scrollPaneDienstleistungen.addMouseListener(new PopupTriggerListener(_dienstleistungPopUpMenu));
 	scrollPaneDienstleistungen.setBounds(25, 130, 559, 179);
+	_dienstleistungsEintragTable = new JTable(createEmptyDienstleistungModel());
+	_dienstleistungsEintragTable.setShowHorizontalLines(true);
+	_dienstleistungsEintragTable.setShowVerticalLines(true);
+	_dienstleistungsEintragTable.setGridColor(Color.BLACK);
+	scrollPaneDienstleistungen.setViewportView(_dienstleistungsEintragTable);
 	getContentPane().add(scrollPaneDienstleistungen);
 
 	_verkaufPopUpMenu = new JPopupMenu("Verkäufe");
@@ -131,6 +141,11 @@ public class KasseFrame extends TypedJFrame {
 	JScrollPane scrollPaneVerkaeufe = new JScrollPane();
 	scrollPaneVerkaeufe.addMouseListener(new PopupTriggerListener(_verkaufPopUpMenu));
 	scrollPaneVerkaeufe.setBounds(25, 344, 559, 179);
+	_verkaufsEintragTable = new JTable(createEmptyVerkaufModel());
+	_verkaufsEintragTable.setShowHorizontalLines(true);
+	_verkaufsEintragTable.setShowVerticalLines(true);
+	_verkaufsEintragTable.setGridColor(Color.BLACK);
+	scrollPaneVerkaeufe.setViewportView(_verkaufsEintragTable);
 	getContentPane().add(scrollPaneVerkaeufe);
 
 	JButton btnZurcksetzen = new JButton("Zurücksetzen");
@@ -145,38 +160,29 @@ public class KasseFrame extends TypedJFrame {
 
 	JLabel lblGesamt = new JLabel("Gesamt");
 	lblGesamt.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGesamt.setBounds(228, 568, 102, 16);
+	lblGesamt.setBounds(228, 545, 102, 16);
 	getContentPane().add(lblGesamt);
 
 	JLabel lblGutscheinEnlsen = new JLabel("Gutschein Enlösen");
 	lblGutscheinEnlsen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGutscheinEnlsen.setBounds(228, 596, 177, 16);
+	lblGutscheinEnlsen.setBounds(228, 573, 177, 16);
 	getContentPane().add(lblGutscheinEnlsen);
 
 	txtGutscheinCode = new JTextField();
 	txtGutscheinCode.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	txtGutscheinCode.setBounds(411, 593, 130, 26);
+	txtGutscheinCode.setBounds(413, 568, 130, 26);
 	getContentPane().add(txtGutscheinCode);
 	txtGutscheinCode.setColumns(10);
 
 	JLabel lblZuZahlen = new JLabel("Zu Zahlen");
 	lblZuZahlen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblZuZahlen.setBounds(228, 652, 101, 16);
+	lblZuZahlen.setBounds(228, 629, 101, 16);
 	getContentPane().add(lblZuZahlen);
 
 	JLabel lblGutscheinInfo = new JLabel("Gutschein Info");
 	lblGutscheinInfo.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGutscheinInfo.setBounds(228, 624, 144, 16);
+	lblGutscheinInfo.setBounds(228, 601, 144, 16);
 	getContentPane().add(lblGutscheinInfo);
-
-	JScrollPane scrollPane_2 = new JScrollPane();
-	scrollPane_2.setBounds(25, 566, 152, 103);
-	getContentPane().add(scrollPane_2);
-
-	JLabel lblKundenInfo = new JLabel("Kunden Info");
-	lblKundenInfo.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-	lblKundenInfo.setBounds(25, 546, 101, 16);
-	getContentPane().add(lblKundenInfo);
 
 	JLabel lblDienstleistungen = new JLabel("Dienstleistungen");
 	lblDienstleistungen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
@@ -238,17 +244,35 @@ public class KasseFrame extends TypedJFrame {
 
 	JLabel lblGesamtWert = new JLabel("");
 	lblGesamtWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGesamtWert.setBounds(411, 570, 130, 16);
+	lblGesamtWert.setBounds(411, 545, 130, 16);
 	getContentPane().add(lblGesamtWert);
 
 	JLabel lblGutscheinInfoWert = new JLabel("");
 	lblGutscheinInfoWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGutscheinInfoWert.setBounds(411, 626, 130, 16);
+	lblGutscheinInfoWert.setBounds(413, 601, 130, 16);
 	getContentPane().add(lblGutscheinInfoWert);
 
 	JLabel lblZuZahlenWert = new JLabel("");
 	lblZuZahlenWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblZuZahlenWert.setBounds(411, 654, 130, 16);
+	lblZuZahlenWert.setBounds(413, 629, 130, 16);
 	getContentPane().add(lblZuZahlenWert);
+    }
+
+    private static final DefaultTableModel createEmptyDienstleistungModel() {
+	DefaultTableModel model = new DefaultTableModel();
+	model.addColumn("Dienstleistung");
+	model.addColumn("Kunde");
+	model.addColumn("Friseur");
+	model.addColumn("Preis");
+	return model;
+    }
+
+    private static final DefaultTableModel createEmptyVerkaufModel() {
+	DefaultTableModel model = new DefaultTableModel();
+	model.addColumn("Verkauf");
+	model.addColumn("Kunde");
+	model.addColumn("Friseur");
+	model.addColumn("Preis");
+	return model;
     }
 }

@@ -219,13 +219,13 @@ public class RezepturenFrame extends TypedJFrame {
 
 	_btnVor = new JButton("Neuere");
 	_btnVor.addActionListener(changeRezepte(true));
-	_btnVor.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+	_btnVor.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	_btnVor.setBounds(15, 384, 117, 29);
 	_contentPane.add(_btnVor);
 
 	_btnZurueck = new JButton("Ältere");
 	_btnZurueck.addActionListener(changeRezepte(false));
-	_btnZurueck.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+	_btnZurueck.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	_btnZurueck.setBounds(469, 384, 117, 29);
 	_contentPane.add(_btnZurueck);
 

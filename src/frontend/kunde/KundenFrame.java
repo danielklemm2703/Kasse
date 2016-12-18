@@ -26,6 +26,7 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import util.tableModels.NonEditableColumnTableModel;
 import backend.TypedJFrame;
 import backend.framemanagement.ActionListeners;
 import backend.framemanagement.FrameManager;
@@ -97,22 +98,26 @@ public class KundenFrame extends TypedJFrame {
 	getContentPane().add(lblX);
 
 	JButton neuerKundeBtn = new JButton("Neu Anlegen");
+	neuerKundeBtn.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 	KundeDataFrame kundeDataFrame = new KundeDataFrame(Optional.<Kunde> absent());
 	neuerKundeBtn.addActionListener(ActionListeners.addFrame(kundeDataFrame));
-	neuerKundeBtn.setBounds(10, 507, 117, 29);
+	neuerKundeBtn.setBounds(0, 507, 132, 29);
 	getContentPane().add(neuerKundeBtn);
 
 	JButton btnNewButton = new JButton("Rezepturen Anzeigen");
+	btnNewButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 	btnNewButton.addActionListener(kundeAnzeigen());
-	btnNewButton.setBounds(154, 507, 168, 29);
+	btnNewButton.setBounds(142, 507, 193, 29);
 	getContentPane().add(btnNewButton);
 
 	JButton btnDatenndern = new JButton("Daten Ändern");
+	btnDatenndern.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 	btnDatenndern.addActionListener(kundeUpdate());
-	btnDatenndern.setBounds(347, 507, 117, 29);
+	btnDatenndern.setBounds(347, 507, 126, 29);
 	getContentPane().add(btnDatenndern);
 
 	JButton btnLschen = new JButton("Löschen");
+	btnLschen.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 	btnLschen.addActionListener(kundeDelete());
 	btnLschen.setBounds(485, 507, 117, 29);
 	getContentPane().add(btnLschen);
@@ -169,7 +174,7 @@ public class KundenFrame extends TypedJFrame {
     }
 
     private static final DefaultTableModel createEmptyKundenModel() {
-	DefaultTableModel model = new DefaultTableModel();
+	DefaultTableModel model = new NonEditableColumnTableModel();
 	model.addColumn("Nachname");
 	model.addColumn("Vorname");
 	model.addColumn("Ort");

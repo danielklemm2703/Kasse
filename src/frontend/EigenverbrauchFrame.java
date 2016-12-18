@@ -58,6 +58,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 	setUndecorated(true);
 
 	JButton speichernBtn = new JButton("Speichern");
+	speichernBtn.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	speichernBtn.addActionListener(saveEigenverbrauch());
 	speichernBtn.setBounds(157, 126, 117, 29);
 	getContentPane().add(speichernBtn);

@@ -22,7 +22,6 @@ import frontend.util.ImagePanel;
 public class MainFrame {
 
     // TODO Planning List:
-    // first: Manage main window focus & Main window minimize / maximize
     // 1. design kasse frame
     // 2. design how to enter and create rezepturen
     // 3. design kollegen umsatz fenster stuff
@@ -95,11 +94,18 @@ public class MainFrame {
 	kundenBtn.setBounds(22, starting + 160, 205, 45);
 	_frame.getContentPane().add(kundenBtn);
 
+	JButton tagesUmsatzBtn = new JButton("Tagesumsatz");
+	tagesUmsatzBtn.addActionListener(openAndDisposeOthers(null));
+	tagesUmsatzBtn.setBackground(Color.GRAY);
+	tagesUmsatzBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
+	tagesUmsatzBtn.setBounds(22, starting + 240, 205, 45);
+	_frame.getContentPane().add(tagesUmsatzBtn);
+
 	JButton adminBereichBtn = new JButton("Admin Bereich");
 	adminBereichBtn.addActionListener(openAndDisposeOthers(null));
 	adminBereichBtn.setBackground(Color.GRAY);
 	adminBereichBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
-	adminBereichBtn.setBounds(22, starting + 240, 205, 45);
+	adminBereichBtn.setBounds(22, starting + 320, 205, 45);
 	_frame.getContentPane().add(adminBereichBtn);
     }
 }
