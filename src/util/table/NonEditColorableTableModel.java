@@ -1,4 +1,4 @@
-package util.tableModels;
+package util.table;
 
 import java.awt.Color;
 import java.util.LinkedList;

@@ -1,11 +1,11 @@
-package util.tableModels;
+package util.table;
 
 import java.awt.Component;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-public class ColorableTableCellRenderer extends DefaultTableCellRenderer{
+class ColorableTableCellRenderer extends DefaultTableCellRenderer {
 
     private static final long serialVersionUID = 4068608912102137801L;
 

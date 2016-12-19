@@ -1,6 +1,5 @@
 package frontend.kasse;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -16,11 +15,11 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
 
 import util.PopupTriggerListener;
+import util.table.MultiselectTable;
+import util.table.NonEditColorableTableModel;
 import backend.TypedJFrame;
 import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
@@ -46,8 +45,8 @@ public class KasseFrame extends TypedJFrame {
     private JCheckBox _chckbxLaufkunde;
     private JPopupMenu _dienstleistungPopUpMenu;
     private JPopupMenu _verkaufPopUpMenu;
-    private JTable _dienstleistungsEintragTable;
-    private JTable _verkaufsEintragTable;
+    MultiselectTable _dienstleistungsEintragTable;
+    MultiselectTable _verkaufsEintragTable;
 
     private final ActionListener _laufKundeActionListener = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {
@@ -122,10 +121,8 @@ public class KasseFrame extends TypedJFrame {
 	JScrollPane scrollPaneDienstleistungen = new JScrollPane();
 	scrollPaneDienstleistungen.addMouseListener(new PopupTriggerListener(_dienstleistungPopUpMenu));
 	scrollPaneDienstleistungen.setBounds(25, 130, 559, 179);
-	_dienstleistungsEintragTable = new JTable(createEmptyDienstleistungModel());
-	_dienstleistungsEintragTable.setShowHorizontalLines(true);
-	_dienstleistungsEintragTable.setShowVerticalLines(true);
-	_dienstleistungsEintragTable.setGridColor(Color.BLACK);
+	_dienstleistungsEintragTable = new MultiselectTable();
+	_dienstleistungsEintragTable.setModel(createEmptyDienstleistungModel());
 	scrollPaneDienstleistungen.setViewportView(_dienstleistungsEintragTable);
 	getContentPane().add(scrollPaneDienstleistungen);
 
@@ -141,10 +138,8 @@ public class KasseFrame extends TypedJFrame {
 	JScrollPane scrollPaneVerkaeufe = new JScrollPane();
 	scrollPaneVerkaeufe.addMouseListener(new PopupTriggerListener(_verkaufPopUpMenu));
 	scrollPaneVerkaeufe.setBounds(25, 344, 559, 179);
-	_verkaufsEintragTable = new JTable(createEmptyVerkaufModel());
-	_verkaufsEintragTable.setShowHorizontalLines(true);
-	_verkaufsEintragTable.setShowVerticalLines(true);
-	_verkaufsEintragTable.setGridColor(Color.BLACK);
+	_verkaufsEintragTable = new MultiselectTable();
+	_verkaufsEintragTable.setModel(createEmptyVerkaufModel());
 	scrollPaneVerkaeufe.setViewportView(_verkaufsEintragTable);
 	getContentPane().add(scrollPaneVerkaeufe);
 
@@ -258,8 +253,8 @@ public class KasseFrame extends TypedJFrame {
 	getContentPane().add(lblZuZahlenWert);
     }
 
-    private static final DefaultTableModel createEmptyDienstleistungModel() {
-	DefaultTableModel model = new DefaultTableModel();
+    private static final NonEditColorableTableModel createEmptyDienstleistungModel() {
+	NonEditColorableTableModel model = new NonEditColorableTableModel();
 	model.addColumn("Dienstleistung");
 	model.addColumn("Kunde");
 	model.addColumn("Friseur");
@@ -267,8 +262,8 @@ public class KasseFrame extends TypedJFrame {
 	return model;
     }
 
-    private static final DefaultTableModel createEmptyVerkaufModel() {
-	DefaultTableModel model = new DefaultTableModel();
+    private static final NonEditColorableTableModel createEmptyVerkaufModel() {
+	NonEditColorableTableModel model = new NonEditColorableTableModel();
 	model.addColumn("Verkauf");
 	model.addColumn("Kunde");
 	model.addColumn("Friseur");

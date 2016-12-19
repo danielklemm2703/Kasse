@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -24,9 +23,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
 
-import util.tableModels.NonEditableColumnTableModel;
+import util.Pair;
+import util.table.NonEditableColumnTableModel;
 import backend.TypedJFrame;
 import backend.framemanagement.ActionListeners;
 import backend.framemanagement.FrameManager;
@@ -37,18 +36,19 @@ import database.entities.Ort;
 import database.entities.Rezeptur;
 import database.entities.Transaktion;
 import database.enums.FrameType;
+import database.util.TableDatas;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
-import datameer.com.google.common.collect.Maps;
+import datameer.com.google.common.collect.ImmutableMap;
 import frontend.RezepturenFrame;
 import frontend.util.Notification;
 
 public class KundenFrame extends TypedJFrame {
 
     private static final long serialVersionUID = 4794193793492079259L;
-    private JTable _table;
-    private HashMap<Integer, Kunde> _kundenMapping = Maps.newHashMap();
+    private JTable _kundenTable;
+    private ImmutableMap<Integer, Kunde> _kundenMapping;
 
     /**
      * Create the frame.
@@ -74,12 +74,14 @@ public class KundenFrame extends TypedJFrame {
 	JScrollPane scrollPane = new JScrollPane();
 	scrollPane.setBounds(0, 62, 602, 444);
 	getContentPane().add(scrollPane);
-	_table = new JTable(createEmptyKundenModel());
-	_table.setShowHorizontalLines(true);
-	_table.setShowVerticalLines(true);
-	_table.setGridColor(Color.BLACK);
-	scrollPane.setViewportView(_table);
-	loadKundeData("A");
+	_kundenTable = new JTable();
+	_kundenTable.setShowHorizontalLines(true);
+	_kundenTable.setShowVerticalLines(true);
+	_kundenTable.setGridColor(Color.BLACK);
+	Pair<NonEditableColumnTableModel, ImmutableMap<Integer, Kunde>> kundeData = TableDatas.loadKundeData("A");
+	_kundenTable.setModel(kundeData._1);
+	_kundenMapping = kundeData._2;
+	scrollPane.setViewportView(_kundenTable);
 
 	JLabel lblKunden = new JLabel("Kunden");
 	lblKunden.setFont(new Font("Lucida Grande", Font.BOLD, 20));
@@ -126,7 +128,7 @@ public class KundenFrame extends TypedJFrame {
     private final ActionListener kundeDelete() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		int selectedRow = _table.getSelectedRow();
+		int selectedRow = _kundenTable.getSelectedRow();
 		if (selectedRow == -1) {
 		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
 		    return;
@@ -145,7 +147,7 @@ public class KundenFrame extends TypedJFrame {
     private final ActionListener kundeAnzeigen() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		int selectedRow = _table.getSelectedRow();
+		int selectedRow = _kundenTable.getSelectedRow();
 		if (selectedRow == -1) {
 		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
 		    return;
@@ -173,15 +175,6 @@ public class KundenFrame extends TypedJFrame {
 	};
     }
 
-    private static final DefaultTableModel createEmptyKundenModel() {
-	DefaultTableModel model = new NonEditableColumnTableModel();
-	model.addColumn("Nachname");
-	model.addColumn("Vorname");
-	model.addColumn("Ort");
-	model.addColumn("Telefon");
-	return model;
-    }
-
     private final JMenuBar createMenuBar() {
 	JMenuBar menuBar = new JMenuBar();
 	ImmutableList<String> letters = ImmutableList.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
@@ -194,23 +187,13 @@ public class KundenFrame extends TypedJFrame {
 	return menuBar;
     }
 
-    private final void loadKundeData(final String letter) {
-	Iterable<Kunde> kunden = Kunde.loadByParameterStartsWith("NACHNAME", letter, new Ordering("NACHNAME", "ASC"));
-	DefaultTableModel model = createEmptyKundenModel();
-	_kundenMapping = new HashMap<Integer, Kunde>();
-	int index = 0;
-	for (Kunde kunde : kunden) {
-	    model.addRow(new Object[] { kunde.getNachname(), kunde.getVorname(), Ort.loadById(kunde.getOrtId()).get().getOrtName(), kunde.getTelefon() });
-	    _kundenMapping.put(index++, kunde);
-	}
-	_table.setModel(model);
-    }
-
     private final MouseAdapter loadKundenOnKlick(final String letter) {
 	return new MouseAdapter() {
 	    @Override
 	    public void mouseClicked(MouseEvent e) {
-		loadKundeData(letter);
+		Pair<NonEditableColumnTableModel, ImmutableMap<Integer, Kunde>> kundeData = TableDatas.loadKundeData(letter);
+		_kundenTable.setModel(kundeData._1);
+		_kundenMapping = kundeData._2;
 	    }
 	};
     }
@@ -218,7 +201,7 @@ public class KundenFrame extends TypedJFrame {
     private final ActionListener kundeUpdate() {
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		int selectedRow = _table.getSelectedRow();
+		int selectedRow = _kundenTable.getSelectedRow();
 		if (selectedRow == -1) {
 		    FrameManager.addFrame(new Notification(true, "Es wurde kein", "Kunde ausgewählt!"));
 		    return;

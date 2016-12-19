@@ -26,8 +26,6 @@ public class MainFrame {
     // 2. design how to enter and create rezepturen
     // 3. design kollegen umsatz fenster stuff
     // 4. design admin area
-    // BUG: Opened error -> minimize main window -Y maximize it, nothing is
-    // clickable and error is gone
 
     private JFrame _frame;
 
