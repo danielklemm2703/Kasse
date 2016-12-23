@@ -5,7 +5,11 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -16,21 +20,31 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
+import util.Methods;
 import util.PopupTriggerListener;
+import util.Preis;
 import util.table.MultiselectTable;
 import util.table.NonEditColorableTableModel;
 import backend.TypedJFrame;
+import backend.container.DienstleistungsEintrag;
+import backend.container.VerkaufsEintrag;
 import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
 import database.Ordering;
+import database.entities.Dienstleistung;
 import database.entities.Friseur;
+import database.entities.Gutschein;
 import database.entities.Kunde;
 import database.entities.Ort;
+import database.entities.Verkauf;
 import database.enums.FrameType;
+import database.util.TableDatas;
 import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
+import datameer.com.google.common.collect.Lists;
 import datameer.com.google.common.collect.Maps;
 import frontend.util.Notification;
 
@@ -39,14 +53,29 @@ public class KasseFrame extends TypedJFrame {
     private static final long serialVersionUID = -1513580225986538916L;
     private JTextField txtGutscheinCode;
     private JComboBox<String> _friseurComboBox;
+    private JLabel _lblGesamtWert = new JLabel(Preis.of(0L).toString());
     private HashMap<Integer, Friseur> _friseurMapping = Maps.newHashMap();
     private JComboBox<String> _kundeComboBox;
     private HashMap<Integer, Kunde> _kundeMapping = Maps.newHashMap();
     private JCheckBox _chckbxLaufkunde;
-    private JPopupMenu _dienstleistungPopUpMenu;
     private JPopupMenu _verkaufPopUpMenu;
-    MultiselectTable _dienstleistungsEintragTable;
-    MultiselectTable _verkaufsEintragTable;
+    private MultiselectTable _verkaufsEintragTable;
+    private LinkedHashMap<Integer, VerkaufsEintrag> _verkaufEintragMapping = Maps.newLinkedHashMap();
+    private JPopupMenu _dienstleistungPopUpMenu;
+    private MultiselectTable _dienstleistungsEintragTable;
+    private LinkedHashMap<Integer, DienstleistungsEintrag> _dienstleistungEintragMapping = Maps.newLinkedHashMap();
+
+    private Optional<Gutschein> _eingeloesterGutschein = Optional.absent();
+    private JLabel _lblZuZahlenWert = new JLabel(Preis.of(0L).toString());
+
+    private static final AtomicReference<KasseFrame> singletonHolder = new AtomicReference<>();
+
+    public static final KasseFrame instance() {
+	if (singletonHolder.get() == null) {
+	    singletonHolder.set(new KasseFrame());
+	}
+	return singletonHolder.get();
+    }
 
     private final ActionListener _laufKundeActionListener = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {
@@ -58,7 +87,7 @@ public class KasseFrame extends TypedJFrame {
 	}
     };
 
-    private final ActionListener _diensleistungChoser = new ActionListener() {
+    private final ActionListener _dienstleistungChoser = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {
 	    Friseur friseur = _friseurMapping.get(_friseurComboBox.getSelectedIndex());
 	    Optional<Kunde> kunde = Optional.absent();
@@ -74,13 +103,51 @@ public class KasseFrame extends TypedJFrame {
 	}
     };
 
-    private final ActionListener _verkaufChoser = new ActionListener() {
+    private ActionListener _deleteChosenDienstleistungen = new ActionListener() {
+	@Override
 	public void actionPerformed(ActionEvent e) {
-	    System.out.println("Menu item Test1");
+	    ArrayList<Integer> selected = Lists.newArrayList(Methods.toIterable(_dienstleistungsEintragTable.getSelectedRows()));
+	    Collections.reverse(selected);
+	    NonEditColorableTableModel model = (NonEditColorableTableModel) _dienstleistungsEintragTable.getModel();
+	    for (Integer elementIndex : selected) {
+		_dienstleistungEintragMapping.remove(elementIndex);
+		model.removeRow(elementIndex);
+	    }
+	    updatePayValues();
 	}
     };
 
-    public KasseFrame() {
+    private ActionListener _deleteChosenVerkaeufe = new ActionListener() {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+	    ArrayList<Integer> selected = Lists.newArrayList(Methods.toIterable(_verkaufsEintragTable.getSelectedRows()));
+	    Collections.reverse(selected);
+	    NonEditColorableTableModel model = (NonEditColorableTableModel) _verkaufsEintragTable.getModel();
+	    for (Integer elementIndex : selected) {
+		_verkaufEintragMapping.remove(elementIndex);
+		model.removeRow(elementIndex);
+	    }
+	    updatePayValues();
+	}
+    };
+
+    private final ActionListener _verkaufChoser = new ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	    Friseur friseur = _friseurMapping.get(_friseurComboBox.getSelectedIndex());
+	    Optional<Kunde> kunde = Optional.absent();
+	    if (!_chckbxLaufkunde.isSelected()) {
+		kunde = Optional.fromNullable(_kundeMapping.get(_kundeComboBox.getSelectedIndex()));
+	    }
+	    if (friseur == null) {
+		FrameManager.addFrame(new Notification(true, "Ein Friseur muss", "ausgewählt sein"));
+	    } else {
+		VerkaufChoserFrame verkaufChoserFrame = new VerkaufChoserFrame(kunde, friseur);
+		FrameManager.addFrame(verkaufChoserFrame);
+	    }
+	}
+    };
+
+    private KasseFrame() {
 	_type = FrameType.KASSE;
 	setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	setResizable(false);
@@ -111,10 +178,9 @@ public class KasseFrame extends TypedJFrame {
 
 	_dienstleistungPopUpMenu = new JPopupMenu("Dienstleistungen");
 	JMenuItem itemDL1 = new JMenuItem("Hinzufügen");
-	itemDL1.addActionListener(_diensleistungChoser);
+	itemDL1.addActionListener(_dienstleistungChoser);
 	JMenuItem itemDL2 = new JMenuItem("Entfernen");
-	// TODO delete action listener
-	// itemDL2.addActionListener();
+	itemDL2.addActionListener(_deleteChosenDienstleistungen);
 	_dienstleistungPopUpMenu.add(itemDL1);
 	_dienstleistungPopUpMenu.add(itemDL2);
 
@@ -122,7 +188,8 @@ public class KasseFrame extends TypedJFrame {
 	scrollPaneDienstleistungen.addMouseListener(new PopupTriggerListener(_dienstleistungPopUpMenu));
 	scrollPaneDienstleistungen.setBounds(25, 130, 559, 179);
 	_dienstleistungsEintragTable = new MultiselectTable();
-	_dienstleistungsEintragTable.setModel(createEmptyDienstleistungModel());
+	_dienstleistungsEintragTable.setModel(TableDatas.createEmptyDienstleistungEintragModel());
+	_dienstleistungsEintragTable.addMouseListener(new PopupTriggerListener(_dienstleistungPopUpMenu));
 	scrollPaneDienstleistungen.setViewportView(_dienstleistungsEintragTable);
 	getContentPane().add(scrollPaneDienstleistungen);
 
@@ -130,8 +197,7 @@ public class KasseFrame extends TypedJFrame {
 	JMenuItem itemVK1 = new JMenuItem("Hinzufügen");
 	itemVK1.addActionListener(_verkaufChoser);
 	JMenuItem itemVK2 = new JMenuItem("Entfernen");
-	// TODO delete action listener
-	// itemVK2.addActionListener();
+	itemVK2.addActionListener(_deleteChosenVerkaeufe);
 	_verkaufPopUpMenu.add(itemVK1);
 	_verkaufPopUpMenu.add(itemVK2);
 
@@ -139,7 +205,8 @@ public class KasseFrame extends TypedJFrame {
 	scrollPaneVerkaeufe.addMouseListener(new PopupTriggerListener(_verkaufPopUpMenu));
 	scrollPaneVerkaeufe.setBounds(25, 344, 559, 179);
 	_verkaufsEintragTable = new MultiselectTable();
-	_verkaufsEintragTable.setModel(createEmptyVerkaufModel());
+	_verkaufsEintragTable.setModel(TableDatas.createEmptyVerkaufEintragModel());
+	_verkaufsEintragTable.addMouseListener(new PopupTriggerListener(_verkaufPopUpMenu));
 	scrollPaneVerkaeufe.setViewportView(_verkaufsEintragTable);
 	getContentPane().add(scrollPaneVerkaeufe);
 
@@ -177,6 +244,7 @@ public class KasseFrame extends TypedJFrame {
 	JLabel lblGutscheinInfo = new JLabel("Gutschein Info");
 	lblGutscheinInfo.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	lblGutscheinInfo.setBounds(228, 601, 144, 16);
+	lblGutscheinInfo.setVisible(false);
 	getContentPane().add(lblGutscheinInfo);
 
 	JLabel lblDienstleistungen = new JLabel("Dienstleistungen");
@@ -237,37 +305,82 @@ public class KasseFrame extends TypedJFrame {
 	_chckbxLaufkunde.setBounds(413, 73, 128, 23);
 	getContentPane().add(_chckbxLaufkunde);
 
-	JLabel lblGesamtWert = new JLabel("");
-	lblGesamtWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGesamtWert.setBounds(411, 545, 130, 16);
-	getContentPane().add(lblGesamtWert);
+	_lblGesamtWert.setHorizontalAlignment(SwingConstants.RIGHT);
+	_lblGesamtWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+	_lblGesamtWert.setBounds(413, 545, 130, 16);
+	getContentPane().add(_lblGesamtWert);
 
 	JLabel lblGutscheinInfoWert = new JLabel("");
 	lblGutscheinInfoWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	lblGutscheinInfoWert.setBounds(413, 601, 130, 16);
 	getContentPane().add(lblGutscheinInfoWert);
+	_lblZuZahlenWert.setHorizontalAlignment(SwingConstants.RIGHT);
 
-	JLabel lblZuZahlenWert = new JLabel("");
-	lblZuZahlenWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblZuZahlenWert.setBounds(413, 629, 130, 16);
-	getContentPane().add(lblZuZahlenWert);
+	_lblZuZahlenWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+	_lblZuZahlenWert.setBounds(413, 629, 130, 16);
+	getContentPane().add(_lblZuZahlenWert);
     }
 
-    private static final NonEditColorableTableModel createEmptyDienstleistungModel() {
-	NonEditColorableTableModel model = new NonEditColorableTableModel();
-	model.addColumn("Dienstleistung");
-	model.addColumn("Kunde");
-	model.addColumn("Friseur");
-	model.addColumn("Preis");
-	return model;
+    private final void updatePayValues() {
+	long aggregate = 0L;
+	for (DienstleistungsEintrag dienstleistungsEintrag : _dienstleistungEintragMapping.values()) {
+	    aggregate += dienstleistungsEintrag.getDienstleistung().getPreis().value();
+	}
+	for (VerkaufsEintrag verkaufsEintrag : _verkaufEintragMapping.values()) {
+	    aggregate += verkaufsEintrag.getVerkauf().getPreis().value();
+	}
+	_lblGesamtWert.setText(Preis.of(aggregate).toString());
+	_lblZuZahlenWert.setText(Preis.of(aggregate).toString());
+	if (_eingeloesterGutschein.isPresent()) {
+	    double gutscheinWert = _eingeloesterGutschein.get().getRestWert().value();
+	    Preis zuZahlen = Preis.of(aggregate - gutscheinWert);
+	    _lblZuZahlenWert.setText(zuZahlen.toString());
+	}
     }
 
-    private static final NonEditColorableTableModel createEmptyVerkaufModel() {
-	NonEditColorableTableModel model = new NonEditColorableTableModel();
-	model.addColumn("Verkauf");
-	model.addColumn("Kunde");
-	model.addColumn("Friseur");
-	model.addColumn("Preis");
-	return model;
+    public void addChosenDienstleistungen(final FluentIterable<Dienstleistung> chosenDienstleistungen) {
+	Friseur friseur = _friseurMapping.get(_friseurComboBox.getSelectedIndex());
+	if (friseur == null) {
+	    Notification error = new Notification(true, "Kein Friseur gewählt.", "Keine Dienstleistungen übertragen.");
+	    FrameManager.addFrame(error);
+	    return;
+	}
+	Optional<Kunde> kunde = Optional.absent();
+	if (!_chckbxLaufkunde.isSelected()) {
+	    kunde = Optional.fromNullable(_kundeMapping.get(_kundeComboBox.getSelectedIndex()));
+	}
+	NonEditColorableTableModel model = (NonEditColorableTableModel) _dienstleistungsEintragTable.getModel();
+	int index = _dienstleistungEintragMapping.size();
+	for (Dienstleistung dienstleistung : chosenDienstleistungen) {
+	    DienstleistungsEintrag eintrag = new DienstleistungsEintrag(dienstleistung, friseur, kunde);
+	    _dienstleistungEintragMapping.put(index, eintrag);
+	    model.addRow(new Object[] { dienstleistung.getDienstleistungsName(), kunde.transform(Kunde.toName).or("Laufkunde"), friseur.getFriseurName(),
+		    dienstleistung.getPreis().toString() });
+	    index++;
+	}
+	updatePayValues();
+    }
+
+    public void addChosenVerkaeufe(final FluentIterable<Verkauf> chosenVerkauf) {
+	Friseur friseur = _friseurMapping.get(_friseurComboBox.getSelectedIndex());
+	if (friseur == null) {
+	    Notification error = new Notification(true, "Kein Friseur gewählt.", "Keine Verkäufe übertragen.");
+	    FrameManager.addFrame(error);
+	    return;
+	}
+	Optional<Kunde> kunde = Optional.absent();
+	if (!_chckbxLaufkunde.isSelected()) {
+	    kunde = Optional.fromNullable(_kundeMapping.get(_kundeComboBox.getSelectedIndex()));
+	}
+	NonEditColorableTableModel model = (NonEditColorableTableModel) _verkaufsEintragTable.getModel();
+	int index = _verkaufEintragMapping.size();
+	for (Verkauf verkauf : chosenVerkauf) {
+	    VerkaufsEintrag eintrag = new VerkaufsEintrag(verkauf, friseur, kunde);
+	    _verkaufEintragMapping.put(index, eintrag);
+	    model.addRow(new Object[] { verkauf.getVerkaufsName(), kunde.transform(Kunde.toName).or("Laufkunde"), friseur.getFriseurName(),
+		    verkauf.getPreis().toString() });
+	    index++;
+	}
+	updatePayValues();
     }
 }

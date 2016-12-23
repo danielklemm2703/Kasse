@@ -6,6 +6,7 @@ import util.Pair;
 import util.Predicates;
 import util.Try;
 import database.Ordering;
+import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Supplier;
 import datameer.com.google.common.collect.FluentIterable;
@@ -34,6 +35,13 @@ public class Kunde extends Entity implements Buildable<Kunde> {
 	    .build();
 
     public static final String TABLENAME = Kunde.class.getSimpleName();
+
+    public static final Function<Kunde, String> toName = new Function<Kunde, String>() {
+	@Override
+	public String apply(Kunde input) {
+	    return input.getNachname() + ", " + input.getVorname();
+	}
+    };
 
     @Override
     public Iterable<Pair<String, String>> persistenceContext() {

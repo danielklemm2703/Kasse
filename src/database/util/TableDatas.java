@@ -10,11 +10,30 @@ import database.entities.Dienstleistung;
 import database.entities.Kategorie;
 import database.entities.Kunde;
 import database.entities.Ort;
+import database.entities.Verkauf;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.ImmutableMap;
 import datameer.com.google.common.collect.ImmutableMap.Builder;
 
 public class TableDatas {
+
+    public static final NonEditColorableTableModel createEmptyDienstleistungEintragModel() {
+	NonEditColorableTableModel model = new NonEditColorableTableModel();
+	model.addColumn("Dienstleistung");
+	model.addColumn("Kunde");
+	model.addColumn("Friseur");
+	model.addColumn("Preis");
+	return model;
+    }
+
+    public static final NonEditColorableTableModel createEmptyVerkaufEintragModel() {
+	NonEditColorableTableModel model = new NonEditColorableTableModel();
+	model.addColumn("Verkauf");
+	model.addColumn("Kunde");
+	model.addColumn("Friseur");
+	model.addColumn("Preis");
+	return model;
+    }
 
     private static final NonEditColorableTableModel createEmptyDienstleistungModel() {
 	NonEditColorableTableModel model = new NonEditColorableTableModel();
@@ -29,6 +48,13 @@ public class TableDatas {
 	model.addColumn("Vorname");
 	model.addColumn("Ort");
 	model.addColumn("Telefon");
+	return model;
+    }
+
+    private static final NonEditColorableTableModel createEmptyVerkaufModel() {
+	NonEditColorableTableModel model = new NonEditColorableTableModel();
+	model.addColumn("Verkauf");
+	model.addColumn("Preis");
 	return model;
     }
 
@@ -62,5 +88,25 @@ public class TableDatas {
 	    aggregate.put(index++, kunde);
 	}
 	return Pair.of(model, aggregate.build());
+    }
+
+    public static final Pair<NonEditColorableTableModel, ImmutableMap<Integer, Optional<Verkauf>>> loadVerkaufChoserData() {
+	NonEditColorableTableModel model = createEmptyVerkaufModel();
+	Iterable<Kategorie> verkaufsKategorien = Kategorie.loadByParameter("VERKAUFS_KATEGORIE", "true");
+	ImmutableMap.Builder<Integer, Optional<Verkauf>> verkaufAggregate = ImmutableMap.<Integer, Optional<Verkauf>> builder();
+	int index = 0;
+	for (Kategorie kategorie : verkaufsKategorien) {
+	    model.addRow(new Object[] { kategorie.getKategorieName(), "" }, Color.lightGray);
+	    verkaufAggregate.put(index, Optional.<Verkauf> absent());
+	    index++;
+	    Iterable<Verkauf> verkaeufeZuKategorie = Verkauf.loadByParameter("KATEGORIE_ID", "" + kategorie.getEntityId().get(),
+		    new Ordering("NAME", "ASC"));
+	    for (Verkauf verkauf : verkaeufeZuKategorie) {
+		model.addRow(new Object[] { verkauf.getVerkaufsName(), verkauf.getPreis().toString() });
+		verkaufAggregate.put(index, Optional.of(verkauf));
+		index++;
+	    }
+	}
+	return Pair.of(model, verkaufAggregate.build());
     }
 }

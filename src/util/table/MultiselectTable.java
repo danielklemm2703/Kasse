@@ -17,4 +17,14 @@ public class MultiselectTable extends JTable{
 	setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 	setSelectionModel(new MultiselectListSelectionModel());
     }
+
+    @Override
+    public String toString() {
+	int rowCount = getModel().getRowCount();
+	String returnString = getClass().getSimpleName() + "[\n";
+	for (int i = 0; i < rowCount; i++) {
+	    returnString += "Entry " + i + ":\n" + "    " + getModel().getValueAt(i, 1) + "\n";
+	}
+	return returnString + "]";
+    }
 }

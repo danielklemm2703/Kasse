@@ -101,8 +101,7 @@ public class KundenFrame extends TypedJFrame {
 
 	JButton neuerKundeBtn = new JButton("Neu Anlegen");
 	neuerKundeBtn.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-	KundeDataFrame kundeDataFrame = new KundeDataFrame(Optional.<Kunde> absent());
-	neuerKundeBtn.addActionListener(ActionListeners.addFrame(kundeDataFrame));
+	neuerKundeBtn.addActionListener(ActionListeners.addNewKundeDataFrame());
 	neuerKundeBtn.setBounds(0, 507, 132, 29);
 	getContentPane().add(neuerKundeBtn);
 

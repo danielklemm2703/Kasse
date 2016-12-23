@@ -72,7 +72,7 @@ public class MainFrame {
 	int starting = ((width / 2) - (totalWidth / 2)) / 2;
 
 	JButton kasseBtn = new JButton("Kasse");
-	kasseBtn.addActionListener(openAndDisposeOthers(new KasseFrame()));
+	kasseBtn.addActionListener(openAndDisposeOthers(KasseFrame.instance()));
 	kasseBtn.setBackground(Color.GRAY);
 	kasseBtn.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	kasseBtn.setBounds(22, starting, 205, 45);

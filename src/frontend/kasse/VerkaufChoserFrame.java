@@ -20,9 +20,9 @@ import util.table.NonEditColorableTableModel;
 import backend.TypedJFrame;
 import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
-import database.entities.Dienstleistung;
 import database.entities.Friseur;
 import database.entities.Kunde;
+import database.entities.Verkauf;
 import database.enums.FrameType;
 import database.util.TableDatas;
 import datameer.com.google.common.base.Function;
@@ -30,17 +30,17 @@ import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableMap;
 
-public class DienstleisungChoserFrame extends TypedJFrame {
+public class VerkaufChoserFrame extends TypedJFrame {
 
     private static final long serialVersionUID = 6060625047333936877L;
-    private MultiselectTable _dienstleistungsTable;
-    ImmutableMap<Integer, Optional<Dienstleistung>> _dienstleistungMapping;
+    private MultiselectTable _verkaufsTable;
+    ImmutableMap<Integer, Optional<Verkauf>> _verkaufMapping;
 
-    public DienstleisungChoserFrame(final Optional<Kunde> kunde, final Friseur friseur) {
-	_type = FrameType.DIENSTLEISTUNG_CHOSER;
+    public VerkaufChoserFrame(final Optional<Kunde> kunde, final Friseur friseur) {
+	_type = FrameType.VERKAUF_CHOSER;
 	setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	setResizable(false);
-	setTitle("Dienstleistung Hinzufügen");
+	setTitle("Verkauf Hinzufügen");
 	getContentPane().setLayout(null);
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -53,10 +53,10 @@ public class DienstleisungChoserFrame extends TypedJFrame {
 	setBounds(startingWidth, startingHeigth, 440, 353);
 	getContentPane().setLayout(null);
 
-	JLabel lblDienstleistungenHinzufgen = new JLabel("Dienstleistungen Hinzufügen");
-	lblDienstleistungenHinzufgen.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
-	lblDienstleistungenHinzufgen.setBounds(6, 6, 283, 25);
-	getContentPane().add(lblDienstleistungenHinzufgen);
+	JLabel lblVerkauefeHinzufgen = new JLabel("Verkauf Hinzufügen");
+	lblVerkauefeHinzufgen.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
+	lblVerkauefeHinzufgen.setBounds(6, 6, 283, 25);
+	getContentPane().add(lblVerkauefeHinzufgen);
 
 	JLabel lblX = new JLabel("X");
 	lblX.addMouseListener(MouseAdapters.closeFrame(this));
@@ -76,16 +76,16 @@ public class DienstleisungChoserFrame extends TypedJFrame {
 
 	JScrollPane scrollPane = new JScrollPane();
 	scrollPane.setBounds(16, 82, 405, 227);
-	_dienstleistungsTable = new MultiselectTable();
-	Pair<NonEditColorableTableModel, ImmutableMap<Integer, Optional<Dienstleistung>>> dienstleistungData = TableDatas.loadDienstleistungChoserData();
-	_dienstleistungMapping = dienstleistungData._2;
-	_dienstleistungsTable.setModel(dienstleistungData._1);
-	_dienstleistungsTable.getSelectionModel().addListSelectionListener(handleMultiselect(_dienstleistungMapping));
-	scrollPane.setViewportView(_dienstleistungsTable);
+	_verkaufsTable = new MultiselectTable();
+	Pair<NonEditColorableTableModel, ImmutableMap<Integer, Optional<Verkauf>>> verkaufData = TableDatas.loadVerkaufChoserData();
+	_verkaufMapping = verkaufData._2;
+	_verkaufsTable.setModel(verkaufData._1);
+	_verkaufsTable.getSelectionModel().addListSelectionListener(handleMultiselect(_verkaufMapping));
+	scrollPane.setViewportView(_verkaufsTable);
 	getContentPane().add(scrollPane);
 
 	JButton btnHinzufgen = new JButton("Hinzufügen");
-	btnHinzufgen.addActionListener(addChosenDienstleistungToKasse(this));
+	btnHinzufgen.addActionListener(addChosenVerkaufToKasse(this));
 	btnHinzufgen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	btnHinzufgen.setBounds(285, 318, 136, 29);
 	getContentPane().add(btnHinzufgen);
@@ -103,29 +103,29 @@ public class DienstleisungChoserFrame extends TypedJFrame {
 	setUndecorated(true);
     }
 
-    private ActionListener addChosenDienstleistungToKasse(final TypedJFrame frame){
+    private ActionListener addChosenVerkaufToKasse(final TypedJFrame frame){
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		FluentIterable<Dienstleistung> chosenDienstleistungen = FluentIterable.from(Methods.toSet(_dienstleistungsTable.getSelectedRows())).transform(
-			new Function<Integer, Dienstleistung>() {
+		FluentIterable<Verkauf> chosenVerkaeufe = FluentIterable.from(Methods.toSet(_verkaufsTable.getSelectedRows())).transform(
+			new Function<Integer, Verkauf>() {
 			    @Override
-			    public Dienstleistung apply(Integer input) {
-				return _dienstleistungMapping.get(input).get();
+			    public Verkauf apply(Integer input) {
+				return _verkaufMapping.get(input).get();
 			    }
 			});
-		KasseFrame.instance().addChosenDienstleistungen(chosenDienstleistungen);
+		KasseFrame.instance().addChosenVerkaeufe(chosenVerkaeufe);
 		FrameManager.closeFrameOnTop(frame);
 	    }
 	};
     }
 
-    private final ListSelectionListener handleMultiselect(final ImmutableMap<Integer, Optional<Dienstleistung>> map) {
+    private final ListSelectionListener handleMultiselect(final ImmutableMap<Integer, Optional<Verkauf>> map) {
 	return new ListSelectionListener() {
 	    @Override
 	    public void valueChanged(ListSelectionEvent e) {
-		for (Integer selectedIndex : Methods.toSet(_dienstleistungsTable.getSelectedRows())) {
+		for (Integer selectedIndex : Methods.toSet(_verkaufsTable.getSelectedRows())) {
 		    if (!map.get(selectedIndex).isPresent()) {
-			_dienstleistungsTable.getSelectionModel().removeSelectionInterval(selectedIndex, selectedIndex);
+			_verkaufsTable.getSelectionModel().removeSelectionInterval(selectedIndex, selectedIndex);
 		    }
 		}
 	    }
