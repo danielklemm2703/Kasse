@@ -21,7 +21,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
+import util.KeyAdapters;
 import util.Methods;
 import util.PopupTriggerListener;
 import util.Preis;
@@ -51,21 +54,28 @@ import frontend.util.Notification;
 public class KasseFrame extends TypedJFrame {
 
     private static final long serialVersionUID = -1513580225986538916L;
-    private JTextField txtGutscheinCode;
-    private JComboBox<String> _friseurComboBox;
+
+    private JLabel _lblGutscheinInfo = new JLabel("");
+    private JLabel _lblGutscheinInfoWert = new JLabel("");
+    private JTextField _txtGutscheinCode = new JTextField();
+
     private JLabel _lblGesamtWert = new JLabel(Preis.of(0L).toString());
+
+    private JComboBox<String> _friseurComboBox;
     private HashMap<Integer, Friseur> _friseurMapping = Maps.newHashMap();
+
     private JComboBox<String> _kundeComboBox;
     private HashMap<Integer, Kunde> _kundeMapping = Maps.newHashMap();
+
     private JCheckBox _chckbxLaufkunde;
     private JPopupMenu _verkaufPopUpMenu;
     private MultiselectTable _verkaufsEintragTable;
     private LinkedHashMap<Integer, VerkaufsEintrag> _verkaufEintragMapping = Maps.newLinkedHashMap();
+
     private JPopupMenu _dienstleistungPopUpMenu;
     private MultiselectTable _dienstleistungsEintragTable;
     private LinkedHashMap<Integer, DienstleistungsEintrag> _dienstleistungEintragMapping = Maps.newLinkedHashMap();
 
-    private Optional<Gutschein> _eingeloesterGutschein = Optional.absent();
     private JLabel _lblZuZahlenWert = new JLabel(Preis.of(0L).toString());
 
     private static final AtomicReference<KasseFrame> singletonHolder = new AtomicReference<>();
@@ -211,11 +221,13 @@ public class KasseFrame extends TypedJFrame {
 	getContentPane().add(scrollPaneVerkaeufe);
 
 	JButton btnZurcksetzen = new JButton("Zurücksetzen");
+	btnZurcksetzen.addActionListener(resetKasse);
 	btnZurcksetzen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	btnZurcksetzen.setBounds(25, 681, 152, 29);
 	getContentPane().add(btnZurcksetzen);
 
 	JButton btnAbschlieen = new JButton("Abschließen");
+	btnAbschlieen.addActionListener(save);
 	btnAbschlieen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	btnAbschlieen.setBounds(454, 681, 130, 29);
 	getContentPane().add(btnAbschlieen);
@@ -229,23 +241,24 @@ public class KasseFrame extends TypedJFrame {
 	lblGutscheinEnlsen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	lblGutscheinEnlsen.setBounds(228, 573, 177, 16);
 	getContentPane().add(lblGutscheinEnlsen);
+	_txtGutscheinCode.setHorizontalAlignment(SwingConstants.RIGHT);
 
-	txtGutscheinCode = new JTextField();
-	txtGutscheinCode.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	txtGutscheinCode.setBounds(413, 568, 130, 26);
-	getContentPane().add(txtGutscheinCode);
-	txtGutscheinCode.setColumns(10);
+	_txtGutscheinCode.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+	_txtGutscheinCode.setBounds(413, 568, 130, 26);
+	_txtGutscheinCode.addKeyListener(KeyAdapters.numbersOnly());
+	_txtGutscheinCode.setColumns(10);
+	_txtGutscheinCode.getDocument().addDocumentListener(gutscheinCodeListener);
+	getContentPane().add(_txtGutscheinCode);
 
 	JLabel lblZuZahlen = new JLabel("Zu Zahlen");
 	lblZuZahlen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	lblZuZahlen.setBounds(228, 629, 101, 16);
 	getContentPane().add(lblZuZahlen);
 
-	JLabel lblGutscheinInfo = new JLabel("Gutschein Info");
-	lblGutscheinInfo.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGutscheinInfo.setBounds(228, 601, 144, 16);
-	lblGutscheinInfo.setVisible(false);
-	getContentPane().add(lblGutscheinInfo);
+	_lblGutscheinInfo.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+	_lblGutscheinInfo.setBounds(228, 601, 162, 16);
+	_lblGutscheinInfo.setVisible(false);
+	getContentPane().add(_lblGutscheinInfo);
 
 	JLabel lblDienstleistungen = new JLabel("Dienstleistungen");
 	lblDienstleistungen.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
@@ -309,20 +322,21 @@ public class KasseFrame extends TypedJFrame {
 	_lblGesamtWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	_lblGesamtWert.setBounds(413, 545, 130, 16);
 	getContentPane().add(_lblGesamtWert);
+	_lblGutscheinInfoWert.setHorizontalAlignment(SwingConstants.RIGHT);
 
-	JLabel lblGutscheinInfoWert = new JLabel("");
-	lblGutscheinInfoWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-	lblGutscheinInfoWert.setBounds(413, 601, 130, 16);
-	getContentPane().add(lblGutscheinInfoWert);
+	_lblGutscheinInfoWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+	_lblGutscheinInfoWert.setBounds(391, 596, 152, 29);
+	_lblGutscheinInfoWert.setVisible(false);
+	getContentPane().add(_lblGutscheinInfoWert);
+
 	_lblZuZahlenWert.setHorizontalAlignment(SwingConstants.RIGHT);
-
 	_lblZuZahlenWert.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 	_lblZuZahlenWert.setBounds(413, 629, 130, 16);
 	getContentPane().add(_lblZuZahlenWert);
     }
 
     private final void updatePayValues() {
-	long aggregate = 0L;
+	double aggregate = 0L;
 	for (DienstleistungsEintrag dienstleistungsEintrag : _dienstleistungEintragMapping.values()) {
 	    aggregate += dienstleistungsEintrag.getDienstleistung().getPreis().value();
 	}
@@ -330,11 +344,29 @@ public class KasseFrame extends TypedJFrame {
 	    aggregate += verkaufsEintrag.getVerkauf().getPreis().value();
 	}
 	_lblGesamtWert.setText(Preis.of(aggregate).toString());
-	_lblZuZahlenWert.setText(Preis.of(aggregate).toString());
-	if (_eingeloesterGutschein.isPresent()) {
-	    double gutscheinWert = _eingeloesterGutschein.get().getRestWert().value();
-	    Preis zuZahlen = Preis.of(aggregate - gutscheinWert);
-	    _lblZuZahlenWert.setText(zuZahlen.toString());
+
+	if (!_txtGutscheinCode.getText().isEmpty()) {
+	    int entityId = Integer.parseInt(_txtGutscheinCode.getText());
+	    Optional<Gutschein> gutschein = Gutschein.loadById(entityId);
+	    if (gutschein.isPresent()) {
+		_lblGutscheinInfoWert.setText(gutschein.get().getRestWert().toString());
+		_lblGutscheinInfoWert.setVisible(true);
+		_lblGutscheinInfo.setText("Gutschein Wert");
+		_lblGutscheinInfo.setVisible(true);
+		aggregate -= gutschein.get().getRestWert().value();
+		_lblZuZahlenWert.setText(Preis.of(aggregate).toString());
+	    } else {
+		_lblGutscheinInfoWert.setText("nicht gefunden");
+		_lblGutscheinInfoWert.setVisible(true);
+		_lblGutscheinInfo.setText("Gutschein wurde");
+		_lblGutscheinInfo.setVisible(true);
+	    }
+	} else {
+	    _lblGutscheinInfo.setVisible(false);
+	    _lblGutscheinInfoWert.setVisible(false);
+	}
+	if (aggregate < 0) {
+	    _lblZuZahlenWert.setText(Preis.of(0L).toString());
 	}
     }
 
@@ -383,4 +415,54 @@ public class KasseFrame extends TypedJFrame {
 	}
 	updatePayValues();
     }
+
+    private final void resetKasse() {
+	_dienstleistungsEintragTable.setModel(TableDatas.createEmptyDienstleistungEintragModel());
+	_dienstleistungEintragMapping.clear();
+
+	_verkaufsEintragTable.setModel(TableDatas.createEmptyVerkaufEintragModel());
+	_verkaufEintragMapping.clear();
+
+	if (_friseurComboBox.getModel().getSize() > 0) {
+	    _friseurComboBox.setSelectedIndex(0);
+	}
+	if (_kundeComboBox.getModel().getSize() > 0) {
+	    _kundeComboBox.setSelectedIndex(0);
+	}
+
+	_txtGutscheinCode.setText("");
+	_lblGutscheinInfo.setVisible(false);
+	_lblGutscheinInfo.setText("");
+	_lblGutscheinInfoWert.setVisible(false);
+	_lblGutscheinInfoWert.setText("");
+	updatePayValues();
+    }
+
+    private final ActionListener save = new ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	}
+    };
+
+    private final ActionListener resetKasse = new ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	    resetKasse();
+	}
+    };
+
+    private final DocumentListener gutscheinCodeListener = new DocumentListener() {
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+	    updatePayValues();
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+	    updatePayValues();
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+	    updatePayValues();
+	}
+    };
 }

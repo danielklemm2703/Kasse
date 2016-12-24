@@ -101,7 +101,7 @@ public class EigenverbrauchFrame extends TypedJFrame {
 	_textField = new JTextField();
 	_textField.setBounds(157, 83, 117, 28);
 	getContentPane().add(_textField);
-	_textField.addKeyListener(KeyAdapters.numbersOnly());
+	_textField.addKeyListener(KeyAdapters.floatNumbersOnly());
 
 	JLabel lblEur = new JLabel("EUR");
 	lblEur.setBounds(274, 89, 31, 16);

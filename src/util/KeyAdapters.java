@@ -4,7 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class KeyAdapters {
-    public static final KeyAdapter numbersOnly() {
+    public static final KeyAdapter floatNumbersOnly() {
 	return new KeyAdapter() {
 	    private boolean dot = false;
 
@@ -19,6 +19,17 @@ public class KeyAdapters {
 		}
 		if (caracter == '.' || caracter == ',') {
 		    dot = true;
+		}
+	    }
+	};
+    }
+
+    public static final KeyAdapter numbersOnly() {
+	return new KeyAdapter() {
+	    public void keyTyped(KeyEvent e) {
+		char caracter = e.getKeyChar();
+		if (((caracter < '0') || (caracter > '9'))) {
+		    e.consume();
 		}
 	    }
 	};
