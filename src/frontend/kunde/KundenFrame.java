@@ -15,16 +15,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
 import util.Pair;
+import util.PopupTriggerListener;
 import util.table.NonEditableColumnTableModel;
 import backend.TypedJFrame;
 import backend.framemanagement.ActionListeners;
@@ -49,6 +51,7 @@ public class KundenFrame extends TypedJFrame {
     private static final long serialVersionUID = 4794193793492079259L;
     private JTable _kundenTable;
     private ImmutableMap<Integer, Kunde> _kundenMapping;
+    private JPopupMenu _kundePopUpMenu;
 
     /**
      * Create the frame.
@@ -71,16 +74,32 @@ public class KundenFrame extends TypedJFrame {
 
 	getContentPane().setLayout(null);
 
+	_kundePopUpMenu = new JPopupMenu("Kunden");
+	JMenuItem itemK1 = new JMenuItem("Neu Anlegen");
+	itemK1.addActionListener(ActionListeners.addNewKundeDataFrame());
+	JMenuItem itemK2 = new JMenuItem("Ändern");
+	itemK2.addActionListener(kundeUpdate());
+	JMenuItem itemK3 = new JMenuItem("Rezepturen Anzeigen");
+	itemK3.addActionListener(kundeAnzeigen());
+	JMenuItem itemK4 = new JMenuItem("Löschen");
+	itemK4.addActionListener(kundeDelete());
+	_kundePopUpMenu.add(itemK1);
+	_kundePopUpMenu.add(itemK2);
+	_kundePopUpMenu.add(itemK3);
+	_kundePopUpMenu.add(itemK4);
+
 	JScrollPane scrollPane = new JScrollPane();
-	scrollPane.setBounds(0, 62, 602, 444);
+	scrollPane.setBounds(0, 62, 602, 474);
 	getContentPane().add(scrollPane);
 	_kundenTable = new JTable();
 	_kundenTable.setShowHorizontalLines(true);
 	_kundenTable.setShowVerticalLines(true);
 	_kundenTable.setGridColor(Color.BLACK);
+	_kundenTable.addMouseListener(new PopupTriggerListener(_kundePopUpMenu));
 	Pair<NonEditableColumnTableModel, ImmutableMap<Integer, Kunde>> kundeData = TableDatas.loadKundeData("A");
 	_kundenTable.setModel(kundeData._1);
 	_kundenMapping = kundeData._2;
+	scrollPane.addMouseListener(new PopupTriggerListener(_kundePopUpMenu));
 	scrollPane.setViewportView(_kundenTable);
 
 	JLabel lblKunden = new JLabel("Kunden");
@@ -98,30 +117,6 @@ public class KundenFrame extends TypedJFrame {
 	lblX.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	lblX.setBounds(570, 10, 26, 16);
 	getContentPane().add(lblX);
-
-	JButton neuerKundeBtn = new JButton("Neu Anlegen");
-	neuerKundeBtn.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-	neuerKundeBtn.addActionListener(ActionListeners.addNewKundeDataFrame());
-	neuerKundeBtn.setBounds(0, 507, 132, 29);
-	getContentPane().add(neuerKundeBtn);
-
-	JButton btnNewButton = new JButton("Rezepturen Anzeigen");
-	btnNewButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-	btnNewButton.addActionListener(kundeAnzeigen());
-	btnNewButton.setBounds(142, 507, 193, 29);
-	getContentPane().add(btnNewButton);
-
-	JButton btnDatenndern = new JButton("Daten Ändern");
-	btnDatenndern.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-	btnDatenndern.addActionListener(kundeUpdate());
-	btnDatenndern.setBounds(347, 507, 126, 29);
-	getContentPane().add(btnDatenndern);
-
-	JButton btnLschen = new JButton("Löschen");
-	btnLschen.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-	btnLschen.addActionListener(kundeDelete());
-	btnLschen.setBounds(485, 507, 117, 29);
-	getContentPane().add(btnLschen);
     }
 
     private final ActionListener kundeDelete() {
