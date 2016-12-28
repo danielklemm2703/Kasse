@@ -367,6 +367,8 @@ public class KasseFrame extends TypedJFrame {
 	}
 	if (aggregate < 0) {
 	    _lblZuZahlenWert.setText(Preis.of(0L).toString());
+	} else {
+	    _lblZuZahlenWert.setText(Preis.of(aggregate).toString());
 	}
     }
 
