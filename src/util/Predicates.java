@@ -1,12 +1,9 @@
 package util;
 
-import static util.Functions.toDienstleistung;
 import database.entities.Dienstleistung;
 import database.entities.Rezeptur;
-import database.entities.Transaktion;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Predicate;
-import datameer.com.google.common.collect.FluentIterable;
 
 public class Predicates {
     public static final Predicate<String> without(final String forbidden) {
@@ -27,14 +24,18 @@ public class Predicates {
 	};
     }
 
-    public static final Predicate<Transaktion> withRezept = new Predicate<Transaktion>() {
-	@Override
-	public boolean apply(Transaktion transaktion) {
-	    FluentIterable<Long> dienstleistungsIds = transaktion.getDienstleistungsIds();
-	    FluentIterable<Optional<Dienstleistung>> filter = dienstleistungsIds.transform(toDienstleistung).filter(rezepturpflicht);
-	    return !filter.isEmpty();
-	}
-    };
+    // TODO make it work again
+    // public static final Predicate<Transaktion> withRezept = new
+    // Predicate<Transaktion>() {
+    // @Override
+    // public boolean apply(Transaktion transaktion) {
+    // FluentIterable<Long> dienstleistungsIds =
+    // transaktion.getDienstleistungsIds();
+    // FluentIterable<Optional<Dienstleistung>> filter =
+    // dienstleistungsIds.transform(toDienstleistung).filter(rezepturpflicht);
+    // return !filter.isEmpty();
+    // }
+    // };
 
     public static final Predicate<Rezeptur> eingetragen = new Predicate<Rezeptur>() {
 	@Override
@@ -56,4 +57,13 @@ public class Predicates {
 	    return input.isPresent() && input.get().isRezepturplichtig();
 	}
     };
+
+    public static final <T> Predicate<Optional<T>> isPresent() {
+	return new Predicate<Optional<T>>() {
+	    @Override
+	    public boolean apply(Optional<T> input) {
+		return input.isPresent();
+	    }
+	};
+    }
 }

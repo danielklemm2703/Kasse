@@ -59,8 +59,12 @@ public class FriseurTest {
 
     @Test
     public void testloadByParameter() {
-	FluentIterable<Friseur> loadByParameter = FluentIterable.from(Friseur.loadByParameter("ID", "1"));
+	Friseur friseur = new Friseur("Anne");
+	Try<Long> save = friseur.save();
+	Long entityId = save.get();
+	FluentIterable<Friseur> loadByParameter = FluentIterable.from(Friseur.loadByParameter("ID", "" + entityId));
 	assertEquals(false, loadByParameter.isEmpty());
+	assertEquals("Anne", loadByParameter.first().get().getFriseurName());
 	loadByParameter = FluentIterable.from(Friseur.loadByParameter("EIDIE", "4"));
 	assertEquals(true, loadByParameter.isEmpty());
     }

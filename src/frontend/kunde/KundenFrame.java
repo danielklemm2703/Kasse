@@ -1,11 +1,5 @@
 package frontend.kunde;
 
-import static util.Functions.toPresent;
-import static util.Functions.toRezeptur;
-import static util.Predicates.eingetragen;
-import static util.Predicates.present;
-import static util.Predicates.withRezept;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -32,11 +26,9 @@ import backend.TypedJFrame;
 import backend.framemanagement.ActionListeners;
 import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
-import database.Ordering;
 import database.entities.Kunde;
 import database.entities.Ort;
 import database.entities.Rezeptur;
-import database.entities.Transaktion;
 import database.enums.FrameType;
 import database.util.TableDatas;
 import datameer.com.google.common.base.Optional;
@@ -156,9 +148,13 @@ public class KundenFrame extends TypedJFrame {
 		    FrameManager.addFrame(new Notification(true, "Beim Laden des Kunden", "trat ein Fehler auf"));
 		    return;
 		}
-		FluentIterable<Rezeptur> rezepturen = FluentIterable
-			.from(Transaktion.loadByParameter("KUNDE_ID", "" + kunde.getEntityId().get(), new Ordering("DATUM", "DESC"))).filter(withRezept)
-			.transform(toRezeptur).filter(present).transform(toPresent).filter(eingetragen);
+		// TODO Funktionalität wiederherstellen
+		// FluentIterable<Rezeptur> rezepturen = FluentIterable
+		// .from(Transaktion.loadByParameter("KUNDE_ID", "" +
+		// kunde.getEntityId().get(), new Ordering("DATUM",
+		// "DESC"))).filter(withRezept)
+		// .transform(toRezeptur).filter(present).transform(toPresent).filter(eingetragen);
+		FluentIterable<Rezeptur> rezepturen = FluentIterable.from(ImmutableList.<Rezeptur> of());
 		if (rezepturen.isEmpty()) {
 		    FrameManager.addFrame(new Notification(true, "Kunde hat noch", "keine Rezepturen"));
 		    return;

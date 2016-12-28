@@ -15,7 +15,7 @@ import datameer.com.google.common.collect.FluentIterable;
 import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.ImmutableList.Builder;
 
-abstract class Entity {
+public abstract class Entity {
 
     private final Optional<Long> _entityId;
     private final String _tableName;
