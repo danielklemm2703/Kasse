@@ -1,6 +1,7 @@
 package util;
 
 import database.entities.Dienstleistung;
+import database.entities.Entity;
 import database.entities.Rezeptur;
 import database.entities.Transaktion;
 import datameer.com.google.common.base.Function;
@@ -40,4 +41,20 @@ public class Functions {
 	    return input.get();
 	}
     };
+
+    public static final Function<Entity, Optional<Long>> toEntityId = new Function<Entity, Optional<Long>>() {
+	@Override
+	public Optional<Long> apply(Entity input) {
+	    return input.getEntityId();
+	}
+    };
+
+    public static final <T> Function<Optional<T>, T> get(){
+	return new Function<Optional<T>, T>() {
+	    @Override
+	    public T apply(Optional<T> input) {
+		return input.get();
+	    }
+	};
+    }
 }

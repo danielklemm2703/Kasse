@@ -58,8 +58,12 @@ public class OrtTest {
 
     @Test
     public void testloadByParameter() {
-	FluentIterable<Ort> loadByParameter = FluentIterable.from(Ort.loadByParameter("ID", "1"));
+	Ort ort = new Ort("Brand-Erbisdorf");
+	Try<Long> save = ort.save();
+	Long entityId = save.get();
+	FluentIterable<Ort> loadByParameter = FluentIterable.from(Ort.loadByParameter("ID", "" + entityId));
 	assertEquals(false, loadByParameter.isEmpty());
+	assertEquals("Brand-Erbisdorf", loadByParameter.first().get().getOrtName());
 	loadByParameter = FluentIterable.from(Ort.loadByParameter("EIDIE", "4"));
 	assertEquals(true, loadByParameter.isEmpty());
     }

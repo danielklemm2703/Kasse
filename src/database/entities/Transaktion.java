@@ -10,6 +10,7 @@ import util.Predicates;
 import util.Preis;
 import util.Try;
 import database.Ordering;
+import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Supplier;
 import datameer.com.google.common.collect.FluentIterable;
@@ -18,40 +19,30 @@ import datameer.com.google.common.collect.Lists;
 
 public class Transaktion extends Entity implements Buildable<Transaktion> {
 
-    private long _kundeId;
-    private FluentIterable<Long> _dienstleistungsIds;
-    private FluentIterable<Long> _verkaufIds;
+    private FluentIterable<DienstleistungsInfo> _dienstleistungInfos;
+    private FluentIterable<VerkaufsInfo> _verkaufInfos;
     private DateTime _datum;
-    private long _friseurId;
     // abzüglich der eingelösten Gutschein Summe
-    private Preis _preis;
-    // wenn true -> kundeId = 0
-    private boolean _laufkunde;
     private Optional<Preis> _gutscheinStartwert;
-    private Optional<Long> _gutscheinIdEingeloest;
-    private Optional<Long> _gutscheinIdGekauft;
+    private Optional<Gutschein> _gutscheinEingeloest;
+    // = abzüglich gutscheinwert
+    private Preis _gesamtUmsatz;
 
     private static final ImmutableList<String> keys = ImmutableList.<String> builder()
     //
 	    .add("TABLENAME")
 
-	    .add("KUNDE_ID")
+	    .add("DIENSTLEISTUNG_INFO_IDS")
 
-	    .add("DIENSTLEISTUNGS_IDS")
-
-	    .add("VERKAUFS_IDS")
+	    .add("VERKAUF_INFO_IDS")
 
 	    .add("DATUM")
-
-	    .add("FRISEUR_ID")
-
-	    .add("LAUFKUNDE")
 
 	    .add("GUTSCHEIN_STARTWERT")
 
 	    .add("GUTSCHEIN_EINGELOEST_ID")
 
-	    .add("GUTSCHEIN_GEKAUFT_ID")
+	    .add("GESAMT_UMSATZ")
 
 	    .build();
 
@@ -62,18 +53,29 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 	LinkedList<Pair<String, String>> list = Lists.newLinkedList();
 	// Table name must always be first!
 	list.add(Pair.of(keys.get(0), this.getTableName()));
-	list.add(Pair.of(keys.get(1), "" + this.getKundeId()));
-	// TODO remove later
-	String string = this.getDienstleistungsIds().toString();
-	System.err.println(string);
-	list.add(Pair.of(keys.get(2), string));
-	list.add(Pair.of(keys.get(3), this.getVerkaufIds().toString()));
-	list.add(Pair.of(keys.get(4), this.getDatum().toString()));
-	list.add(Pair.of(keys.get(5), ""+this.getFriseurId()));
-	list.add(Pair.of(keys.get(6), Boolean.toString(this.isLaufkunde())));
-	list.add(Pair.of(keys.get(7), (this.getGutscheinStartwert().or(Preis.of(0D))).toString()));
-	list.add(Pair.of(keys.get(8), "" + this.getGutscheinIdEingeloest().or(0L)));
-	list.add(Pair.of(keys.get(9), "" + this.getGutscheinIdGekauft().or(0L)));
+	list.add(Pair.of(keys.get(1), _dienstleistungInfos.transform(Functions.toEntityId)
+	//
+		.filter(Predicates.<Long> isPresent())
+
+		.transform(Functions.<Long> get())
+
+		.toString()));
+	list.add(Pair.of(keys.get(2), _verkaufInfos.transform(Functions.toEntityId)
+	//
+		.filter(Predicates.<Long> isPresent())
+
+		.transform(Functions.<Long> get())
+
+		.toString()));
+	list.add(Pair.of(keys.get(3), _datum.toString()));
+	list.add(Pair.of(keys.get(4), _gutscheinStartwert.or(Preis.of(0L)).toString()));
+	list.add(Pair.of(keys.get(5), _gutscheinEingeloest.transform(new Function<Gutschein, String>() {
+	    @Override
+	    public String apply(Gutschein input) {
+		return input.getEntityId().or(-1L).toString();
+	    }
+	}).or("-1").toString()));
+	list.add(Pair.of(keys.get(6), _gesamtUmsatz.toString()));
 	return FluentIterable.from(list);
     }
 
@@ -81,35 +83,26 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 	super(entityId, TABLENAME);
     }
 
-    public Transaktion(final long kundeId, final FluentIterable<Long> dienstleistungsIds, final FluentIterable<Long> verkaufIds, final DateTime datum,
-	    final long friseurId, final boolean laufkunde, Optional<Preis> gutscheinStartwert, Optional<Long> gutscheinIdEingeloest,
-	    Optional<Long> gutscheinIdGekauft) {
+    public Transaktion(FluentIterable<DienstleistungsInfo> dienstleistungInfo, FluentIterable<VerkaufsInfo> verkaufInfo, DateTime datum,
+	    Optional<Preis> gutscheinStartwert, Optional<Gutschein> gutscheinEingeloest, Preis gesamtUmsatz) {
 	super(TABLENAME);
-	setKundeId(kundeId);
-	setDienstleistungsIds(dienstleistungsIds);
-	setVerkaufIds(verkaufIds);
-	setDatum(datum);
-	setFriseurId(friseurId);
-	setLaufkunde(laufkunde);
-	setGutscheinStartwert(gutscheinStartwert);
-	setGutscheinIdEingeloest(gutscheinIdEingeloest);
-	setGutscheinIdGekauft(gutscheinIdGekauft);
+	_dienstleistungInfos = dienstleistungInfo;
+	_verkaufInfos = verkaufInfo;
+	_datum = datum;
+	_gutscheinStartwert = gutscheinStartwert;
+	_gutscheinEingeloest = gutscheinEingeloest;
+	_gesamtUmsatz = gesamtUmsatz;
     }
 
-    public Transaktion(Long entityId, final long kundeId, final FluentIterable<Long> dienstleistungsIds, final FluentIterable<Long> verkaufIds,
-	    final DateTime datum,
-	    final long friseurId, final boolean laufkunde, Optional<Preis> gutscheinStartwert, Optional<Long> gutscheinIdEingeloest,
-	    Optional<Long> gutscheinIdGekauft) {
+    public Transaktion(Long entityId, FluentIterable<DienstleistungsInfo> dienstleistungInfo, FluentIterable<VerkaufsInfo> verkaufInfos,
+	    DateTime datum, Optional<Preis> gutscheinStartwert, Optional<Gutschein> gutscheinEingeloest, Preis gesamtUmsatz) {
 	super(entityId, TABLENAME);
-	setKundeId(kundeId);
-	setDienstleistungsIds(dienstleistungsIds);
-	setVerkaufIds(verkaufIds);
-	setDatum(datum);
-	setFriseurId(friseurId);
-	setLaufkunde(laufkunde);
-	setGutscheinStartwert(gutscheinStartwert);
-	setGutscheinIdEingeloest(gutscheinIdEingeloest);
-	setGutscheinIdGekauft(gutscheinIdGekauft);
+	_dienstleistungInfos = dienstleistungInfo;
+	_verkaufInfos = verkaufInfos;
+	_datum = datum;
+	_gutscheinStartwert = gutscheinStartwert;
+	_gutscheinEingeloest = gutscheinEingeloest;
+	_gesamtUmsatz = gesamtUmsatz;
     }
 
     public static final Optional<Transaktion> loadById(final long entityId) {
@@ -132,61 +125,77 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 	return loadFromParameterStartsWith(parameter, startsWith, TABLENAME, new Transaktion(0L), keys, Optional.<Ordering> absent());
     }
 
+    private static final Function<Long, Optional<DienstleistungsInfo>> loadDienstleistungInfo = new Function<Long, Optional<DienstleistungsInfo>>() {
+	@Override
+	public Optional<DienstleistungsInfo> apply(Long input) {
+	    Optional<DienstleistungsInfo> output = DienstleistungsInfo.loadById(input);
+	    if (!output.isPresent()) {
+		System.err.println("could not find DienstleistungsInfo " + input);
+	    }
+	    return output;
+	}
+    };
+
+    private static final Function<Long, Optional<VerkaufsInfo>> loadVerkaufInfo = new Function<Long, Optional<VerkaufsInfo>>() {
+	@Override
+	public Optional<VerkaufsInfo> apply(Long input) {
+	    Optional<VerkaufsInfo> output = VerkaufsInfo.loadById(input);
+	    if (!output.isPresent()) {
+		System.err.println("could not find VerkaufsInfo " + input);
+	    }
+	    return output;
+	}
+    };
+
     public final Try<Transaktion> build(final Pair<Long, Iterable<Pair<String, String>>> context) {
 	return Try.of(new Supplier<Transaktion>() {
 	    @Override
 	    public Transaktion get() {
 		Transaktion transaktion = new Transaktion(context._1);
 		ImmutableList<Pair<String, String>> values = ImmutableList.copyOf(FluentIterable.from(context._2).filter(Predicates.withoutSecond(TABLENAME)));
-		transaktion.setKundeId(Long.parseLong(values.get(0)._2));
 
-		String dienstleistungsIds = values.get(1)._2.replace("[", "");
-		dienstleistungsIds = dienstleistungsIds.replace("]", "");
-		String[] dienstleistungen = dienstleistungsIds.split(",");
+		String dienstleistungInfoIds = values.get(0)._2.replace("[", "");
+		dienstleistungInfoIds = dienstleistungInfoIds.replace("]", "");
+		String[] dienstleistungen = dienstleistungInfoIds.split(",");
 		if (dienstleistungen.length == 1 && dienstleistungen[0].equals("")) {
 		    System.err.println("error case");
 		}
-		FluentIterable<Long> transform = FluentIterable.of(dienstleistungen).transform(Functions.toLong);
-		transaktion.setDienstleistungsIds(transform);
 
-		String verkaufsIds = values.get(2)._2.replace("[", "");
-		verkaufsIds = verkaufsIds.replace("]", "");
-		String[] verkaeufe = verkaufsIds.split(",");
-		transaktion.setVerkaufIds(FluentIterable.of(verkaeufe).transform(Functions.toLong));
+		FluentIterable<DienstleistungsInfo> deinstleistungInfos = FluentIterable.of(dienstleistungen)
+		//
+			.transform(Functions.toLong)
 
-		transaktion.setDatum(DateTime.parse(values.get(3)._2));
-		transaktion.setFriseurId(Long.parseLong(values.get(4)._2));
-		transaktion.setLaufkunde(Boolean.parseBoolean(values.get(5)._2));
-		transaktion.setGutscheinStartwert(Optional.of(Preis.of(values.get(6)._2)));
-		transaktion.setGutscheinIdEingeloest(Optional.of(Long.parseLong(values.get(7)._2)));
-		transaktion.setGutscheinIdGekauft(Optional.of(Long.parseLong(values.get(8)._2)));
+			.transform(loadDienstleistungInfo)
+
+			.filter(Predicates.<DienstleistungsInfo> isPresent())
+
+			.transform(Functions.<DienstleistungsInfo> get());
+		transaktion.setDienstleistungInfos(deinstleistungInfos);
+
+		String verkaufInfoIds = values.get(1)._2.replace("[", "");
+		verkaufInfoIds = verkaufInfoIds.replace("]", "");
+		String[] verkaeufe = verkaufInfoIds.split(",");
+		FluentIterable<VerkaufsInfo> verkaufInfos = FluentIterable.of(verkaeufe)
+		//
+			.transform(Functions.toLong)
+
+			.transform(loadVerkaufInfo)
+
+			.filter(Predicates.<VerkaufsInfo> isPresent())
+
+			.transform(Functions.<VerkaufsInfo> get());
+		transaktion.setVerkaufInfos(verkaufInfos);
+
+		transaktion.setDatum(DateTime.parse(values.get(2)._2));
+		transaktion.setGutscheinStartwert(Optional.of(Preis.of(values.get(3)._2)));
+
+		long entityId = Long.parseLong(values.get(4)._2);
+		Optional<Gutschein> gutscheinEingeloest = Gutschein.loadById(entityId);
+		transaktion.setGutscheinEingeloest(gutscheinEingeloest);
+		transaktion.setGesamtUmsatz(Preis.of(values.get(5)._2));
 		return transaktion;
 	    }
 	});
-    }
-
-    public long getKundeId() {
-	return _kundeId;
-    }
-
-    public void setKundeId(long kundeId) {
-	_kundeId = kundeId;
-    }
-
-    public FluentIterable<Long> getDienstleistungsIds() {
-	return _dienstleistungsIds;
-    }
-
-    public void setDienstleistungsIds(FluentIterable<Long> dienstleistungsIds) {
-	_dienstleistungsIds = dienstleistungsIds;
-    }
-
-    public FluentIterable<Long> getVerkaufIds() {
-	return _verkaufIds;
-    }
-
-    public void setVerkaufIds(FluentIterable<Long> verkaufIds) {
-	_verkaufIds = verkaufIds;
     }
 
     public DateTime getDatum() {
@@ -197,30 +206,6 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 	_datum = datum;
     }
 
-    public long getFriseurId() {
-	return _friseurId;
-    }
-
-    public void setFriseurId(long friseurId) {
-	_friseurId = friseurId;
-    }
-
-    public Preis getPreis() {
-	return _preis;
-    }
-
-    public void setPreis(Preis preis) {
-	_preis = preis;
-    }
-
-    public boolean isLaufkunde() {
-	return _laufkunde;
-    }
-
-    public void setLaufkunde(boolean laufkunde) {
-	_laufkunde = laufkunde;
-    }
-
     public Optional<Preis> getGutscheinStartwert() {
 	return _gutscheinStartwert;
     }
@@ -229,20 +214,35 @@ public class Transaktion extends Entity implements Buildable<Transaktion> {
 	_gutscheinStartwert = gutscheinStartwert;
     }
 
-    public Optional<Long> getGutscheinIdEingeloest() {
-	return _gutscheinIdEingeloest;
+    public Optional<Gutschein> getGutscheinEingeloest() {
+	return _gutscheinEingeloest;
     }
 
-    public void setGutscheinIdEingeloest(Optional<Long> gutscheinIdEingeloest) {
-	_gutscheinIdEingeloest = gutscheinIdEingeloest;
+    public void setGutscheinEingeloest(Optional<Gutschein> gutscheinEingeloest) {
+	_gutscheinEingeloest = gutscheinEingeloest;
     }
 
-    public Optional<Long> getGutscheinIdGekauft() {
-	return _gutscheinIdGekauft;
+    public FluentIterable<DienstleistungsInfo> getDienstleistungInfos() {
+	return _dienstleistungInfos;
     }
 
-    public void setGutscheinIdGekauft(Optional<Long> gutscheinIdGekauft) {
-	_gutscheinIdGekauft = gutscheinIdGekauft;
+    public void setDienstleistungInfos(FluentIterable<DienstleistungsInfo> dienstleistungInfos) {
+	_dienstleistungInfos = dienstleistungInfos;
     }
 
+    public FluentIterable<VerkaufsInfo> getVerkaufInfos() {
+	return _verkaufInfos;
+    }
+
+    public void setVerkaufInfos(FluentIterable<VerkaufsInfo> verkaufInfos) {
+	_verkaufInfos = verkaufInfos;
+    }
+
+    public Preis getGesamtUmsatz() {
+	return _gesamtUmsatz;
+    }
+
+    public void setGesamtUmsatz(Preis gesamtUmsatz) {
+	_gesamtUmsatz = gesamtUmsatz;
+    }
 }

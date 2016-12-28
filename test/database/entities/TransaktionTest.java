@@ -18,43 +18,44 @@ public class TransaktionTest {
 
     @Test
     public void testSaveNewEntity() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.<Long> of());
-	Transaktion transaktion = new Transaktion(1L, ids, ids, DateTime.now(), 1L, false, Optional.<Preis> absent(), Optional.<Long> absent(),
-		Optional.<Long> absent());
-	Try<Long> save = transaktion.save();
-	assertEquals(true, save.isSuccess());
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	Try<Long> transaktion = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
+	assertEquals(true, transaktion.isSuccess());
+	// TODO insert info test cases
     }
 
     @Test
     public void testUpdateExistingEntity() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.<Long> of());
-	Transaktion Transaktion = new Transaktion(1L, ids, ids, DateTime.now(), 1L, false, Optional.<Preis> absent(), Optional.<Long> absent(),
-		Optional.<Long> absent());
-	Try<Long> save = Transaktion.save();
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	Try<Long> save = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
 	Long entityId = save.get();
-	Transaktion = new Transaktion(entityId, 1L, ids, ids, DateTime.now(), 1L, false, Optional.<Preis> absent(), Optional.<Long> absent(),
-		Optional.<Long> absent());
-	save = Transaktion.save();
-	assertEquals(save.get(), Transaktion.getEntityId().get());
+	Transaktion transaktion = new Transaktion(entityId, dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(),
+		Preis.of(0L));
+	save = transaktion.save();
+	assertEquals(save.get(), transaktion.getEntityId().get());
     }
 
     @Test
     public void testLoadExistingEntity() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
-	Transaktion transaktion = new Transaktion(1L, ids, ids, DateTime.now(), 1L, false, Optional.<Preis> absent(), Optional.<Long> absent(),
-		Optional.<Long> absent());
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	Transaktion transaktion = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L));
 	Try<Long> save = transaktion.save();
 	Long entityId = save.get();
 	Optional<Transaktion> loadById = Transaktion.loadById(entityId);
 	assertEquals(true, loadById.isPresent());
-	assertEquals(false, loadById.get().isLaufkunde());
+	assertEquals(transaktion.getDienstleistungInfos().isEmpty(), loadById.get().getDienstleistungInfos().isEmpty());
+	assertEquals(transaktion.getVerkaufInfos().isEmpty(), loadById.get().getVerkaufInfos().isEmpty());
+	assertEquals(transaktion.getDatum().getMillis(), loadById.get().getDatum().getMillis());
     }
 
     @Test
     public void testDeleteExistingEntity() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
-	Transaktion transaktion = new Transaktion(1L, ids, ids, DateTime.now(), 1L, false, Optional.<Preis> absent(), Optional.<Long> absent(),
-		Optional.<Long> absent());
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	Transaktion transaktion = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L));
 	Try<Long> save = transaktion.save();
 	Long entityId = save.get();
 	Try<Unit> delete = Transaktion.delete(entityId, Transaktion.TABLENAME);
@@ -79,68 +80,67 @@ public class TransaktionTest {
 
     @Test
     public void testLoadByParameterWithOrdering() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
-	new Transaktion(1L, ids, ids, DateTime.now(), 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
-	new Transaktion(1L, ids, ids, DateTime.now(), 1L, false, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
-	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameter("FRISEUR_ID", "1", new Ordering("LAUFKUNDE", "DESC")));
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
+	new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(1L)).save();
+	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameter("GESAMT_UMSATZ", "1,00 EUR", new Ordering("GESAMT_UMSATZ", "DESC")));
 	assertEquals(false, load.isEmpty());
-	assertEquals(true, load.first().get().isLaufkunde());
+	assertEquals(Preis.of(1L).toString(), load.first().get().getGesamtUmsatz().toString());
     }
 
     @Test
     public void testLoadByParameterNotEveryEntry() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
 	DateTime now = DateTime.now();
-	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	new Transaktion(dlInfo, vkInfo, now, Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
 
 	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameter("DATUM", now.toString()));
 	assertEquals(false, load.isEmpty());
 	assertEquals(1, load.size());
-	FluentIterable<Long> dlIds = load.get(0).getDienstleistungsIds();
-	assertEquals(3, dlIds.size());
-	assertEquals(1L, dlIds.first().get(), 0);
-	FluentIterable<Long> vkIds = load.get(0).getVerkaufIds();
-	assertEquals(3, vkIds.size());
-	assertEquals(1L, vkIds.first().get(), 0);
     }
 
     @Test
     public void testLoadByParameterEveryEntry() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
 	DateTime now = DateTime.now();
-	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	new Transaktion(dlInfo, vkInfo, now, Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
 	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameter("'1'", "1"));
 	assertEquals(false, load.isEmpty());
 	int size = load.size();
-	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
+	new Transaktion(dlInfo, vkInfo, now, Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
 	load = FluentIterable.from(Transaktion.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
     }
 
     @Test
     public void testLoadByParameterStartsWith() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
 	DateTime now = DateTime.now();
-	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	new Transaktion(dlInfo, vkInfo, now, Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
 
-	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameterStartsWith("LAUFKUNDE", "tr"));
+	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameterStartsWith("GESAMT_UMSATZ", "0"));
 	assertEquals(false, load.isEmpty());
 	for (Transaktion transaktion : load) {
-	    assertTrue(transaktion.isLaufkunde());
+	    assertTrue(transaktion.getGesamtUmsatz().toString().startsWith("0"));
 	}
     }
 
     @Test
     public void testLoadByParameterStartsWith_Ordering() {
-	FluentIterable<Long> ids = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
 	DateTime now = DateTime.now();
-	new Transaktion(1L, ids, ids, now, 1L, true, Optional.<Preis> absent(), Optional.<Long> absent(), Optional.<Long> absent()).save();
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	new Transaktion(dlInfo, vkInfo, now, Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
 
-	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameterStartsWith("LAUFKUNDE", "tr", new Ordering("LAUFKUNDE", "ASC")));
+	FluentIterable<Transaktion> load = FluentIterable.from(Transaktion.loadByParameterStartsWith("GESAMT_UMSATZ", "0", new Ordering("DATUM", "DESC")));
 	assertEquals(false, load.isEmpty());
-	assertEquals(true, load.first().get().isLaufkunde());
+	assertEquals(now.getMillis(), load.first().get().getDatum().getMillis());
 	for (Transaktion transaktion : load) {
-	    assertTrue(transaktion.isLaufkunde());
+	    assertTrue(transaktion.getGesamtUmsatz().toString().startsWith("0"));
 	}
     }
 }

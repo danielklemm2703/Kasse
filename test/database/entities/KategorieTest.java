@@ -59,8 +59,12 @@ public class KategorieTest {
 
     @Test
     public void testloadByParameter() {
-	FluentIterable<Kategorie> loadByParameter = FluentIterable.from(Kategorie.loadByParameter("ID", "1"));
+	Kategorie kategorie = new Kategorie("Haare", true, false);
+	Try<Long> save = kategorie.save();
+	Long entityId = save.get();
+	FluentIterable<Kategorie> loadByParameter = FluentIterable.from(Kategorie.loadByParameter("ID", "" + entityId));
 	assertEquals(false, loadByParameter.isEmpty());
+	assertEquals("Haare", loadByParameter.first().get().getKategorieName());
 	loadByParameter = FluentIterable.from(Kategorie.loadByParameter("EIDIE", "4"));
 	assertEquals(true, loadByParameter.isEmpty());
     }
