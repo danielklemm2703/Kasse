@@ -19,6 +19,7 @@ public class DienstleistungTest {
 	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), true);
 	Try<Long> save = dienstleistung.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(dienstleistung.getEntityId().get(), save.get());
     }
 
     @Test
@@ -46,7 +47,7 @@ public class DienstleistungTest {
 	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), true);
 	Try<Long> save = dienstleistung.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Dienstleistung.delete(entityId, Dienstleistung.TABLENAME);
+	Try<Unit> delete = dienstleistung.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Dienstleistung> loadById = Dienstleistung.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -54,8 +55,9 @@ public class DienstleistungTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Dienstleistung.delete(1132L, Dienstleistung.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Dienstleistung dienstleistung = new Dienstleistung("Haare schneiden", 2, Preis.of("22,22"), true);
+	Try<Unit> delete = dienstleistung.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

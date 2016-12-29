@@ -43,6 +43,7 @@ import database.entities.Dienstleistung;
 import database.entities.DienstleistungsInfo;
 import database.entities.Friseur;
 import database.entities.Gutschein;
+import database.entities.Kategorie;
 import database.entities.Kunde;
 import database.entities.Ort;
 import database.entities.Transaktion;
@@ -459,11 +460,14 @@ public class KasseFrame extends TypedJFrame {
 		FrameManager.addFrame(notification);
 		return;
 	    }
+
 	    double umsatz = 0L;
 	    double gutscheinStartwert = 0L;
 	    Optional<Gutschein> gutschein = Optional.absent();
+	    FluentIterable<Gutschein> boughtGutscheine = FluentIterable.from(ImmutableList.<Gutschein> of());
 	    FluentIterable<DienstleistungsInfo> dlInfos = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
 	    FluentIterable<VerkaufsInfo> vkInfos = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	    FluentIterable<Long> gutscheinKategorien = Kategorie.gutscheinKategorien();
 
 	    for (DienstleistungsEintrag dienstleistungsEintrag : _dienstleistungEintragMapping.values()) {
 		umsatz += dienstleistungsEintrag.getDienstleistung().getPreis().value();
@@ -472,11 +476,8 @@ public class KasseFrame extends TypedJFrame {
 		    // TODO Rezepturstuff
 		}
 
-		String dienstleistungName = dienstleistungsEintrag.getDienstleistung().getDienstleistungsName();
-		String kundeName = dienstleistungsEintrag.getKunde().transform(Kunde.toName).or("Laufkunde");
-		String friseurName = dienstleistungsEintrag.getFriseur().getFriseurName();
-		Preis preis = dienstleistungsEintrag.getDienstleistung().getPreis();
-		Try<Long> entityId = new DienstleistungsInfo(kundeName, friseurName, dienstleistungName, preis).save();
+		DienstleistungsInfo dienstleistungsInfo = buildDienstleistungInfo(dienstleistungsEintrag);
+		Try<Long> entityId = dienstleistungsInfo.save();
 
 		if (entityId.isFailure()) {
 		    Notification notification = new Notification(true, "Fehler beim Speichern", "der Dienstleistungen.");
@@ -484,23 +485,20 @@ public class KasseFrame extends TypedJFrame {
 		    return;
 		}
 
-		dlInfos = dlInfos.append(DienstleistungsInfo.loadById(entityId.get()).get());
+		dlInfos = dlInfos.append(dienstleistungsInfo);
 	    }
 
 	    for (VerkaufsEintrag verkaufsEintrag : _verkaufEintragMapping.values()) {
 		umsatz += verkaufsEintrag.getVerkauf().getPreis().value();
 
-		// TODO Gutschein action
-		// if(verkaufsEintrag.getVerkauf().getVerkaufsName().equals("Gutschein")
-		// && verkaufsEintrag.getVerkauf().getKategorieId() ){
-		//
-		// }
+		long kategorieId = verkaufsEintrag.getVerkauf().getKategorieId();
+		if (verkaufsEintrag.getVerkauf().getVerkaufsName().contains("Gutschein") && gutscheinKategorien.contains(kategorieId)) {
+		    System.err.println("Ein Gutschein wurde gekauft.");
+		    // TODO
+		}
 
-		String verkaufName = verkaufsEintrag.getVerkauf().getVerkaufsName();
-		String kundeName = verkaufsEintrag.getKunde().transform(Kunde.toName).or("Laufkunde");
-		String friseurName = verkaufsEintrag.getFriseur().getFriseurName();
-		Preis preis = verkaufsEintrag.getVerkauf().getPreis();
-		Try<Long> entityId = new VerkaufsInfo(kundeName, friseurName, verkaufName, preis).save();
+		VerkaufsInfo verkaufsInfo = buildVerkaufsInfo(verkaufsEintrag);
+		Try<Long> entityId = verkaufsInfo.save();
 
 		if (entityId.isFailure()) {
 		    Notification notification = new Notification(true, "Fehler beim Speichern", "der Verkäufe.");
@@ -508,7 +506,7 @@ public class KasseFrame extends TypedJFrame {
 		    return;
 		}
 
-		vkInfos = vkInfos.append(VerkaufsInfo.loadById(entityId.get()).get());
+		vkInfos = vkInfos.append(verkaufsInfo);
 	    }
 
 	    if (!_txtGutscheinCode.getText().isEmpty()) {
@@ -536,7 +534,7 @@ public class KasseFrame extends TypedJFrame {
 
 	    if (gutschein.isPresent()) {
 		Try<Long> gutscheinEntityId = new Gutschein(gutschein.get().getEntityId().get(), gutschein.get().getTransaktionId(), gutschein.get()
-			.getKundeId(), gutschein.get().getRestWert()).save();
+			.getKundeName(), gutschein.get().getRestWert()).save();
 		if (gutscheinEntityId.isFailure()) {
 		    Notification notification = new Notification(true, "Fehler beim Update", "des Gutscheins.");
 		    FrameManager.addFrame(notification);
@@ -559,6 +557,24 @@ public class KasseFrame extends TypedJFrame {
 	    resetKasse();
 	}
     };
+
+    private static final DienstleistungsInfo buildDienstleistungInfo(DienstleistungsEintrag dienstleistungsEintrag) {
+	String dienstleistungName = dienstleistungsEintrag.getDienstleistung().getDienstleistungsName();
+	String kundeName = dienstleistungsEintrag.getKunde().transform(Kunde.toName).or("Laufkunde");
+	String friseurName = dienstleistungsEintrag.getFriseur().getFriseurName();
+	Preis preis = dienstleistungsEintrag.getDienstleistung().getPreis();
+	DienstleistungsInfo dienstleistungsInfo = new DienstleistungsInfo(kundeName, friseurName, dienstleistungName, preis);
+	return dienstleistungsInfo;
+    }
+
+    private static final VerkaufsInfo buildVerkaufsInfo(VerkaufsEintrag verkaufsEintrag) {
+	String verkaufName = verkaufsEintrag.getVerkauf().getVerkaufsName();
+	String kundeName = verkaufsEintrag.getKunde().transform(Kunde.toName).or("Laufkunde");
+	String friseurName = verkaufsEintrag.getFriseur().getFriseurName();
+	Preis preis = verkaufsEintrag.getVerkauf().getPreis();
+	VerkaufsInfo verkaufsInfo = new VerkaufsInfo(kundeName, friseurName, verkaufName, preis);
+	return verkaufsInfo;
+    }
 
     private final ActionListener resetKasse = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {

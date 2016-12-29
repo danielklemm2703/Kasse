@@ -18,9 +18,10 @@ public class WickelTest {
 
     @Test
     public void testSaveNewEntity() {
-	Wickel Wickel = new Wickel(112L, WickelTyp.DAUERWELL, WickelStaerke.F, "rot", 112L, false);
-	Try<Long> save = Wickel.save();
+	Wickel wickel = new Wickel(112L, WickelTyp.DAUERWELL, WickelStaerke.F, "rot", 112L, false);
+	Try<Long> save = wickel.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(wickel.getEntityId().get(), save.get());
     }
 
     @Test
@@ -48,7 +49,7 @@ public class WickelTest {
 	Wickel wickel = new Wickel(112L, WickelTyp.DAUERWELL, WickelStaerke.F, "rot", 112L, false);
 	Try<Long> save = wickel.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Wickel.delete(entityId, Wickel.TABLENAME);
+	Try<Unit> delete = wickel.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Wickel> loadById = Wickel.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -56,8 +57,9 @@ public class WickelTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Wickel.delete(1132L, Wickel.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Wickel wickel = new Wickel(112L, WickelTyp.DAUERWELL, WickelStaerke.F, "rot", 112L, false);
+	Try<Unit> delete = wickel.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

@@ -18,6 +18,7 @@ public class KundeTest {
 	Kunde horst = new Kunde("Horst", "Klinker", 1L, "0190/666");
 	Try<Long> save = horst.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(horst.getEntityId().get(), save.get());
     }
 
     @Test
@@ -45,7 +46,7 @@ public class KundeTest {
 	Kunde kunde = new Kunde("Horst", "Klinker", 1L, "0190/666");
 	Try<Long> save = kunde.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Kunde.delete(entityId, Kunde.TABLENAME);
+	Try<Unit> delete = kunde.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Kunde> loadById = Kunde.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -53,8 +54,9 @@ public class KundeTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Kunde.delete(1132L, Kunde.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Kunde kunde = new Kunde("Horst", "Klinker", 1L, "0190/666");
+	Try<Unit> delete = kunde.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

@@ -15,9 +15,10 @@ import datameer.com.google.common.collect.FluentIterable;
 public class FarbeTest {
     @Test
     public void testSaveNewEntity() {
-	Farbe Farbe = new Farbe(1L, FaerbeTechnik.ANSATZ, "rot", "3%");
-	Try<Long> save = Farbe.save();
+	Farbe farbe = new Farbe(1L, FaerbeTechnik.ANSATZ, "rot", "3%");
+	Try<Long> save = farbe.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(farbe.getEntityId().get(), save.get());
     }
 
     @Test
@@ -45,7 +46,7 @@ public class FarbeTest {
 	Farbe farbe = new Farbe(1L, FaerbeTechnik.ANSATZ, "rot", "3%");
 	Try<Long> save = farbe.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Farbe.delete(entityId, Farbe.TABLENAME);
+	Try<Unit> delete = farbe.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Farbe> loadById = Farbe.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -53,8 +54,9 @@ public class FarbeTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Farbe.delete(1132L, Farbe.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Farbe farbe = new Farbe(1L, FaerbeTechnik.ANSATZ, "rot", "3%");
+	Try<Unit> delete = farbe.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

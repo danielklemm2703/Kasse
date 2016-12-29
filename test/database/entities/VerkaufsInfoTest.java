@@ -16,25 +16,26 @@ public class VerkaufsInfoTest {
 
     @Test
     public void testSaveNewEntity() {
-	VerkaufsInfo dienstleistungInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
-	Try<Long> save = dienstleistungInfo.save();
+	VerkaufsInfo verkaufsInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
+	Try<Long> save = verkaufsInfo.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(verkaufsInfo.getEntityId().get(), save.get());
     }
 
     @Test
     public void testUpdateExistingEntity() {
-	VerkaufsInfo dienstleistungInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
-	Try<Long> save = dienstleistungInfo.save();
+	VerkaufsInfo verkaufsInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
+	Try<Long> save = verkaufsInfo.save();
 	Long entityId = save.get();
-	dienstleistungInfo = new VerkaufsInfo(entityId, "Hans Hammer", "Olga", "Shampoo", Preis.of(22.33d));
-	save = dienstleistungInfo.save();
-	assertEquals(save.get(), dienstleistungInfo.getEntityId().get());
+	verkaufsInfo = new VerkaufsInfo(entityId, "Hans Hammer", "Olga", "Shampoo", Preis.of(22.33d));
+	save = verkaufsInfo.save();
+	assertEquals(save.get(), verkaufsInfo.getEntityId().get());
     }
 
     @Test
     public void testLoadExistingEntity() {
-	VerkaufsInfo dienstleistungInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
-	Try<Long> save = dienstleistungInfo.save();
+	VerkaufsInfo verkaufsInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
+	Try<Long> save = verkaufsInfo.save();
 	Long entityId = save.get();
 	Optional<VerkaufsInfo> loadById = VerkaufsInfo.loadById(entityId);
 	assertEquals(true, loadById.isPresent());
@@ -43,10 +44,10 @@ public class VerkaufsInfoTest {
 
     @Test
     public void testDeleteExistingEntity() {
-	VerkaufsInfo dienstleistungInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
-	Try<Long> save = dienstleistungInfo.save();
+	VerkaufsInfo verkaufsInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
+	Try<Long> save = verkaufsInfo.save();
 	Long entityId = save.get();
-	Try<Unit> delete = VerkaufsInfo.delete(entityId, VerkaufsInfo.TABLENAME);
+	Try<Unit> delete = verkaufsInfo.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<VerkaufsInfo> loadById = VerkaufsInfo.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -54,8 +55,9 @@ public class VerkaufsInfoTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = VerkaufsInfo.delete(1132L, VerkaufsInfo.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	VerkaufsInfo verkaufsInfo = new VerkaufsInfo("Horst Hammer", "Helga", "Shampoo", Preis.of(22.33d));
+	Try<Unit> delete = verkaufsInfo.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

@@ -18,6 +18,7 @@ public class FriseurTest {
 	Friseur friseur = new Friseur("Anne");
 	Try<Long> save = friseur.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(friseur.getEntityId().get(), save.get());
     }
 
     @Test
@@ -45,7 +46,7 @@ public class FriseurTest {
 	Friseur friseur = new Friseur("Anne");
 	Try<Long> save = friseur.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Friseur.delete(entityId, Friseur.TABLENAME);
+	Try<Unit> delete = friseur.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Friseur> loadById = Friseur.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -53,8 +54,9 @@ public class FriseurTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Friseur.delete(1132L, Friseur.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Friseur friseur = new Friseur("Anne");
+	Try<Unit> delete = friseur.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

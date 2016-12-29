@@ -18,6 +18,7 @@ public class PraeparatTest {
 	Praeparat praeparat = new Praeparat("C:ehko");
 	Try<Long> save = praeparat.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(praeparat.getEntityId().get(), save.get());
     }
 
     @Test
@@ -45,7 +46,7 @@ public class PraeparatTest {
 	Praeparat praeparat = new Praeparat("C:ehko");
 	Try<Long> save = praeparat.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Praeparat.delete(entityId, Praeparat.TABLENAME);
+	Try<Unit> delete = praeparat.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Praeparat> loadById = Praeparat.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -53,8 +54,9 @@ public class PraeparatTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Praeparat.delete(1132L, Praeparat.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Praeparat praeparat = new Praeparat("C:ehko");
+	Try<Unit> delete = praeparat.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

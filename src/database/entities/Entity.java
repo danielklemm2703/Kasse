@@ -17,7 +17,7 @@ import datameer.com.google.common.collect.ImmutableList.Builder;
 
 public abstract class Entity {
 
-    private final Optional<Long> _entityId;
+    private Optional<Long> _entityId;
     private final String _tableName;
 
     Entity(final Long entityId, final String tableName) {
@@ -53,7 +53,7 @@ public abstract class Entity {
 	};
     }
 
-    public static Try<Unit> delete(final long entityId, final String tableName) {
+    private static Try<Unit> delete(final long entityId, final String tableName) {
 	return Try.of(new Supplier<Unit>() {
 	    @Override
 	    public Unit get() {
@@ -301,6 +301,10 @@ public abstract class Entity {
     public abstract Iterable<Pair<String, String>> persistenceContext();
 
     public Try<Long> save() {
-	return Try.of(save(persistenceContext(), _entityId));
+	Try<Long> save = Try.of(save(persistenceContext(), _entityId));
+	if(save.isSuccess()){
+	    _entityId = Optional.of(save.get());
+	}
+	return save;
     }
 }

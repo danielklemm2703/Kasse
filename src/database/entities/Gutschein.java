@@ -6,6 +6,7 @@ import util.Pair;
 import util.Predicates;
 import util.Preis;
 import util.Try;
+import util.Unit;
 import database.Ordering;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.base.Supplier;
@@ -16,9 +17,18 @@ import datameer.com.google.common.collect.Lists;
 public class Gutschein extends Entity implements Buildable<Gutschein> {
 
     private long _transaktionId;
-    private long _kundeId;
+    private String _kundeName;
     private Preis _restWert;
-    private static final ImmutableList<String> keys = ImmutableList.<String> builder().add("TABLENAME").add("TRANSAKTION_ID").add("KUNDE_ID").add("RESTWERT")
+    private static final ImmutableList<String> keys = ImmutableList.<String> builder()
+    //
+	    .add("TABLENAME")
+
+	    .add("TRANSAKTION_ID")
+
+	    .add("KUNDE_NAME")
+
+	    .add("RESTWERT")
+
 	    .build();
     public static final String TABLENAME = Gutschein.class.getSimpleName();
 
@@ -28,22 +38,22 @@ public class Gutschein extends Entity implements Buildable<Gutschein> {
 	// Table name must always be first!
 	list.add(Pair.of(keys.get(0), this.getTableName()));
 	list.add(Pair.of(keys.get(1), "" + this.getTransaktionId()));
-	list.add(Pair.of(keys.get(2), "" + this.getKundeId()));
+	list.add(Pair.of(keys.get(2), "" + this.getKundeName()));
 	list.add(Pair.of(keys.get(3), this.getRestWert().toString()));
 	return FluentIterable.from(list);
     }
 
-    public Gutschein(final long transaktionId, final long kundeId, final Preis restWert) {
+    public Gutschein(final long transaktionId, final String kundeName, final Preis restWert) {
 	super(TABLENAME);
 	_transaktionId = transaktionId;
-	_kundeId = kundeId;
+	_kundeName = kundeName;
 	_restWert = restWert;
     }
 
-    public Gutschein(final long entityId, final long transaktionId, final long kundeId, final Preis restWert) {
+    public Gutschein(final long entityId, final long transaktionId, final String kundeName, final Preis restWert) {
 	super(entityId, TABLENAME);
 	_transaktionId = transaktionId;
-	_kundeId = kundeId;
+	_kundeName = kundeName;
 	_restWert = restWert;
     }
 
@@ -59,12 +69,12 @@ public class Gutschein extends Entity implements Buildable<Gutschein> {
 	_transaktionId = transaktionId;
     }
 
-    public long getKundeId() {
-	return _kundeId;
+    public String getKundeName() {
+	return _kundeName;
     }
 
-    public void setKundeId(long kundeId) {
-	_kundeId = kundeId;
+    public void setKundeName(String kundeName) {
+	_kundeName = kundeName;
     }
 
     public Preis getRestWert() {
@@ -73,6 +83,11 @@ public class Gutschein extends Entity implements Buildable<Gutschein> {
 
     public void setRestWert(Preis restWert) {
 	_restWert = restWert;
+    }
+
+    @Override
+    public Try<Unit> delete() {
+	return Try.failure(new IllegalStateException("Gutschein darf nicht gelöscht werden, aufgrund von Umsatznachvollziehbarkeit."));
     }
 
     public static final Optional<Gutschein> loadById(long entityId) {
@@ -102,7 +117,7 @@ public class Gutschein extends Entity implements Buildable<Gutschein> {
 		Gutschein gutschein = new Gutschein(context._1);
 		ImmutableList<Pair<String, String>> values = ImmutableList.copyOf(FluentIterable.from(context._2).filter(Predicates.withoutSecond(TABLENAME)));
 		gutschein.setTransaktionId(Long.parseLong(values.get(0)._2));
-		gutschein.setKundeId(Long.parseLong(values.get(1)._2));
+		gutschein.setKundeName(values.get(1)._2);
 		gutschein.setRestWert(Preis.of(values.get(2)._2));
 		return gutschein;
 	    }

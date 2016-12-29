@@ -2,6 +2,7 @@ package database.entities;
 
 import java.util.LinkedList;
 
+import util.Functions;
 import util.Pair;
 import util.Predicates;
 import util.Try;
@@ -20,6 +21,17 @@ public class Kategorie extends Entity implements Buildable<Kategorie> {
     private static final ImmutableList<String> keys = ImmutableList.<String> builder().add("TABLENAME").add("KATEGORIE_NAME").add("DIENSTLEISTUNGS_KATEGORIE")
 	    .add("VERKAUFS_KATEGORIE").build();
     public static final String TABLENAME = Kategorie.class.getSimpleName();
+
+    public static final FluentIterable<Long> gutscheinKategorien() {
+	FluentIterable<Long> gutscheinKategorien = FluentIterable.from(Kategorie.loadByParameterStartsWith("KATEGORIE_NAME", "Gutschein"))
+	//
+		.transform(Functions.toEntityId)
+
+		.filter(Predicates.<Long> isPresent())
+
+		.transform(Functions.<Long> get());
+	return gutscheinKategorien;
+    }
 
     @Override
     public Iterable<Pair<String, String>> persistenceContext() {

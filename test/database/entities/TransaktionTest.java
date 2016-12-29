@@ -20,8 +20,10 @@ public class TransaktionTest {
     public void testSaveNewEntity() {
 	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
 	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
-	Try<Long> transaktion = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L)).save();
+	Transaktion transaktion2 = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L));
+	Try<Long> transaktion = transaktion2.save();
 	assertEquals(true, transaktion.isSuccess());
+	assertEquals(transaktion2.getEntityId().get(), transaktion.get());
 	// TODO insert info test cases
     }
 
@@ -58,7 +60,7 @@ public class TransaktionTest {
 	Transaktion transaktion = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L));
 	Try<Long> save = transaktion.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Transaktion.delete(entityId, Transaktion.TABLENAME);
+	Try<Unit> delete = transaktion.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Transaktion> loadById = Transaktion.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -66,8 +68,11 @@ public class TransaktionTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Transaktion.delete(1132L, Transaktion.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	FluentIterable<DienstleistungsInfo> dlInfo = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	FluentIterable<VerkaufsInfo> vkInfo = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+	Transaktion transaktion = new Transaktion(dlInfo, vkInfo, DateTime.now(), Optional.<Preis> absent(), Optional.<Gutschein> absent(), Preis.of(0L));
+	Try<Unit> delete = transaktion.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

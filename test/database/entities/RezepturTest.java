@@ -20,6 +20,7 @@ public class RezepturTest {
 	Rezeptur rezeptur = new Rezeptur(1L, Optional.of(farbIds), Optional.<Long> absent(), "war jut", false);
 	Try<Long> save = rezeptur.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(rezeptur.getEntityId().get(), save.get());
     }
 
     @Test
@@ -48,7 +49,7 @@ public class RezepturTest {
 	Rezeptur rezeptur = new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
 	Try<Long> save = rezeptur.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Rezeptur.delete(entityId, Rezeptur.TABLENAME);
+	Try<Unit> delete = rezeptur.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Rezeptur> loadById = Rezeptur.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -56,8 +57,9 @@ public class RezepturTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Rezeptur.delete(1132L, Rezeptur.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Rezeptur rezeptur = new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
+	Try<Unit> delete = rezeptur.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

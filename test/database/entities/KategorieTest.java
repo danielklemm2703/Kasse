@@ -18,6 +18,7 @@ public class KategorieTest {
 	Kategorie kategorie = new Kategorie("Haare", true, false);
 	Try<Long> save = kategorie.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(kategorie.getEntityId().get(), save.get());
     }
 
     @Test
@@ -45,7 +46,7 @@ public class KategorieTest {
 	Kategorie kategorie = new Kategorie("Haare", true, false);
 	Try<Long> save = kategorie.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Kategorie.delete(entityId, Kategorie.TABLENAME);
+	Try<Unit> delete = kategorie.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Kategorie> loadById = Kategorie.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -53,8 +54,9 @@ public class KategorieTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Kategorie.delete(1132L, Kategorie.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Kategorie kategorie = new Kategorie("Haare", true, false);
+	Try<Unit> delete = kategorie.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

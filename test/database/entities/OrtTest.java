@@ -17,6 +17,7 @@ public class OrtTest {
 	Ort ort = new Ort("Brand-Erbisdorf");
 	Try<Long> save = ort.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(ort.getEntityId().get(), save.get());
     }
 
     @Test
@@ -44,7 +45,7 @@ public class OrtTest {
 	Ort ort = new Ort("Brand-Erbisdorf");
 	Try<Long> save = ort.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Ort.delete(entityId, Ort.TABLENAME);
+	Try<Unit> delete = ort.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Ort> loadById = Ort.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -52,8 +53,9 @@ public class OrtTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Ort.delete(1132L, Ort.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Ort ort = new Ort("Brand-Erbisdorf");
+	Try<Unit> delete = ort.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

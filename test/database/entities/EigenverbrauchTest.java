@@ -20,6 +20,7 @@ public class EigenverbrauchTest {
 	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, Preis.of(122D), DateTime.now());
 	Try<Long> save = eigenverbrauch.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(eigenverbrauch.getEntityId().get(), save.get());
     }
 
     @Test
@@ -47,7 +48,7 @@ public class EigenverbrauchTest {
 	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, Preis.of(122D), DateTime.now());
 	Try<Long> save = eigenverbrauch.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Eigenverbrauch.delete(entityId, Eigenverbrauch.TABLENAME);
+	Try<Unit> delete = eigenverbrauch.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Eigenverbrauch> loadById = Eigenverbrauch.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -55,8 +56,9 @@ public class EigenverbrauchTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Eigenverbrauch.delete(1132L, Eigenverbrauch.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Eigenverbrauch eigenverbrauch = new Eigenverbrauch(1L, Preis.of(122D), DateTime.now());
+	Try<Unit> delete = eigenverbrauch.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test

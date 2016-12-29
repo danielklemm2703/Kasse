@@ -20,6 +20,7 @@ public class VerkaufTest {
 	Verkauf verkauf = new Verkauf("Haare schneiden", 2, Preis.of("22,22"));
 	Try<Long> save = verkauf.save();
 	assertEquals(true, save.isSuccess());
+	assertEquals(verkauf.getEntityId().get(), save.get());
     }
 
     @Test
@@ -47,7 +48,7 @@ public class VerkaufTest {
 	Verkauf verkauf = new Verkauf("Haare schneiden", 2, Preis.of("22,22"));
 	Try<Long> save = verkauf.save();
 	Long entityId = save.get();
-	Try<Unit> delete = Verkauf.delete(entityId, Verkauf.TABLENAME);
+	Try<Unit> delete = verkauf.delete();
 	assertEquals(true, delete.isSuccess());
 	Optional<Verkauf> loadById = Verkauf.loadById(entityId);
 	assertEquals(false, loadById.isPresent());
@@ -55,8 +56,9 @@ public class VerkaufTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Try<Unit> delete = Verkauf.delete(1132L, Verkauf.TABLENAME);
-	assertEquals(true, delete.isSuccess());
+	Verkauf verkauf = new Verkauf("Haare schneiden", 2, Preis.of("22,22"));
+	Try<Unit> delete = verkauf.delete();
+	assertEquals(false, delete.isSuccess());
     }
 
     @Test
