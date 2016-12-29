@@ -22,7 +22,9 @@ import frontend.util.ImagePanel;
 public class MainFrame {
 
     // TODO Planning List:
-    // 1. design kasse frame
+    // 0. finish kasse (create gutschein when bought & register rezeptur & show
+    // info on success
+    // 1. gutschein should use string as kunde name
     // 2. design how to enter and create rezepturen
     // 3. design kollegen umsatz fenster stuff
     // 4. design admin area

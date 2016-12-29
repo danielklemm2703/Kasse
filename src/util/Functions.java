@@ -20,6 +20,15 @@ public class Functions {
 	}
     };
 
+    public static final Function<Entity, Try<Long>> save() {
+	return new Function<Entity, Try<Long>>() {
+	    @Override
+	    public Try<Long> apply(Entity input) {
+		return input.save();
+	    }
+	};
+    }
+
     public static final Function<Long, Optional<Dienstleistung>> toDienstleistung = new Function<Long, Optional<Dienstleistung>>() {
 	@Override
 	public Optional<Dienstleistung> apply(Long input) {

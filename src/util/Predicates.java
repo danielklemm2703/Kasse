@@ -44,19 +44,21 @@ public class Predicates {
 	}
     };
 
-    public static final Predicate<Optional<Rezeptur>> present = new Predicate<Optional<Rezeptur>>() {
-	@Override
-	public boolean apply(Optional<Rezeptur> input) {
-	    return input.isPresent();
-	}
-    };
-
     public static final Predicate<Optional<Dienstleistung>> rezepturpflicht = new Predicate<Optional<Dienstleistung>>() {
 	@Override
 	public boolean apply(Optional<Dienstleistung> input) {
 	    return input.isPresent() && input.get().isRezepturplichtig();
 	}
     };
+
+    public static final <T> Predicate<Try<T>> isSuccess() {
+	return new Predicate<Try<T>>() {
+	    @Override
+	    public boolean apply(Try<T> input) {
+		return input.isSuccess();
+	    }
+	};
+    }
 
     public static final <T> Predicate<Optional<T>> isPresent() {
 	return new Predicate<Optional<T>>() {

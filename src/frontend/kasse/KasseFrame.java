@@ -24,10 +24,13 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.joda.time.DateTime;
+
 import util.KeyAdapters;
 import util.Methods;
 import util.PopupTriggerListener;
 import util.Preis;
+import util.Try;
 import util.table.MultiselectTable;
 import util.table.NonEditColorableTableModel;
 import backend.TypedJFrame;
@@ -37,16 +40,20 @@ import backend.framemanagement.FrameManager;
 import backend.framemanagement.MouseAdapters;
 import database.Ordering;
 import database.entities.Dienstleistung;
+import database.entities.DienstleistungsInfo;
 import database.entities.Friseur;
 import database.entities.Gutschein;
 import database.entities.Kunde;
 import database.entities.Ort;
+import database.entities.Transaktion;
 import database.entities.Verkauf;
+import database.entities.VerkaufsInfo;
 import database.enums.FrameType;
 import database.util.TableDatas;
 import datameer.com.google.common.base.Function;
 import datameer.com.google.common.base.Optional;
 import datameer.com.google.common.collect.FluentIterable;
+import datameer.com.google.common.collect.ImmutableList;
 import datameer.com.google.common.collect.Lists;
 import datameer.com.google.common.collect.Maps;
 import frontend.util.Notification;
@@ -349,12 +356,17 @@ public class KasseFrame extends TypedJFrame {
 	    int entityId = Integer.parseInt(_txtGutscheinCode.getText());
 	    Optional<Gutschein> gutschein = Gutschein.loadById(entityId);
 	    if (gutschein.isPresent()) {
-		_lblGutscheinInfoWert.setText(gutschein.get().getRestWert().toString());
 		_lblGutscheinInfoWert.setVisible(true);
-		_lblGutscheinInfo.setText("Gutschein Wert");
 		_lblGutscheinInfo.setVisible(true);
-		aggregate -= gutschein.get().getRestWert().value();
-		_lblZuZahlenWert.setText(Preis.of(aggregate).toString());
+		if (gutschein.get().getRestWert().value() > 0) {
+		    _lblGutscheinInfoWert.setText(gutschein.get().getRestWert().toString());
+		    _lblGutscheinInfo.setText("Gutschein Wert");
+		    aggregate -= gutschein.get().getRestWert().value();
+		    _lblZuZahlenWert.setText(Preis.of(aggregate).toString());
+		} else {
+		    _lblGutscheinInfoWert.setText(" aufgebraucht.");
+		    _lblGutscheinInfo.setText("Gutschein bereits");
+		}
 	    } else {
 		_lblGutscheinInfoWert.setText("nicht gefunden");
 		_lblGutscheinInfoWert.setVisible(true);
@@ -442,6 +454,109 @@ public class KasseFrame extends TypedJFrame {
 
     private final ActionListener save = new ActionListener() {
 	public void actionPerformed(ActionEvent e) {
+	    if (_dienstleistungEintragMapping.isEmpty() && _verkaufEintragMapping.isEmpty()) {
+		Notification notification = new Notification(true, "Es wurde nichts", "ausgewählt.");
+		FrameManager.addFrame(notification);
+		return;
+	    }
+	    double umsatz = 0L;
+	    double gutscheinStartwert = 0L;
+	    Optional<Gutschein> gutschein = Optional.absent();
+	    FluentIterable<DienstleistungsInfo> dlInfos = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
+	    FluentIterable<VerkaufsInfo> vkInfos = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
+
+	    for (DienstleistungsEintrag dienstleistungsEintrag : _dienstleistungEintragMapping.values()) {
+		umsatz += dienstleistungsEintrag.getDienstleistung().getPreis().value();
+
+		if (dienstleistungsEintrag.getDienstleistung().isRezepturplichtig()) {
+		    // TODO Rezepturstuff
+		}
+
+		String dienstleistungName = dienstleistungsEintrag.getDienstleistung().getDienstleistungsName();
+		String kundeName = dienstleistungsEintrag.getKunde().transform(Kunde.toName).or("Laufkunde");
+		String friseurName = dienstleistungsEintrag.getFriseur().getFriseurName();
+		Preis preis = dienstleistungsEintrag.getDienstleistung().getPreis();
+		Try<Long> entityId = new DienstleistungsInfo(kundeName, friseurName, dienstleistungName, preis).save();
+
+		if (entityId.isFailure()) {
+		    Notification notification = new Notification(true, "Fehler beim Speichern", "der Dienstleistungen.");
+		    FrameManager.addFrame(notification);
+		    return;
+		}
+
+		dlInfos = dlInfos.append(DienstleistungsInfo.loadById(entityId.get()).get());
+	    }
+
+	    for (VerkaufsEintrag verkaufsEintrag : _verkaufEintragMapping.values()) {
+		umsatz += verkaufsEintrag.getVerkauf().getPreis().value();
+
+		// TODO Gutschein action
+		// if(verkaufsEintrag.getVerkauf().getVerkaufsName().equals("Gutschein")
+		// && verkaufsEintrag.getVerkauf().getKategorieId() ){
+		//
+		// }
+
+		String verkaufName = verkaufsEintrag.getVerkauf().getVerkaufsName();
+		String kundeName = verkaufsEintrag.getKunde().transform(Kunde.toName).or("Laufkunde");
+		String friseurName = verkaufsEintrag.getFriseur().getFriseurName();
+		Preis preis = verkaufsEintrag.getVerkauf().getPreis();
+		Try<Long> entityId = new VerkaufsInfo(kundeName, friseurName, verkaufName, preis).save();
+
+		if (entityId.isFailure()) {
+		    Notification notification = new Notification(true, "Fehler beim Speichern", "der Verkäufe.");
+		    FrameManager.addFrame(notification);
+		    return;
+		}
+
+		vkInfos = vkInfos.append(VerkaufsInfo.loadById(entityId.get()).get());
+	    }
+
+	    if (!_txtGutscheinCode.getText().isEmpty()) {
+		int entityId = Integer.parseInt(_txtGutscheinCode.getText());
+		gutschein = Gutschein.loadById(entityId);
+		if (gutschein.isPresent()) {
+		    gutscheinStartwert = gutschein.get().getRestWert().value();
+		    if (gutschein.get().getRestWert().value() > umsatz) {
+			double newRestwert = gutschein.get().getRestWert().value() - umsatz;
+			umsatz = 0;
+			gutschein.get().setRestWert(Preis.of(newRestwert));
+		    } else {
+			umsatz -= gutschein.get().getRestWert().value();
+			gutschein.get().setRestWert(Preis.of(0L));
+		    }
+		}
+	    }
+
+	    // check
+	    if (umsatz != Preis.of(_lblZuZahlenWert.getText()).value()) {
+		Notification notification = new Notification(true, "Fehler beim Berechnen", "des Gesamtpreises.");
+		FrameManager.addFrame(notification);
+		return;
+	    }
+
+	    if (gutschein.isPresent()) {
+		Try<Long> gutscheinEntityId = new Gutschein(gutschein.get().getEntityId().get(), gutschein.get().getTransaktionId(), gutschein.get()
+			.getKundeId(), gutschein.get().getRestWert()).save();
+		if (gutscheinEntityId.isFailure()) {
+		    Notification notification = new Notification(true, "Fehler beim Update", "des Gutscheins.");
+		    FrameManager.addFrame(notification);
+		    return;
+		}
+	    }
+
+	    Try<Long> transaktion = new Transaktion(dlInfos, vkInfos, DateTime.now(), Optional.of(Preis.of(gutscheinStartwert)), gutschein, Preis.of(umsatz))
+		    .save();
+	    if (transaktion.isFailure()) {
+		Notification notification = new Notification(true, "Fehler beim Speichern", "der Transaktion.");
+		FrameManager.addFrame(notification);
+		return;
+	    }
+
+	    // TODO show in separate frame:
+	    // if gutschein was bought + wert & id
+	    // if gutschein was used and its restwert +id
+	    // if rezepturen need to be entered
+	    resetKasse();
 	}
     };
 

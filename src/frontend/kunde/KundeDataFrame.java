@@ -137,7 +137,6 @@ public class KundeDataFrame extends TypedJFrame {
     }
 
     private ActionListener saveKunde(final Optional<Kunde> kunde) {
-	// TODO make better
 	final KundeDataFrame kundeDataFrame = this;
 	return new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {

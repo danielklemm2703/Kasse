@@ -30,8 +30,6 @@ public class Notification extends TypedJFrame {
 	setTitle("Notification");
 	_type = FrameType.NOTIFICATION;
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	// TODO handle focus
-	// addWindowFocusListener(holdFocus(this));
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	int width = (int) Math.round(screenSize.getWidth());

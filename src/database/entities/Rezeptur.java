@@ -45,9 +45,7 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 	// Table name must always be first!
 	list.add(Pair.of(keys.get(0), this.getTableName()));
 	list.add(Pair.of(keys.get(1), "" + this.getTransaktionId()));
-	// TODO remove later
 	String string = (this.getFarbIds().or(FluentIterable.from(ImmutableList.<Long> of()))).toString();
-	System.err.println(string);
 	list.add(Pair.of(keys.get(2), string));
 	list.add(Pair.of(keys.get(3), "" + this.getWickelId().or(0L)));
 	list.add(Pair.of(keys.get(4), this.getErgebnis()));

@@ -33,8 +33,6 @@ public class KundeDeleteFrame extends TypedJFrame {
     public KundeDeleteFrame(final Kunde kunde) {
 	_type = FrameType.CHECK;
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	// TODO handle focus
-	// addWindowFocusListener(holdFocus(this));
 	setUndecorated(true);
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
