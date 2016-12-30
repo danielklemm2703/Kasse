@@ -28,6 +28,7 @@ import org.joda.time.DateTime;
 
 import util.KeyAdapters;
 import util.Methods;
+import util.Pair;
 import util.PopupTriggerListener;
 import util.Preis;
 import util.Try;
@@ -46,6 +47,7 @@ import database.entities.Gutschein;
 import database.entities.Kategorie;
 import database.entities.Kunde;
 import database.entities.Ort;
+import database.entities.Rezeptur;
 import database.entities.Transaktion;
 import database.entities.Verkauf;
 import database.entities.VerkaufsInfo;
@@ -454,6 +456,7 @@ public class KasseFrame extends TypedJFrame {
     }
 
     private final ActionListener save = new ActionListener() {
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e) {
 	    if (_dienstleistungEintragMapping.isEmpty() && _verkaufEintragMapping.isEmpty()) {
 		Notification notification = new Notification(true, "Es wurde nichts", "ausgewählt.");
@@ -464,7 +467,9 @@ public class KasseFrame extends TypedJFrame {
 	    double umsatz = 0L;
 	    double gutscheinStartwert = 0L;
 	    Optional<Gutschein> gutschein = Optional.absent();
-	    FluentIterable<Gutschein> boughtGutscheine = FluentIterable.from(ImmutableList.<Gutschein> of());
+
+	    FluentIterable<Pair<String, Preis>> boughtGutscheine = FluentIterable.from(ImmutableList.<Pair<String, Preis>> of());
+	    FluentIterable<String> rezepturKunden = FluentIterable.from(ImmutableList.<String> of());
 	    FluentIterable<DienstleistungsInfo> dlInfos = FluentIterable.from(ImmutableList.<DienstleistungsInfo> of());
 	    FluentIterable<VerkaufsInfo> vkInfos = FluentIterable.from(ImmutableList.<VerkaufsInfo> of());
 	    FluentIterable<Long> gutscheinKategorien = Kategorie.gutscheinKategorien();
@@ -472,8 +477,8 @@ public class KasseFrame extends TypedJFrame {
 	    for (DienstleistungsEintrag dienstleistungsEintrag : _dienstleistungEintragMapping.values()) {
 		umsatz += dienstleistungsEintrag.getDienstleistung().getPreis().value();
 
-		if (dienstleistungsEintrag.getDienstleistung().isRezepturplichtig()) {
-		    // TODO Rezepturstuff
+		if (dienstleistungsEintrag.getDienstleistung().isRezepturplichtig() && dienstleistungsEintrag.getKunde().isPresent()) {
+		    rezepturKunden = rezepturKunden.append(dienstleistungsEintrag.getKunde().transform(Kunde.toName).get());
 		}
 
 		DienstleistungsInfo dienstleistungsInfo = buildDienstleistungInfo(dienstleistungsEintrag);
@@ -494,7 +499,9 @@ public class KasseFrame extends TypedJFrame {
 		long kategorieId = verkaufsEintrag.getVerkauf().getKategorieId();
 		if (verkaufsEintrag.getVerkauf().getVerkaufsName().contains("Gutschein") && gutscheinKategorien.contains(kategorieId)) {
 		    System.err.println("Ein Gutschein wurde gekauft.");
-		    // TODO
+		    String kundeName = verkaufsEintrag.getKunde().transform(Kunde.toName).or("Laufkunde");
+		    Preis gutscheinWert = verkaufsEintrag.getVerkauf().getPreis();
+		    boughtGutscheine = boughtGutscheine.append(Pair.of(kundeName, gutscheinWert));
 		}
 
 		VerkaufsInfo verkaufsInfo = buildVerkaufsInfo(verkaufsEintrag);
@@ -550,11 +557,35 @@ public class KasseFrame extends TypedJFrame {
 		return;
 	    }
 
-	    // TODO show in separate frame:
-	    // if gutschein was bought + wert & id
-	    // if gutschein was used and its restwert +id
-	    // if rezepturen need to be entered
+	    // erstellt gekaufte Gutscheine
+	    FluentIterable<Gutschein> createdGutscheine = FluentIterable.from(ImmutableList.<Gutschein> of());
+	    for (Pair<String, Preis> g : boughtGutscheine) {
+		Gutschein newGutschein = new Gutschein(transaktion.get(), g._1, g._2);
+		Try<Long> savedGutschein = newGutschein.save();
+		if (savedGutschein.isFailure()) {
+		    Notification notification = new Notification(true, "Fehler beim Speichern", "des Gutscheins.");
+		    FrameManager.addFrame(notification);
+		    return;
+		}
+		createdGutscheine = createdGutscheine.append(newGutschein);
+	    }
+
+	    // erstellt nötige Rezepturen
+	    FluentIterable<Rezeptur> rezepturenToEnter = FluentIterable.from(ImmutableList.<Rezeptur> of());
+	    for (String kundeName : rezepturKunden.toSet()) {
+		Rezeptur newRezeptur = new Rezeptur(transaktion.get(), kundeName, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "", false);
+		Try<Long> savedRezeptur = newRezeptur.save();
+		if (savedRezeptur.isFailure()) {
+		    Notification notification = new Notification(true, "Fehler beim Erstellen", "der Rezeptur.");
+		    FrameManager.addFrame(notification);
+		    return;
+		}
+		rezepturenToEnter = rezepturenToEnter.append(newRezeptur);
+	    }
+
 	    resetKasse();
+	    FinishFrame frame = new FinishFrame(createdGutscheine, gutschein, rezepturenToEnter);
+	    FrameManager.addFrame(frame);
 	}
     };
 

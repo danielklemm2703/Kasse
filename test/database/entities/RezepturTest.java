@@ -17,7 +17,7 @@ public class RezepturTest {
     @Test
     public void testSaveNewEntity() {
 	FluentIterable<Long> farbIds = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
-	Rezeptur rezeptur = new Rezeptur(1L, Optional.of(farbIds), Optional.<Long> absent(), "war jut", false);
+	Rezeptur rezeptur = new Rezeptur(1L, "Hammer, Horst", Optional.of(farbIds), Optional.<Long> absent(), "war jut", false);
 	Try<Long> save = rezeptur.save();
 	assertEquals(true, save.isSuccess());
 	assertEquals(rezeptur.getEntityId().get(), save.get());
@@ -25,10 +25,10 @@ public class RezepturTest {
 
     @Test
     public void testUpdateExistingEntity() {
-	Rezeptur rezeptur = new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
+	Rezeptur rezeptur = new Rezeptur(1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
 	Try<Long> save = rezeptur.save();
 	Long entityId = save.get();
-	rezeptur = new Rezeptur(entityId, 1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
+	rezeptur = new Rezeptur(entityId, 1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
 	save = rezeptur.save();
 	assertEquals(save.get(), rezeptur.getEntityId().get());
     }
@@ -36,7 +36,7 @@ public class RezepturTest {
     @Test
     public void testLoadExistingEntity() {
 	FluentIterable<Long> farbIds = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
-	Rezeptur rezeptur = new Rezeptur(1L, Optional.of(farbIds), Optional.<Long> absent(), "war jut", false);
+	Rezeptur rezeptur = new Rezeptur(1L, "Hammer, Horst", Optional.of(farbIds), Optional.<Long> absent(), "war jut", false);
 	Try<Long> save = rezeptur.save();
 	Long entityId = save.get();
 	Optional<Rezeptur> loadById = Rezeptur.loadById(entityId);
@@ -46,7 +46,7 @@ public class RezepturTest {
 
     @Test
     public void testDeleteExistingEntity() {
-	Rezeptur rezeptur = new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
+	Rezeptur rezeptur = new Rezeptur(1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
 	Try<Long> save = rezeptur.save();
 	Long entityId = save.get();
 	Try<Unit> delete = rezeptur.delete();
@@ -57,7 +57,7 @@ public class RezepturTest {
 
     @Test
     public void testDeleteNotExistingEntity() {
-	Rezeptur rezeptur = new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
+	Rezeptur rezeptur = new Rezeptur(1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "war jut", false);
 	Try<Unit> delete = rezeptur.delete();
 	assertEquals(false, delete.isSuccess());
     }
@@ -73,8 +73,8 @@ public class RezepturTest {
     @Test
     public void testLoadByParameterWithOrdering() {
 	FluentIterable<Long> farbIds = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
-	new Rezeptur(1L, Optional.of(farbIds), Optional.<Long> absent(), "war jut", false).save();
-	new Rezeptur(1L, Optional.of(farbIds), Optional.<Long> absent(), "zzzwar jut", false).save();
+	new Rezeptur(1L, "Hammer, Horst", Optional.of(farbIds), Optional.<Long> absent(), "war jut", false).save();
+	new Rezeptur(1L, "Hammer, Horst", Optional.of(farbIds), Optional.<Long> absent(), "zzzwar jut", false).save();
 	FluentIterable<Rezeptur> load = FluentIterable.from(Rezeptur.loadByParameter("BEREITS_EINGETRAGEN", "false", new Ordering("ERGEBNIS", "DESC")));
 	assertEquals(false, load.isEmpty());
 	assertEquals("zzzwar jut", load.first().get().getErgebnis());
@@ -84,7 +84,7 @@ public class RezepturTest {
     public void testLoadByParameterNotEveryEntry() {
 	String random = "" + Math.random();
 	FluentIterable<Long> farbIds = FluentIterable.from(ImmutableList.of(1L, 2L, 3L));
-	new Rezeptur(1L, Optional.of(farbIds), Optional.<Long> absent(), random, false).save();
+	new Rezeptur(1L, "Hammer, Horst", Optional.of(farbIds), Optional.<Long> absent(), random, false).save();
 
 	FluentIterable<Rezeptur> load = FluentIterable.from(Rezeptur.loadByParameter("ERGEBNIS", "" + random));
 	assertEquals(false, load.isEmpty());
@@ -96,18 +96,18 @@ public class RezepturTest {
 
     @Test
     public void testLoadByParameterEveryEntry() {
-	new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
+	new Rezeptur(1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
 	FluentIterable<Rezeptur> load = FluentIterable.from(Rezeptur.loadByParameter("'1'", "1"));
 	assertEquals(false, load.isEmpty());
 	int size = load.size();
-	new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
+	new Rezeptur(1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
 	load = FluentIterable.from(Rezeptur.loadByParameter("'1'", "1"));
 	assertEquals(size + 1, load.size());
     }
 
     @Test
     public void testLoadByParameterStartsWith() {
-	new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
+	new Rezeptur(1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vorhanden", false).save();
 
 	FluentIterable<Rezeptur> load = FluentIterable.from(Rezeptur.loadByParameterStartsWith("ERGEBNIS", "v"));
 	assertEquals(false, load.isEmpty());
@@ -118,7 +118,7 @@ public class RezepturTest {
 
     @Test
     public void testLoadByParameterStartsWith_Ordering() {
-	new Rezeptur(1L, Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vaaaaorhanden", false).save();
+	new Rezeptur(1L, "Hammer, Horst", Optional.<FluentIterable<Long>> absent(), Optional.<Long> absent(), "vaaaaorhanden", false).save();
 
 	FluentIterable<Rezeptur> load = FluentIterable.from(Rezeptur.loadByParameterStartsWith("ERGEBNIS", "v", new Ordering("ERGEBNIS", "ASC")));
 	assertEquals(false, load.isEmpty());

@@ -16,6 +16,7 @@ import datameer.com.google.common.collect.Lists;
 public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 
     private long _transaktionId;
+    private String _kundeName;
     private Optional<FluentIterable<Long>> _farbIds;
     private Optional<Long> _wickelId;
     private String _ergebnis;
@@ -26,6 +27,8 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 	    .add("TABLENAME")
 
 	    .add("TRANSAKTION_ID")
+
+	    .add("KUNDE_NAME")
 
 	    .add("FARB_IDS")
 
@@ -43,13 +46,14 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
     public Iterable<Pair<String, String>> persistenceContext() {
 	LinkedList<Pair<String, String>> list = Lists.newLinkedList();
 	// Table name must always be first!
-	list.add(Pair.of(keys.get(0), this.getTableName()));
-	list.add(Pair.of(keys.get(1), "" + this.getTransaktionId()));
+	list.add(Pair.of(keys.get(0), getTableName()));
+	list.add(Pair.of(keys.get(1), "" + getTransaktionId()));
+	list.add(Pair.of(keys.get(2), "" + getKundeName()));
 	String string = (this.getFarbIds().or(FluentIterable.from(ImmutableList.<Long> of()))).toString();
-	list.add(Pair.of(keys.get(2), string));
-	list.add(Pair.of(keys.get(3), "" + this.getWickelId().or(0L)));
-	list.add(Pair.of(keys.get(4), this.getErgebnis()));
-	list.add(Pair.of(keys.get(5), Boolean.toString(this.isBereitsEingetragen())));
+	list.add(Pair.of(keys.get(3), string));
+	list.add(Pair.of(keys.get(4), "" + getWickelId().or(0L)));
+	list.add(Pair.of(keys.get(5), getErgebnis()));
+	list.add(Pair.of(keys.get(6), Boolean.toString(isBereitsEingetragen())));
 	return FluentIterable.from(list);
     }
 
@@ -57,20 +61,23 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 	super(entityId, TABLENAME);
     }
 
-    public Rezeptur(final long transaktionId, Optional<FluentIterable<Long>> farbIds, Optional<Long> wickelId, final String ergebnis,
+    public Rezeptur(final long transaktionId, String kundeName, Optional<FluentIterable<Long>> farbIds, Optional<Long> wickelId, final String ergebnis,
 	    final boolean bereitsEingetragen) {
 	super(TABLENAME);
 	setTransaktionId(transaktionId);
+	_kundeName = kundeName;
 	setFarbIds(farbIds);
 	setWickelId(wickelId);
 	setErgebnis(ergebnis);
 	setBereitsEingetragen(bereitsEingetragen);
     }
 
-    public Rezeptur(Long entityId, final long transaktionId, Optional<FluentIterable<Long>> farbIds, Optional<Long> wickelId, final String ergebnis,
+    public Rezeptur(Long entityId, final long transaktionId, String kundeName, Optional<FluentIterable<Long>> farbIds, Optional<Long> wickelId,
+	    final String ergebnis,
 	    final boolean bereitsEingetragen) {
 	super(entityId, TABLENAME);
 	setTransaktionId(transaktionId);
+	_kundeName = kundeName;
 	setFarbIds(farbIds);
 	setWickelId(wickelId);
 	setErgebnis(ergebnis);
@@ -105,7 +112,8 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 		ImmutableList<Pair<String, String>> values = ImmutableList.copyOf(FluentIterable.from(context._2).filter(Predicates.withoutSecond(TABLENAME)));
 
 		rezeptur.setTransaktionId(Long.parseLong(values.get(0)._2));
-		String farbIds = values.get(1)._2.replace("[", "");
+		rezeptur.setKundeName(values.get(1)._2);
+		String farbIds = values.get(2)._2.replace("[", "");
 		farbIds = farbIds.replace("]", "");
 		FluentIterable<String> farben = FluentIterable.from(ImmutableList.copyOf(farbIds.split(",")));
 		if(farben.isEmpty()){
@@ -113,14 +121,14 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 		} else {
 		    rezeptur.setFarbIds(Optional.of(farben.transform(Functions.toLong)));
 		}
-		long wickelId = Long.parseLong(values.get(2)._2);
+		long wickelId = Long.parseLong(values.get(3)._2);
 		if (wickelId == 0) {
 		    rezeptur.setWickelId(Optional.<Long> absent());
 		} else {
 		    rezeptur.setWickelId(Optional.of(wickelId));
 		}
-		rezeptur.setErgebnis(values.get(3)._2);
-		rezeptur.setBereitsEingetragen(Boolean.parseBoolean(values.get(4)._2));
+		rezeptur.setErgebnis(values.get(4)._2);
+		rezeptur.setBereitsEingetragen(Boolean.parseBoolean(values.get(5)._2));
 		return rezeptur;
 	    }
 	});
@@ -156,6 +164,14 @@ public class Rezeptur extends Entity implements Buildable<Rezeptur> {
 
     public void setErgebnis(String ergebnis) {
 	_ergebnis = ergebnis;
+    }
+
+    public String getKundeName() {
+	return _kundeName;
+    }
+
+    public void setKundeName(String kundeName) {
+	_kundeName = kundeName;
     }
 
     public boolean isBereitsEingetragen() {

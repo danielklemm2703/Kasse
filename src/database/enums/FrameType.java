@@ -3,7 +3,8 @@ package database.enums;
 public enum FrameType {
 
     REZEPTUREN("Rezepturen"), KUNDENDATEN("Kundendaten"), CHECK("Check"), NOTIFICATION("Notification"), KASSE("Kasse"), EIGENVERBRAUCH("Eigenverbrauch"), KUNDE(
-	    "Kunde"), ADMIN("Admin"), NOT_FOUND("Not found"), DIENSTLEISTUNG_CHOSER("Dienstleistung choser"), VERKAUF_CHOSER("Verkauf choser");
+	    "Kunde"), ADMIN("Admin"), NOT_FOUND("Not found"), DIENSTLEISTUNG_CHOSER("Dienstleistung choser"), VERKAUF_CHOSER("Verkauf choser"), KASSE_FINISH(
+	    "Kasse finish");
 
     private final String _name;
 
